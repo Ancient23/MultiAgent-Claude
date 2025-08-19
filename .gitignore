@@ -1,0 +1,173 @@
+# Claude Code Working Directories
+.claude/tasks/
+.claude/doc/
+.claude/memory/sessions/
+.claude/memory/index.json
+
+# Keep memory patterns and decisions (they're valuable documentation)
+!.claude/memory/patterns/
+!.claude/memory/decisions/
+!.claude/memory/project.md
+!.claude/memory/HOW_TO_USE.md
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor/IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.cursor/
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+*.old
+*.orig
+tmp/
+temp/
+
+# Python (if adding Python scripts later)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.env
+
+# Node.js (if adding Node tools later)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Secrets and Credentials (important!)
+*.key
+*.pem
+*.cert
+*.crt
+.env.local
+.env.*.local
+secrets/
+credentials/
+
+# Claude Code Session Files (temporary working files)
+context_session_*.md
+*-session-*.md
+*.session
+
+# Backup Files
+*.backup
+backup/
+backups/
+
+# Test and Coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Build Artifacts (if any build process is added)
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Documentation Build (if using doc generators)
+docs/_build/
+site/
+
+# Lock Files (keep these in version control typically)
+# Uncomment if you want to ignore them
+# package-lock.json
+# yarn.lock
+# Pipfile.lock
+# poetry.lock
+
+# Custom/Local Configuration
+local.config
+*.local
+.local/
+
+# Scratch Files
+scratch/
+drafts/
+playground/
+
+# Archives and Exports
+exports/
+archive/
+*.tar
+*.gz
+
+# Monitoring and Logs
+logs/
+*.log.*
+access.log
+error.log
+
+# System Files
+$RECYCLE.BIN/
+.fseventsd
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Optional: Agent-specific working directories
+.claude/agents/working/
+.claude/agents/temp/
+.claude/agents/cache/
+
+# Optional: Command execution logs
+.claude/commands/logs/
+.claude/commands/history/
+
+# Development databases (if added later)
+*.db
+*.sqlite
+*.sqlite3
+
+# Media files (if not needed in repo)
+*.mp4
+*.mp3
+*.mov
+*.avi
+*.mkv
+
+# Large files
+*.pdf
+*.psd
+*.ai
+*.sketch
+
+# Keep Examples directory intact
+!Examples/
+!Examples/**/*
