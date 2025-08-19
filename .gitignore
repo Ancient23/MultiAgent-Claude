@@ -171,3 +171,5 @@ $RECYCLE.BIN/
 # Keep Examples directory intact
 !Examples/
 !Examples/**/*
+
+*.DS_Store
