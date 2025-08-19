@@ -80,4 +80,13 @@ program
     setupCommand.execute();
   });
 
+program
+  .command('playwright')
+  .description('Manage Playwright testing')
+  .argument('<action>', 'Action to perform: init, generate-tests, add-visual-tests, setup-ci')
+  .action((action, options) => {
+    const playwrightCommand = require('./commands/playwright');
+    playwrightCommand.execute(action, options);
+  });
+
 program.parse();

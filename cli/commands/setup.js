@@ -83,6 +83,20 @@ async function execute() {
     };
   }
 
+  console.log(chalk.yellow('\nTesting Framework:'));
+  const enablePlaywright = await question(chalk.cyan('Enable Playwright testing for UI/E2E tests? (y/n): '));
+  
+  let playwrightOptions = {};
+  if (enablePlaywright.toLowerCase() === 'y') {
+    playwrightOptions = {
+      enabled: true,
+      e2e: (await question(chalk.cyan('Include E2E testing? (y/n): '))).toLowerCase() === 'y',
+      visual: (await question(chalk.cyan('Include visual regression testing? (y/n): '))).toLowerCase() === 'y',
+      accessibility: (await question(chalk.cyan('Include accessibility testing? (y/n): '))).toLowerCase() === 'y',
+      ciIntegration: (await question(chalk.cyan('Add Playwright to CI/CD workflow? (y/n): '))).toLowerCase() === 'y'
+    };
+  }
+
   rl.close();
 
   console.log(chalk.blue('\n📝 Configuration Summary:\n'));
@@ -96,10 +110,17 @@ async function execute() {
     console.log(chalk.gray(`    - Auto ADRs: ${ciOptions.autoADRs}`));
     console.log(chalk.gray(`    - Conflict strategy: ${ciOptions.conflictStrategy}`));
   }
+  if (playwrightOptions.enabled) {
+    console.log(chalk.gray(`  Playwright Testing: Enabled`));
+    console.log(chalk.gray(`    - E2E: ${playwrightOptions.e2e}`));
+    console.log(chalk.gray(`    - Visual: ${playwrightOptions.visual}`));
+    console.log(chalk.gray(`    - Accessibility: ${playwrightOptions.accessibility}`));
+    console.log(chalk.gray(`    - CI Integration: ${playwrightOptions.ciIntegration}`));
+  }
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -122,7 +143,7 @@ function detectProjectType() {
   return 'Unknown';
 }
 
-function setupEnvironment(variant, agents, mcpServers, ciOptions = {}) {
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}) {
   const configPath = path.join('.claude', 'config.json');
   
   if (!fs.existsSync(path.dirname(configPath))) {
@@ -134,6 +155,7 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}) {
     agents,
     mcpServers,
     ciOptions,
+    playwrightOptions,
     createdAt: new Date().toISOString()
   };
   
@@ -164,7 +186,51 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}) {
     
     if (fs.existsSync(workflowSource)) {
       fs.copyFileSync(workflowSource, workflowDest);
-      console.log(chalk.green('✓ GitHub Actions workflow created'));
+      console.log(chalk.green('✓ GitHub Actions memory workflow created'));
+    }
+  }
+  
+  if (playwrightOptions.enabled) {
+    // Create Playwright directories
+    const playwrightDirs = [
+      '.playwright/tests/e2e',
+      '.playwright/tests/visual',
+      '.playwright/tests/interaction',
+      '.playwright/tests/accessibility',
+      '.playwright/baseline',
+      '.playwright/fixtures',
+      '.playwright/page-objects',
+      '.playwright/config',
+      '.claude/memory/test-results'
+    ];
+    
+    playwrightDirs.forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+    });
+    console.log(chalk.green('✓ Playwright directory structure created'));
+    
+    // Copy Playwright workflow if CI integration is enabled
+    if (playwrightOptions.ciIntegration) {
+      const workflowPath = path.join('.github', 'workflows');
+      if (!fs.existsSync(workflowPath)) {
+        fs.mkdirSync(workflowPath, { recursive: true });
+      }
+      
+      const playwrightWorkflowSource = path.join(__dirname, '..', '..', '.github', 'workflows', 'playwright-tests.yml');
+      const playwrightWorkflowDest = path.join(workflowPath, 'playwright-tests.yml');
+      
+      if (fs.existsSync(playwrightWorkflowSource)) {
+        fs.copyFileSync(playwrightWorkflowSource, playwrightWorkflowDest);
+        console.log(chalk.green('✓ Playwright CI/CD workflow created'));
+      }
+    }
+    
+    // Add playwright-test-engineer agent if not already selected
+    if (!agents.includes('playwright-test-engineer')) {
+      agents.push('playwright-test-engineer');
+      console.log(chalk.green('✓ Added playwright-test-engineer agent'));
     }
   }
 }

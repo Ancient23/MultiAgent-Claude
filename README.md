@@ -15,12 +15,14 @@ MultiAgent-Claude provides a collection of prompt engineering templates and init
 
 2. **Add to existing projects:**
    - Use `memory-system-addon-prompt.md` to add just the memory system
+   - Use `playwright-testing-init.md` to add Playwright testing
    - Use individual agent templates from `Examples/agents/` as needed
 
 3. **Invoke specialized agents:**
    ```
    "Use the frontend-ui-expert agent to design a dashboard component"
    "Launch the aws-backend-architect to plan our API structure"
+   "Deploy the playwright-test-engineer to create E2E tests"
    ```
 
 ## Why Multi-Agent Architecture?
@@ -105,12 +107,14 @@ This tiered approach ensures:
 - **frontend-ui-expert**: React, Next.js, UI components
 - **aws-backend-architect**: AWS services, infrastructure design
 - **fullstack-feature-orchestrator**: End-to-end feature implementation
+- **playwright-test-engineer**: E2E testing, visual regression, test automation
 
 ### Specialized Agents
 - **documentation-architect**: API docs, tutorials, technical writing
 - **multimodal-ai-specialist**: Vision models, RAG systems
 - **infrastructure-migration-architect**: Re-platforming, migrations
 - **codebase-truth-analyzer**: Code-documentation alignment
+- **ui-design-auditor**: UX/UI analysis, design improvements
 
 See `Examples/agents/` for the complete library of agent templates.
 
@@ -230,6 +234,92 @@ multiagent-claude command add <name>
     "command:create": "multiagent-claude command create"
   }
 }
+```
+
+### Playwright Testing
+
+The framework includes comprehensive Playwright testing support for automated UI testing in CI/CD.
+
+#### Features
+- **E2E Testing**: Automated user journey testing
+- **Visual Regression**: Screenshot comparison to catch UI changes
+- **Interaction Testing**: Form validation and click testing
+- **Accessibility Testing**: WCAG compliance verification
+- **CI/CD Integration**: Automatic test execution in GitHub Actions
+
+#### Quick Setup
+```bash
+# Initialize Playwright testing
+multiagent-claude playwright init
+
+# Generate tests from UI interactions
+multiagent-claude playwright generate-tests
+
+# Add visual regression tests
+multiagent-claude playwright add-visual-tests
+
+# Setup CI/CD workflow
+multiagent-claude playwright setup-ci
+```
+
+#### Test Structure
+```
+.playwright/
+├── tests/
+│   ├── e2e/           # End-to-end user journey tests
+│   ├── visual/        # Visual regression tests
+│   ├── interaction/   # Form and click interaction tests
+│   └── accessibility/ # WCAG compliance tests
+├── baseline/          # Visual regression baseline images
+├── page-objects/      # Page object models for maintainability
+└── fixtures/          # Test data and fixtures
+```
+
+#### Running Tests
+```bash
+# Run all tests
+npm run test:e2e
+
+# Run with UI mode for debugging
+npm run test:e2e:ui
+
+# Update visual baselines
+npm run test:update-snapshots
+
+# Run specific test type
+npm run test:visual
+```
+
+#### CI/CD Workflow
+Tests run automatically on:
+- Push to main/develop branches
+- Pull requests to main
+- Daily regression schedule (optional)
+
+The workflow includes:
+- Parallel test execution (sharding)
+- Screenshot/video capture on failure
+- PR comments with test results
+- Memory system updates with test outcomes
+
+#### Memory Integration
+Test results are automatically documented:
+- Failed tests create entries in `.claude/memory/test-results/failures/`
+- Visual regressions tracked over time
+- Test patterns documented for reuse
+- Coverage metrics stored for analysis
+
+#### Using the Playwright Test Engineer
+```bash
+# Use the specialized agent to create test plans
+"Use the playwright-test-engineer agent to create checkout flow tests"
+
+# The agent will:
+# 1. Analyze your application
+# 2. Create comprehensive test scenarios
+# 3. Generate page objects
+# 4. Design CI/CD configuration
+# 5. Save plan to .claude/doc/playwright-tests-*.md
 ```
 
 ### CI/CD Integration

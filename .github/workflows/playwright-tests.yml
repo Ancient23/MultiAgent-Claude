@@ -1,0 +1,275 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'  # Daily regression test
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shardIndex: [1, 2, 3, 4]
+        shardTotal: [4]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      
+      - name: Run Playwright tests
+        run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+        env:
+          BASE_URL: ${{ secrets.BASE_URL || 'http://localhost:3000' }}
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.shardIndex }}
+          path: playwright-report/
+          retention-days: 30
+      
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-screenshots-${{ matrix.shardIndex }}
+          path: .playwright/screenshots/
+      
+      - name: Upload videos on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-videos-${{ matrix.shardIndex }}
+          path: test-results/
+      
+      - name: Update Memory System
+        if: always()
+        run: |
+          # Create test results directory if it doesn't exist
+          mkdir -p .claude/memory/test-results
+          
+          # Parse test results if they exist
+          if [ -f ".claude/memory/test-results/latest.json" ]; then
+            node -e "
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('.claude/memory/test-results/latest.json', 'utf8'));
+            const date = new Date().toISOString();
+            
+            // Create test result memory with metadata
+            const memory = {
+              date: date,
+              source: 'github-action',
+              created_by: 'ci',
+              shard: '${{ matrix.shardIndex }}/${{ matrix.shardTotal }}',
+              passed: results.stats?.expected || 0,
+              failed: results.stats?.unexpected || 0,
+              flaky: results.stats?.flaky || 0,
+              skipped: results.stats?.skipped || 0,
+              duration: results.duration || 0
+            };
+            
+            // Save to memory system
+            fs.writeFileSync(
+              \`.claude/memory/test-results/ci-shard-${{ matrix.shardIndex }}-\${date.replace(/:/g, '-')}.json\`,
+              JSON.stringify(memory, null, 2)
+            );
+            
+            // Update failures directory if there are failures
+            if (memory.failed > 0) {
+              fs.mkdirSync('.claude/memory/test-results/failures', { recursive: true });
+              fs.writeFileSync(
+                \`.claude/memory/test-results/failures/\${date.replace(/:/g, '-')}.md\`,
+                \`---
+source: github-action
+created_by: ci
+created_at: \${date}
+shard: ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+---
+
+# Test Failures Report
+
+- Failed: \${memory.failed}
+- Passed: \${memory.passed}
+- Flaky: \${memory.flaky}
+- Duration: \${memory.duration}ms
+
+## Failed Tests
+\${results.failures?.map(f => \`- \${f.title}: \${f.error}\`).join('\\n') || 'No details available'}
+\`
+              );
+            }
+            "
+          fi
+
+  merge-reports:
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Download all reports
+        uses: actions/download-artifact@v3
+        with:
+          path: all-reports/
+      
+      - name: Merge reports
+        run: |
+          npx playwright merge-reports --reporter html ./all-reports || true
+      
+      - name: Upload merged report
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-complete
+          path: playwright-report/
+          retention-days: 30
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Collect all shard results
+            let totalPassed = 0, totalFailed = 0, totalFlaky = 0, totalSkipped = 0;
+            const shardResults = [];
+            
+            for (let i = 1; i <= 4; i++) {
+              const shardFile = `all-reports/playwright-report-${i}/results.json`;
+              if (fs.existsSync(shardFile)) {
+                const results = JSON.parse(fs.readFileSync(shardFile, 'utf8'));
+                totalPassed += results.stats?.expected || 0;
+                totalFailed += results.stats?.unexpected || 0;
+                totalFlaky += results.stats?.flaky || 0;
+                totalSkipped += results.stats?.skipped || 0;
+                shardResults.push(results);
+              }
+            }
+            
+            const status = totalFailed === 0 ? '✅ All tests passed!' : '❌ Some tests failed';
+            
+            const comment = `## 🎭 Playwright Test Results
+            
+            ${status}
+            
+            | Status | Count |
+            |--------|-------|
+            | ✅ Passed | ${totalPassed} |
+            | ❌ Failed | ${totalFailed} |
+            | ⚠️ Flaky | ${totalFlaky} |
+            | ⏭️ Skipped | ${totalSkipped} |
+            
+            **Test Execution:** Sharded across 4 parallel jobs
+            **Duration:** ~${Math.max(...shardResults.map(r => r.duration || 0)) / 1000}s
+            
+            [📊 View Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            
+            ${totalFailed > 0 ? '### Failed Tests\nPlease check the artifacts for screenshots and videos of failed tests.' : ''}
+            
+            <details>
+            <summary>Test Configuration</summary>
+            
+            - Browsers: Chromium, Firefox, WebKit
+            - Parallel Shards: 4
+            - Retry Attempts: 2
+            - Base URL: ${process.env.BASE_URL || 'http://localhost:3000'}
+            
+            </details>`;
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🎭 Playwright Test Results')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+      
+      - name: Create Visual Regression Report
+        if: always()
+        run: |
+          # Check for visual differences
+          if ls .playwright/test-results/**/diff-*.png 1> /dev/null 2>&1; then
+            echo "Visual regression differences detected!"
+            
+            # Create markdown report
+            cat > visual-regression-report.md << EOF
+          # Visual Regression Report
+          
+          Visual differences were detected in the following tests:
+          
+          EOF
+            
+            for diff in .playwright/test-results/**/diff-*.png; do
+              echo "- $(basename $diff)" >> visual-regression-report.md
+            done
+            
+            echo "" >> visual-regression-report.md
+            echo "Please review the visual differences in the artifacts." >> visual-regression-report.md
+          fi
+      
+      - name: Check test status
+        if: always()
+        run: |
+          # Exit with error if tests failed
+          if [ -f ".claude/memory/test-results/latest.json" ]; then
+            failed=$(node -e "
+              const results = JSON.parse(require('fs').readFileSync('.claude/memory/test-results/latest.json', 'utf8'));
+              console.log(results.stats?.unexpected || 0);
+            ")
+            
+            if [ "$failed" -gt 0 ]; then
+              echo "❌ $failed tests failed"
+              exit 1
+            else
+              echo "✅ All tests passed"
+            fi
+          fi
