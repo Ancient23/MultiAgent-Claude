@@ -280,7 +280,34 @@ Playwright (if available):
   fallback: [alternative approach]
 ```
 
-## Phase 6: Integration Verification
+## Phase 6: Optional CI/CD Integration
+
+### GitHub Actions Setup
+Ask user: "Would you like to enable GitHub Actions for automated memory updates? (y/n)"
+
+If yes, create .github/workflows/claude-memory-update.yml:
+```yaml
+name: Update Claude Memory System
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+    
+# Workflow includes:
+# - Automated pattern detection with deduplication
+# - ADR creation from PRs with metadata headers
+# - Conflict prevention via content hashing
+# - Source tracking (manual vs CI-generated)
+```
+
+Benefits:
+- Learns from your development workflow automatically
+- Prevents duplicate memory entries
+- Tags all entries with source metadata
+- Respects manually created patterns
+
+## Phase 7: Integration Verification
 
 ### Create Test Scenarios
 Generate .claude/tests/integration.md:

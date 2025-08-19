@@ -419,7 +419,24 @@ Playwright (if available):
   fallback: [alternative approach]
 ```
 
-## Phase 6: Integration Verification
+## Phase 6: Optional CI/CD Integration
+
+### GitHub Actions for Automated Memory
+Ask user: "Would you like to enable GitHub Actions for automated memory updates? (y/n)"
+
+If yes, create .github/workflows/claude-memory-update.yml:
+- Pattern detection from commits with content hashing
+- ADR generation from PRs with duplicate checking
+- All CI-generated files tagged with metadata headers
+- Prevents conflicts with manual memory updates
+
+Benefits:
+- Automatic learning from development workflow
+- No duplicate entries (content-based deduplication)
+- Clear source tracking (manual vs CI)
+- Respects existing patterns and decisions
+
+## Phase 7: Integration Verification
 
 ### Create Test Scenarios
 **ACTION: Create .claude/tests/integration.md:**

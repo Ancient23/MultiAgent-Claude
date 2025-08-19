@@ -1,10 +1,36 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const crypto = require('crypto');
 const { execSync } = require('child_process');
 
 function getMemoryPath() {
   return path.join(process.cwd(), '.claude', 'memory');
+}
+
+function generateContentHash(content) {
+  return crypto.createHash('md5').update(content).digest('hex').substring(0, 8);
+}
+
+function checkDuplicate(content, type, memoryPath) {
+  const targetDir = path.join(memoryPath, type === 'pattern' ? 'patterns' : 'decisions');
+  
+  if (!fs.existsSync(targetDir)) return null;
+  
+  const files = fs.readdirSync(targetDir).filter(f => f.endsWith('.md'));
+  const contentHash = generateContentHash(content);
+  
+  for (const file of files) {
+    const filePath = path.join(targetDir, file);
+    const existingContent = fs.readFileSync(filePath, 'utf8');
+    const existingHash = generateContentHash(existingContent.replace(/^---[\s\S]*?---\n/, ''));
+    
+    if (existingHash === contentHash) {
+      return { file, path: filePath };
+    }
+  }
+  
+  return null;
 }
 
 function ensureMemoryExists() {
@@ -152,8 +178,16 @@ function addPattern() {
   console.log(chalk.blue('\n📝 Add New Pattern\n'));
   console.log(chalk.yellow('Create a new pattern file at:'));
   console.log(chalk.cyan('.claude/memory/patterns/[pattern-name].md'));
-  console.log(chalk.gray('\nTemplate:'));
+  console.log(chalk.gray('\nTemplate with metadata:'));
   console.log(chalk.gray(`
+---
+source: manual
+created_by: user
+created_at: ${new Date().toISOString()}
+version: 1.0
+tags: [pattern, domain, technology]
+---
+
 # Pattern: [Name]
 
 ## Context
@@ -171,8 +205,8 @@ When [situation/trigger]
 - [Benefit 1]
 - [Benefit 2]
 
-## Tags
-#pattern #[domain] #[technology]
+## Usage Count
+0 (increment when successfully used)
   `));
 }
 
@@ -181,8 +215,17 @@ function addDecision() {
   console.log(chalk.blue('\n📝 Add New Architectural Decision\n'));
   console.log(chalk.yellow('Create a new ADR file at:'));
   console.log(chalk.cyan(`.claude/memory/decisions/${date}-[decision-name].md`));
-  console.log(chalk.gray('\nTemplate:'));
+  console.log(chalk.gray('\nTemplate with metadata:'));
   console.log(chalk.gray(`
+---
+source: manual
+created_by: user
+created_at: ${new Date().toISOString()}
+related_pr: null
+related_commit: null
+version: 1.0
+---
+
 # ADR: [Title]
 
 ## Status
@@ -203,8 +246,10 @@ function addDecision() {
   `));
 }
 
-function learnFromCommit(commitSha) {
+function learnFromCommit(commitSha, options = {}) {
   console.log(chalk.blue(`\n🧠 Learning from commit ${commitSha}\n`));
+  
+  const memoryPath = ensureMemoryExists();
   
   try {
     const diff = execSync(`git show ${commitSha}`, { encoding: 'utf8' });
@@ -229,6 +274,28 @@ function learnFromCommit(commitSha) {
     if (patterns.length > 0) {
       console.log(chalk.green('\nDetected patterns:'));
       patterns.forEach(p => console.log(chalk.gray(`  • ${p}`)));
+      
+      patterns.forEach(pattern => {
+        const patternContent = `---
+source: github-action
+created_by: ci
+created_at: ${new Date().toISOString()}
+related_commit: ${commitSha}
+version: 1.0
+---
+
+# Pattern: ${pattern}
+
+Detected from commit ${commitSha}`;
+        
+        const duplicate = checkDuplicate(patternContent, 'pattern', memoryPath);
+        if (duplicate) {
+          console.log(chalk.yellow(`  ⚠️  Pattern already exists in ${duplicate.file}`));
+        } else {
+          console.log(chalk.green(`  ✓ New pattern can be documented`));
+        }
+      });
+      
       console.log(chalk.yellow('\nConsider documenting these in .claude/memory/patterns/'));
     } else {
       console.log(chalk.gray('No specific patterns detected'));

@@ -513,7 +513,24 @@ description: "Re-import and update documentation from sources"
 5. Generate import report
 ```
 
-## Phase 7: Final Integration Checklist
+## Phase 7: Optional CI/CD Integration
+
+### GitHub Actions with Documentation Awareness
+Ask: "Enable GitHub Actions for automated memory updates? (y/n)"
+
+If yes, create workflow that:
+- Imports new documentation automatically
+- Creates ADRs from PRs with deduplication
+- Updates documentation index when docs change
+- Tags all CI entries with metadata headers
+- Prevents duplicates via content hashing
+
+Special features for documentation:
+- Auto-updates gaps.md when documentation is added
+- Tracks documentation coverage over time
+- Alerts on documentation drift from code
+
+## Phase 8: Final Integration Checklist
 
 **CREATE: .claude/memory/INTEGRATION_CHECKLIST.md**
 

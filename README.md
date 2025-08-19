@@ -234,16 +234,52 @@ multiagent-claude command add <name>
 
 ### CI/CD Integration
 
-The repository includes GitHub Actions workflow that:
-- Automatically updates memory from commits
-- Creates ADRs from merged PRs
-- Detects and documents patterns
-- Validates memory system integrity
+The repository includes optional GitHub Actions workflow for automated memory updates.
 
-To enable CI integration:
-1. Ensure `.github/workflows/claude-memory-update.yml` is in your repo
-2. Memory updates will run automatically on pushes to main
-3. PRs will generate architectural decisions when merged
+#### Features
+- **Automatic Pattern Detection**: Learns from your commits with deduplication
+- **ADR Generation**: Creates architectural decisions from Pull Requests
+- **Duplicate Prevention**: Content-based hashing prevents duplicate entries
+- **Source Tracking**: All CI-generated files tagged with metadata headers
+- **Conflict Resolution**: Smart merging strategies for manual vs automated updates
+
+#### Setup
+Enable during initialization:
+```bash
+multiagent-claude setup
+# Answer "y" when asked about GitHub Actions
+```
+
+Or add to existing project:
+```bash
+# Copy workflow manually
+cp node_modules/multiagent-claude/.github/workflows/claude-memory-update.yml .github/workflows/
+```
+
+#### How It Works
+1. **On Every Commit**: Analyzes changes for patterns
+2. **On PR Merge**: Creates ADR with decision rationale
+3. **Deduplication**: Checks content hash before creating entries
+4. **Metadata Headers**: Tags all entries with source (manual/CI)
+
+#### Preventing Duplicates
+The system prevents duplicates through:
+- **Content Hashing**: MD5 hash of content (excluding metadata)
+- **PR Number Tracking**: ADRs include PR number in metadata
+- **Source Tagging**: Clear distinction between manual and CI entries
+- **Conflict Strategies**: Configurable merge/replace/keep-both options
+
+Example metadata header:
+```markdown
+---
+source: github-action
+created_by: ci
+created_at: 2024-08-19T10:00:00Z
+related_pr: 123
+related_commit: abc123def
+version: 1.0
+---
+```
 
 ## Contributing
 

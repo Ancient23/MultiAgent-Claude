@@ -69,6 +69,20 @@ async function execute() {
     }
   }
 
+  console.log(chalk.yellow('\nCI/CD Integration:'));
+  const enableCI = await question(chalk.cyan('Enable GitHub Actions for automated memory updates? (y/n): '));
+  
+  let ciOptions = {};
+  if (enableCI.toLowerCase() === 'y') {
+    ciOptions = {
+      enabled: true,
+      autoPatterns: (await question(chalk.cyan('Auto-detect patterns from commits? (y/n): '))).toLowerCase() === 'y',
+      autoADRs: (await question(chalk.cyan('Create ADRs from Pull Requests? (y/n): '))).toLowerCase() === 'y',
+      conflictStrategy: await question(chalk.cyan('On conflicts (merge/replace/keep-both): ')) || 'keep-both',
+      deduplication: true
+    };
+  }
+
   rl.close();
 
   console.log(chalk.blue('\n📝 Configuration Summary:\n'));
@@ -76,10 +90,16 @@ async function execute() {
   console.log(chalk.gray(`  Variant: ${variant}`));
   console.log(chalk.gray(`  Agents: ${selectedAgents.join(', ')}`));
   console.log(chalk.gray(`  MCP Servers: ${mcpServers.join(', ')}`));
+  if (ciOptions.enabled) {
+    console.log(chalk.gray(`  CI/CD: Enabled`));
+    console.log(chalk.gray(`    - Auto patterns: ${ciOptions.autoPatterns}`));
+    console.log(chalk.gray(`    - Auto ADRs: ${ciOptions.autoADRs}`));
+    console.log(chalk.gray(`    - Conflict strategy: ${ciOptions.conflictStrategy}`));
+  }
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -102,7 +122,7 @@ function detectProjectType() {
   return 'Unknown';
 }
 
-function setupEnvironment(variant, agents, mcpServers) {
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}) {
   const configPath = path.join('.claude', 'config.json');
   
   if (!fs.existsSync(path.dirname(configPath))) {
@@ -113,6 +133,7 @@ function setupEnvironment(variant, agents, mcpServers) {
     variant,
     agents,
     mcpServers,
+    ciOptions,
     createdAt: new Date().toISOString()
   };
   
@@ -130,6 +151,21 @@ function setupEnvironment(variant, agents, mcpServers) {
     fs.mkdirSync('.claude/commands', { recursive: true });
     
     console.log(chalk.green('✓ Created directory structure'));
+  }
+  
+  if (ciOptions.enabled) {
+    const workflowPath = path.join('.github', 'workflows');
+    if (!fs.existsSync(workflowPath)) {
+      fs.mkdirSync(workflowPath, { recursive: true });
+    }
+    
+    const workflowSource = path.join(__dirname, '..', '..', '.github', 'workflows', 'claude-memory-update.yml');
+    const workflowDest = path.join(workflowPath, 'claude-memory-update.yml');
+    
+    if (fs.existsSync(workflowSource)) {
+      fs.copyFileSync(workflowSource, workflowDest);
+      console.log(chalk.green('✓ GitHub Actions workflow created'));
+    }
   }
 }
 

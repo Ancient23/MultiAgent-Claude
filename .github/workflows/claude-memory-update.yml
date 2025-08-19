@@ -53,13 +53,35 @@ jobs:
       - name: Document Decisions from PR
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
         run: |
-          # Create ADR from merged PR
+          # Create ADR from merged PR with deduplication check
           DATE=$(date +%Y-%m-%d)
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_BODY="${{ github.event.pull_request.body }}"
+          ADR_FILE=".claude/memory/decisions/${DATE}-pr-${PR_NUMBER}.md"
           
-          cat > .claude/memory/decisions/${DATE}-pr-${PR_NUMBER}.md << EOF
+          # Check if ADR already exists
+          if [ -f "$ADR_FILE" ]; then
+            echo "ADR already exists for PR #${PR_NUMBER}"
+            exit 0
+          fi
+          
+          # Check for duplicate content based on PR number
+          if grep -r "related_pr: ${PR_NUMBER}" .claude/memory/decisions/ 2>/dev/null; then
+            echo "ADR with PR #${PR_NUMBER} already documented"
+            exit 0
+          fi
+          
+          cat > ${ADR_FILE} << EOF
+          ---
+          source: github-action
+          created_by: ci
+          created_at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          related_pr: ${PR_NUMBER}
+          related_commit: ${{ github.sha }}
+          version: 1.0
+          ---
+          
           # ADR: ${PR_TITLE}
           
           ## Status
