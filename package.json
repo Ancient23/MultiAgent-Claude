@@ -1,0 +1,52 @@
+{
+  "name": "multiagent-claude",
+  "version": "1.0.0",
+  "description": "A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, and intelligent task delegation",
+  "main": "cli/index.js",
+  "bin": {
+    "multiagent-claude": "./cli/index.js",
+    "mac": "./cli/index.js"
+  },
+  "scripts": {
+    "setup": "node cli/index.js setup",
+    "init": "node cli/index.js init",
+    "init:memory": "node cli/index.js init --memory-only",
+    "init:docs": "node cli/index.js init --with-docs",
+    "memory:status": "node cli/index.js memory status",
+    "memory:inspect": "node cli/index.js memory inspect",
+    "agent:create": "node cli/index.js agent create",
+    "agent:list": "node cli/index.js agent list",
+    "command:create": "node cli/index.js command create",
+    "command:list": "node cli/index.js command list",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "keywords": [
+    "claude",
+    "ai",
+    "agent",
+    "multi-agent",
+    "orchestration",
+    "memory",
+    "claude-code",
+    "development",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/MultiAgent-Claude.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/MultiAgent-Claude/issues"
+  },
+  "homepage": "https://github.com/yourusername/MultiAgent-Claude#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -123,6 +123,128 @@ See `Examples/agents/` for the complete library of agent templates.
 - **🎯 Specialized Expertise**: Agents excel in their specific domains
 - **🔍 Traceable Decisions**: All architectural choices documented
 
+## Installation & Usage
+
+### Quick Install
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/MultiAgent-Claude.git
+cd MultiAgent-Claude
+
+# Install dependencies
+npm install
+
+# Option 1: Use directly with Node
+node cli/index.js init
+
+# Option 2: Use shell script
+./init.sh  # Mac/Linux
+init.bat   # Windows
+
+# Option 3: Install globally
+npm install -g .
+multiagent-claude init
+```
+
+### CLI Commands
+
+#### Initialization
+```bash
+# Standard multi-agent setup
+multiagent-claude init
+
+# Memory-focused setup
+multiagent-claude init --memory-only
+
+# Setup with documentation import
+multiagent-claude init --with-docs
+
+# Add memory to existing project
+multiagent-claude add-memory
+
+# Interactive setup wizard
+multiagent-claude setup
+```
+
+#### Agent Management
+```bash
+# Create new agent interactively
+multiagent-claude agent create
+
+# List available agents
+multiagent-claude agent list
+
+# Deploy agent to Claude
+multiagent-claude agent deploy <name>
+
+# Add template agent to project
+multiagent-claude agent add <name>
+```
+
+#### Memory System
+```bash
+# Check memory status
+multiagent-claude memory status
+
+# Inspect memory contents
+multiagent-claude memory inspect --type patterns
+
+# Search memory
+multiagent-claude memory search "authentication"
+
+# Add new pattern
+multiagent-claude memory add-pattern
+
+# Add architectural decision
+multiagent-claude memory add-decision
+
+# Learn from git history
+multiagent-claude memory learn --from-git-history
+
+# Update from specific commit
+multiagent-claude memory update-from-commit --commit <sha>
+```
+
+#### Command Management
+```bash
+# Create new command workflow
+multiagent-claude command create
+
+# List available commands
+multiagent-claude command list
+
+# Add command template
+multiagent-claude command add <name>
+```
+
+### NPM Scripts
+```json
+{
+  "scripts": {
+    "setup": "multiagent-claude setup",
+    "init": "multiagent-claude init",
+    "init:memory": "multiagent-claude init --memory-only",
+    "init:docs": "multiagent-claude init --with-docs",
+    "memory:status": "multiagent-claude memory status",
+    "agent:create": "multiagent-claude agent create",
+    "command:create": "multiagent-claude command create"
+  }
+}
+```
+
+### CI/CD Integration
+
+The repository includes GitHub Actions workflow that:
+- Automatically updates memory from commits
+- Creates ADRs from merged PRs
+- Detects and documents patterns
+- Validates memory system integrity
+
+To enable CI integration:
+1. Ensure `.github/workflows/claude-memory-update.yml` is in your repo
+2. Memory updates will run automatically on pushes to main
+3. PRs will generate architectural decisions when merged
+
 ## Contributing
 
 To create new agents:

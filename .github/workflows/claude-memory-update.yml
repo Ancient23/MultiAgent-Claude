@@ -1,0 +1,145 @@
+name: Update Claude Memory System
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+    
+jobs:
+  update-memory:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Analyze Changes
+        id: analyze
+        run: |
+          echo "Analyzing changes in commit ${{ github.sha }}"
+          
+          # Detect significant changes
+          git diff --name-only HEAD~1 HEAD > changed_files.txt
+          
+          # Check for API changes
+          if grep -q "api\|endpoint\|routes" changed_files.txt; then
+            echo "api_changed=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for new patterns (multiple similar files changed)
+          if [ $(grep -c "\.js$\|\.ts$" changed_files.txt) -gt 3 ]; then
+            echo "pattern_candidate=true" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Update Project Context
+        if: steps.analyze.outputs.api_changed == 'true'
+        run: |
+          node cli/index.js memory update-from-commit \
+            --commit ${{ github.sha }} \
+            --update-project-context \
+            --detect-patterns
+            
+      - name: Document Decisions from PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        run: |
+          # Create ADR from merged PR
+          DATE=$(date +%Y-%m-%d)
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          
+          cat > .claude/memory/decisions/${DATE}-pr-${PR_NUMBER}.md << EOF
+          # ADR: ${PR_TITLE}
+          
+          ## Status
+          Accepted
+          
+          ## Context
+          Pull Request #${PR_NUMBER} merged on ${DATE}
+          
+          ## Decision
+          ${PR_BODY}
+          
+          ## Consequences
+          - Changes merged to main branch
+          - Memory system updated with new patterns
+          
+          ## Link
+          ${{ github.event.pull_request.html_url }}
+          EOF
+          
+      - name: Extract Patterns from Changes
+        if: steps.analyze.outputs.pattern_candidate == 'true'
+        run: |
+          echo "Analyzing code changes for patterns..."
+          
+          # Analyze diffs for patterns
+          git diff HEAD~1 HEAD --unified=0 | grep "^+" | grep -v "^+++" > additions.txt
+          
+          # Look for repeated structures
+          if grep -q "async.*await" additions.txt; then
+            echo "Found async/await pattern usage"
+          fi
+          
+          if grep -q "try.*catch" additions.txt; then
+            echo "Found error handling pattern"
+          fi
+          
+          if grep -q "test\|describe\|it(" additions.txt; then
+            echo "Found testing pattern"
+          fi
+          
+      - name: Validate Memory System
+        run: |
+          node cli/index.js memory validate
+          
+      - name: Generate Memory Report
+        run: |
+          mkdir -p .claude/memory/reports
+          node cli/index.js memory report \
+            --output .claude/memory/reports/ci-${{ github.run_number }}.md
+            
+      - name: Commit Memory Updates
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Check if there are changes to commit
+          if [ -n "$(git status --porcelain .claude/memory/)" ]; then
+            git add .claude/memory/
+            git commit -m "🧠 Update memory system from CI
+
+            - Analyzed commit: ${{ github.sha }}
+            - Run number: ${{ github.run_number }}
+            - Auto-generated patterns and decisions"
+            
+            git push
+          else
+            echo "No memory updates needed"
+          fi
+          
+      - name: Memory Statistics
+        if: always()
+        run: |
+          echo "## Memory System Statistics"
+          echo ""
+          echo "### Patterns"
+          ls -la .claude/memory/patterns/ 2>/dev/null | wc -l || echo "0 patterns"
+          
+          echo "### Decisions"
+          ls -la .claude/memory/decisions/ 2>/dev/null | wc -l || echo "0 decisions"
+          
+          echo "### Project Context"
+          wc -l .claude/memory/project.md 2>/dev/null || echo "No project context"
