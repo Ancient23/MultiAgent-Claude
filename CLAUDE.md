@@ -278,11 +278,31 @@ execute_plan(plan)
 - `npm run test:ui` - Interactive test mode
 - `npm run test:debug` - Debug tests
 
-## CI/CD Optimization
+## CI/CD Best Practices
+
+### Preventing Redundant Commits
+The CI/CD workflows are optimized to prevent spam commits:
+
+1. **Smart Change Detection**: Only commits when meaningful changes occur
+2. **Content Hashing**: Uses MD5 hashes to detect duplicate content  
+3. **Daily Limits**: Test patterns documented once per day maximum
+4. **Conditional Logic**: Skips commits for timestamp-only changes
+5. **Failure Focus**: Test results only saved when tests fail
+
+### Workflow Files Location
+- **Active Workflows**: `.github/workflows/` (for this repository)
+- **Templates**: `templates/workflows/` (for distribution to other projects)
+
+### Key Optimizations Implemented
+- **Memory Reports**: Uses `latest-report.md` instead of numbered report files
+- **ADR Deduplication**: Checks for existing ADRs before creating new ones
+- **Test Artifacts**: Blob reporter with numbered job indices for clean merging
+- **Pattern Files**: Daily check prevents duplicate pattern documentation
+- **Commit Filtering**: Excludes timestamp-only changes from commits
 
 ### Recent Improvements
 - **No Redundant Commits**: Workflows only commit when meaningful changes occur
-- **Smart Reports**: Single `latest-report.md` instead of numbered files
+- **Smart Reports**: Single `latest-report.md` instead of numbered files  
 - **Daily Test Patterns**: Test patterns documented once per day
 - **Failure-Only Results**: Test results saved only when failures occur
 - **Clean Git History**: No more "Update memory from CI" spam
