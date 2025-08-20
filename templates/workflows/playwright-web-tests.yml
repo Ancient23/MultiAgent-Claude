@@ -1,4 +1,9 @@
-name: Playwright Tests
+# Playwright Web Application Testing Workflow
+# This workflow is designed for testing web applications with Playwright
+# It includes features like sharding, scheduled regression tests, and detailed reporting
+# For CLI testing, use playwright-cli-tests.yml instead
+
+name: Playwright Web Tests
 
 on:
   push:

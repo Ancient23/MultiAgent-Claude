@@ -140,12 +140,14 @@ async function execute(options) {
       const cicdOptions = {
         memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
         playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
-        includeCliTests: false
+        includeCliTests: false,
+        includeWebTests: false
       };
 
-      // If Playwright enabled, ask about CLI tests
+      // If Playwright enabled, ask about test types
       if (cicdOptions.playwrightTests) {
         cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
+        cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
       }
 
       // Copy workflow files if enabled
@@ -154,13 +156,19 @@ async function execute(options) {
         copyWorkflowTemplate('claude-memory-update.yml');
       }
       if (cicdOptions.playwrightTests) {
-        console.log(chalk.blue('\nAdding Playwright testing...'));
-        copyWorkflowTemplate('playwright-cli-tests.yml');
         if (cicdOptions.includeCliTests) {
+          console.log(chalk.blue('\nAdding Playwright CLI testing...'));
+          copyWorkflowTemplate('playwright-cli-tests.yml');
           copyTestTemplate('cli.cli.spec.js');
         }
-        console.log(chalk.yellow('\nRun the following to install Playwright:'));
-        console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+        if (cicdOptions.includeWebTests) {
+          console.log(chalk.blue('\nAdding Playwright web testing...'));
+          copyWorkflowTemplate('playwright-web-tests.yml');
+        }
+        if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
+          console.log(chalk.yellow('\nRun the following to install Playwright:'));
+          console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+        }
       }
 
       console.log(chalk.green('\n✅ Setup complete!'));

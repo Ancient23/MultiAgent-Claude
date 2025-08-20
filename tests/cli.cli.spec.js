@@ -193,7 +193,7 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       const result = await runCLI('add --help');
       expect(result.success).toBeTruthy();
       expect(result.stdout).toContain('Add features to existing project');
-      expect(result.stdout).toMatch(/ci-cd|testing|both/);
+      expect(result.stdout).toMatch(/ci-cd|testing|web-testing|all/);
     });
 
     test('should handle invalid feature name', async () => {
@@ -201,7 +201,7 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       // Check either stdout or stderr for the error message
       const output = result.stdout + result.stderr;
       expect(output).toContain('Unknown feature: invalid-feature');
-      expect(output).toContain('Available features: ci-cd, testing, both');
+      expect(output).toContain('Available features:');
     });
 
     test('should add ci-cd features', async () => {
@@ -236,7 +236,7 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
         timeout: 8000
       });
       
-      expect(stdout).toContain('Adding Playwright testing');
+      expect(stdout).toContain('Adding Playwright CLI testing');
       expect(stdout).toContain('✓ Added playwright-cli-tests.yml');
       expect(stdout).toContain('✓ Added cli.cli.spec.js');
       
@@ -247,6 +247,28 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       const testExists = await fs.access(testPath).then(() => true).catch(() => false);
       expect(workflowExists).toBe(true);
       expect(testExists).toBe(true);
+      
+      // Cleanup
+      await fs.rm(testDir, { recursive: true, force: true });
+    });
+
+    test('should add web-testing features', async () => {
+      const testDir = `/tmp/test-cli-${Date.now()}`;
+      await fs.mkdir(testDir, { recursive: true });
+      
+      // Run command with cwd option
+      const cliPath = path.join(process.cwd(), 'cli', 'index.js');
+      const { stdout, stderr } = await execAsync(`cd ${testDir} && node ${cliPath} add web-testing`, {
+        timeout: 8000
+      });
+      
+      expect(stdout).toContain('Adding Playwright web application testing');
+      expect(stdout).toContain('✓ Web testing workflow added');
+      
+      // Verify file was created
+      const workflowPath = path.join(testDir, '.github', 'workflows', 'playwright-web-tests.yml');
+      const fileExists = await fs.access(workflowPath).then(() => true).catch(() => false);
+      expect(fileExists).toBe(true);
       
       // Cleanup
       await fs.rm(testDir, { recursive: true, force: true });

@@ -36,21 +36,47 @@ function execute(feature) {
       break;
       
     case 'testing':
-      console.log(chalk.blue('Adding Playwright testing...'));
+    case 'cli-testing':
+      console.log(chalk.blue('Adding Playwright CLI testing...'));
       copyWorkflowTemplate('playwright-cli-tests.yml');
       copyTestTemplate('cli.cli.spec.js');
-      console.log(chalk.green('✓ Testing framework added'));
+      console.log(chalk.green('✓ CLI testing framework added'));
       console.log(chalk.yellow('Run: npm install --save-dev @playwright/test playwright'));
+      break;
+      
+    case 'web-testing':
+      console.log(chalk.blue('Adding Playwright web application testing...'));
+      copyWorkflowTemplate('playwright-web-tests.yml');
+      console.log(chalk.green('✓ Web testing workflow added'));
+      console.log(chalk.yellow('Run: npm install --save-dev @playwright/test playwright'));
+      console.log(chalk.gray('Note: Configure your web tests in the tests/ directory'));
+      break;
+      
+    case 'all-testing':
+      execute('cli-testing');
+      execute('web-testing');
       break;
       
     case 'both':
       execute('ci-cd');
-      execute('testing');
+      execute('cli-testing');
+      break;
+      
+    case 'all':
+      execute('ci-cd');
+      execute('cli-testing');
+      execute('web-testing');
       break;
       
     default:
       console.error(chalk.red(`Unknown feature: ${feature}`));
-      console.log(chalk.gray('Available features: ci-cd, testing, both'));
+      console.log(chalk.gray('Available features:'));
+      console.log(chalk.gray('  ci-cd        - GitHub Actions for memory system'));
+      console.log(chalk.gray('  testing      - CLI testing with Playwright (alias: cli-testing)'));
+      console.log(chalk.gray('  web-testing  - Web application testing with Playwright'));
+      console.log(chalk.gray('  all-testing  - Both CLI and web testing'));
+      console.log(chalk.gray('  both         - CI/CD + CLI testing'));
+      console.log(chalk.gray('  all          - Everything (CI/CD + CLI + web testing)'));
   }
 }
 

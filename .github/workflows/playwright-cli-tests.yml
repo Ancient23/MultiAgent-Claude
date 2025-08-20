@@ -38,14 +38,14 @@ jobs:
           echo "{}" > .claude/memory/index.json
           
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
+        run: npx playwright test --shard=${{ matrix.shard }} --reporter=blob
         
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ strategy.job-index }}
-          path: playwright-report/
+          name: blob-report-${{ strategy.job-index }}
+          path: blob-report/
           retention-days: 30
           
       - name: Upload test videos
@@ -69,16 +69,19 @@ jobs:
         with:
           node-version: '18'
           
+      - name: Install dependencies
+        run: npm ci
+          
       - name: Download all reports
         uses: actions/download-artifact@v4
         with:
           path: all-reports/
-          pattern: playwright-report-*
+          pattern: blob-report-*
           merge-multiple: true
           
       - name: Merge reports
         run: |
-          npx playwright merge-reports --reporter html ./all-reports/
+          npx playwright merge-reports --reporter html ./all-reports/ || echo "No reports to merge"
           
       - name: Upload merged report
         uses: actions/upload-artifact@v4

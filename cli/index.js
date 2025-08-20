@@ -92,7 +92,7 @@ program
 program
   .command('add')
   .description('Add features to existing project')
-  .argument('<feature>', 'Feature to add: ci-cd, testing, both')
+  .argument('<feature>', 'Feature to add: ci-cd, testing, web-testing, all-testing, both, all')
   .action((feature) => {
     const addCommand = require('./commands/add');
     addCommand.execute(feature);
