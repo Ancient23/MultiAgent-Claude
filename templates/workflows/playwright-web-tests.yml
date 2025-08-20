@@ -74,10 +74,11 @@ jobs:
           mkdir -p .claude/memory/test-results
           
           # Parse test results if they exist
-          if [ -f ".claude/memory/test-results/latest.json" ]; then
+          if [ -f "test-results.json" ] || [ -f "playwright-report/results.json" ]; then
             node -e "
             const fs = require('fs');
-            const results = JSON.parse(fs.readFileSync('.claude/memory/test-results/latest.json', 'utf8'));
+            const resultsFile = fs.existsSync('test-results.json') ? 'test-results.json' : 'playwright-report/results.json';
+            const results = JSON.parse(fs.readFileSync(resultsFile, 'utf8'));
             const date = new Date().toISOString();
             
             // Create test result memory with metadata
@@ -93,11 +94,16 @@ jobs:
               duration: results.duration || 0
             };
             
-            // Save to memory system
-            fs.writeFileSync(
-              \`.claude/memory/test-results/ci-shard-${{ matrix.shardIndex }}-\${date.replace(/:/g, '-')}.json\`,
-              JSON.stringify(memory, null, 2)
-            );
+            // Only save if tests failed or had issues
+            if (memory.failed > 0 || memory.flaky > 0) {
+              fs.writeFileSync(
+                '.claude/memory/test-results/failure-shard-${{ matrix.shardIndex }}-' + date.replace(/:/g, '-') + '.json',
+                JSON.stringify(memory, null, 2)
+              );
+              console.log('Test failures documented');
+            } else {
+              console.log('All tests passed, skipping memory update');
+            }
             
             // Update failures directory if there are failures
             if (memory.failed > 0) {

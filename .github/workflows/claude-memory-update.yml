@@ -156,10 +156,25 @@ jobs:
           node cli/index.js memory validate
           
       - name: Generate Memory Report
+        id: report
         run: |
           mkdir -p .claude/memory/reports
-          node cli/index.js memory report \
-            --output .claude/memory/reports/ci-${{ github.run_number }}.md
+          
+          # Generate report to temp file first
+          TEMP_REPORT="/tmp/memory-report-temp.md"
+          node cli/index.js memory report --output "$TEMP_REPORT"
+          
+          # Check if report has meaningful content (not just boilerplate)
+          PATTERN_COUNT=$(grep -c "^-" "$TEMP_REPORT" | grep -v "^0$" || echo "0")
+          
+          # Only save report if there are patterns/decisions or it's a milestone
+          if [ "$PATTERN_COUNT" -gt "0" ] || [ "$((${{ github.run_number }} % 10))" -eq "0" ]; then
+            cp "$TEMP_REPORT" .claude/memory/reports/latest-report.md
+            echo "report_generated=true" >> $GITHUB_OUTPUT
+          else
+            echo "No meaningful changes to report"
+            echo "report_generated=false" >> $GITHUB_OUTPUT
+          fi
             
       - name: Commit Memory Updates
         if: github.ref == 'refs/heads/main'
@@ -167,16 +182,33 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # Check if there are changes to commit
-          if [ -n "$(git status --porcelain .claude/memory/)" ]; then
-            git add .claude/memory/
-            git commit -m "🧠 Update memory system from CI
-
-            - Analyzed commit: ${{ github.sha }}
-            - Run number: ${{ github.run_number }}
-            - Auto-generated patterns and decisions"
+          # Check for meaningful changes (exclude reports that are just timestamps)
+          CHANGES=$(git status --porcelain .claude/memory/ | grep -v "reports/" || true)
+          REPORT_CHANGED=$(git diff .claude/memory/reports/latest-report.md 2>/dev/null | grep -v "Generated:" | grep -v "Last Updated:" || true)
+          
+          if [ -n "$CHANGES" ] || [ -n "$REPORT_CHANGED" ]; then
+            # Only add files with real changes
+            if [ -n "$CHANGES" ]; then
+              git add .claude/memory/patterns/ .claude/memory/decisions/ .claude/memory/project.md .claude/memory/index.json 2>/dev/null || true
+            fi
             
-            git push
+            # Only add report if it has meaningful changes
+            if [ -n "$REPORT_CHANGED" ] && [ "${{ steps.report.outputs.report_generated }}" == "true" ]; then
+              git add .claude/memory/reports/latest-report.md
+            fi
+            
+            # Commit if there are staged changes
+            if [ -n "$(git diff --cached)" ]; then
+              git commit -m "🧠 Update memory system from CI
+
+              - Analyzed commit: ${{ github.sha }}
+              - Run number: ${{ github.run_number }}
+              - Auto-generated patterns and decisions"
+              
+              git push
+            else
+              echo "No meaningful memory updates to commit"
+            fi
           else
             echo "No memory updates needed"
           fi

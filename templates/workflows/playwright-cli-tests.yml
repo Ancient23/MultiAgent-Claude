@@ -38,14 +38,14 @@ jobs:
           echo "{}" > .claude/memory/index.json
           
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
+        run: npx playwright test --shard=${{ matrix.shard }} --reporter=blob
         
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ strategy.job-index }}
-          path: playwright-report/
+          name: blob-report-${{ strategy.job-index }}
+          path: blob-report/
           retention-days: 30
           
       - name: Upload test videos
@@ -69,16 +69,19 @@ jobs:
         with:
           node-version: '18'
           
+      - name: Install dependencies
+        run: npm ci
+          
       - name: Download all reports
         uses: actions/download-artifact@v4
         with:
           path: all-reports/
-          pattern: playwright-report-*
+          pattern: blob-report-*
           merge-multiple: true
           
       - name: Merge reports
         run: |
-          npx playwright merge-reports --reporter html ./all-reports/
+          npx playwright merge-reports --reporter html ./all-reports/ || echo "No reports to merge"
           
       - name: Upload merged report
         uses: actions/upload-artifact@v4
@@ -132,6 +135,7 @@ jobs:
           fi
           
       - name: Document Test Patterns
+        id: patterns
         run: |
           # Extract successful test patterns
           DATE=$(date +%Y-%m-%d)
@@ -139,6 +143,16 @@ jobs:
           
           mkdir -p .claude/memory/patterns/cli-patterns
           
+          # Check if pattern already documented today
+          if [ -f "${PATTERN_FILE}" ]; then
+            echo "Test patterns already documented today"
+            echo "patterns_created=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Only create pattern file if tests revealed new insights
+          # For now, only document on first run of the day
+          echo "patterns_created=true" >> $GITHUB_OUTPUT
           cat > ${PATTERN_FILE} << EOF
           ---
           source: playwright-tests
@@ -175,19 +189,21 @@ jobs:
           EOF
           
       - name: Commit Test Patterns
+        if: steps.patterns.outputs.patterns_created == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          if [ -n "$(git status --porcelain .claude/memory/)" ]; then
-            git add .claude/memory/
-            git commit -m "🎭 Update memory with test patterns
+          # Only commit if there are actual new patterns
+          if [ -n "$(git status --porcelain .claude/memory/patterns/)" ]; then
+            git add .claude/memory/patterns/
+            git commit -m "🎭 Document new test patterns
             
             - Test run: ${{ github.run_id }}
-            - Status: Success
-            - Auto-generated from Playwright tests"
+            - Date: $(date +%Y-%m-%d)
+            - First test run of the day with patterns"
             
             git push
           else
-            echo "No memory updates needed"
+            echo "No new test patterns to commit"
           fi

@@ -4,11 +4,17 @@
 .claude/memory/sessions/
 .claude/memory/index.json
 
+# CI/CD temporary memory files
+.claude/memory/reports/ci-*.md
+.claude/memory/test-results/ci-shard-*.json
+.claude/memory/test-results/failure-shard-*.json
+
 # Keep memory patterns and decisions (they're valuable documentation)
 !.claude/memory/patterns/
 !.claude/memory/decisions/
 !.claude/memory/project.md
 !.claude/memory/HOW_TO_USE.md
+!.claude/memory/reports/latest-report.md
 
 # OS Files
 .DS_Store

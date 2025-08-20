@@ -135,6 +135,7 @@ jobs:
           fi
           
       - name: Document Test Patterns
+        id: patterns
         run: |
           # Extract successful test patterns
           DATE=$(date +%Y-%m-%d)
@@ -142,6 +143,16 @@ jobs:
           
           mkdir -p .claude/memory/patterns/cli-patterns
           
+          # Check if pattern already documented today
+          if [ -f "${PATTERN_FILE}" ]; then
+            echo "Test patterns already documented today"
+            echo "patterns_created=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Only create pattern file if tests revealed new insights
+          # For now, only document on first run of the day
+          echo "patterns_created=true" >> $GITHUB_OUTPUT
           cat > ${PATTERN_FILE} << EOF
           ---
           source: playwright-tests
@@ -178,19 +189,21 @@ jobs:
           EOF
           
       - name: Commit Test Patterns
+        if: steps.patterns.outputs.patterns_created == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          if [ -n "$(git status --porcelain .claude/memory/)" ]; then
-            git add .claude/memory/
-            git commit -m "🎭 Update memory with test patterns
+          # Only commit if there are actual new patterns
+          if [ -n "$(git status --porcelain .claude/memory/patterns/)" ]; then
+            git add .claude/memory/patterns/
+            git commit -m "🎭 Document new test patterns
             
             - Test run: ${{ github.run_id }}
-            - Status: Success
-            - Auto-generated from Playwright tests"
+            - Date: $(date +%Y-%m-%d)
+            - First test run of the day with patterns"
             
             git push
           else
-            echo "No memory updates needed"
+            echo "No new test patterns to commit"
           fi
