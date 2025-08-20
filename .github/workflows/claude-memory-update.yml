@@ -9,12 +9,15 @@ on:
 jobs:
   update-memory:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Allow pushing to the repository
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Setup Node.js
         uses: actions/setup-node@v3

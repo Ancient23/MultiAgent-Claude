@@ -346,6 +346,34 @@ Or add to existing project:
 cp node_modules/multiagent-claude/.github/workflows/claude-memory-update.yml .github/workflows/
 ```
 
+#### GitHub Actions Permissions
+
+The workflow needs permission to push changes back to your repository. Choose one of these approaches:
+
+**Option 1: Grant Write Permissions (Recommended)**
+The workflow already includes the necessary permissions:
+```yaml
+jobs:
+  update-memory:
+    permissions:
+      contents: write  # Allows pushing to repository
+```
+
+**Option 2: Use Personal Access Token (For Protected Branches)**
+If you have branch protection rules:
+
+1. Create a Personal Access Token with `repo` scope
+2. Add it as a repository secret named `GH_PAT`
+3. Update the workflow checkout step:
+```yaml
+- name: Checkout code
+  uses: actions/checkout@v3
+  with:
+    token: ${{ secrets.GH_PAT }}
+```
+
+**Note**: No additional secrets are needed for basic operation - the default `GITHUB_TOKEN` works with proper permissions.
+
 #### How It Works
 1. **On Every Commit**: Analyzes changes for patterns
 2. **On PR Merge**: Creates ADR with decision rationale
