@@ -24,13 +24,29 @@ jobs:
       - name: Install dependencies
         run: npm install
         
+      - name: Initialize Memory System
+        run: |
+          # Ensure .claude/memory directory exists
+          if [ ! -d ".claude/memory" ]; then
+            echo "Creating memory system directories..."
+            mkdir -p .claude/memory/{patterns,decisions,reports}
+            echo "# Project Context" > .claude/memory/project.md
+            echo "{}" > .claude/memory/index.json
+          fi
+        
       - name: Analyze Changes
         id: analyze
         run: |
           echo "Analyzing changes in commit ${{ github.sha }}"
           
-          # Detect significant changes
-          git diff --name-only HEAD~1 HEAD > changed_files.txt
+          # Check if this is the first commit or if HEAD~1 exists
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            # Detect significant changes
+            git diff --name-only HEAD~1 HEAD > changed_files.txt
+          else
+            # First commit - list all files
+            git ls-tree -r HEAD --name-only > changed_files.txt
+          fi
           
           # Check for API changes
           if grep -q "api\|endpoint\|routes" changed_files.txt; then
@@ -45,10 +61,15 @@ jobs:
       - name: Update Project Context
         if: steps.analyze.outputs.api_changed == 'true'
         run: |
-          node cli/index.js memory update-from-commit \
-            --commit ${{ github.sha }} \
-            --update-project-context \
-            --detect-patterns
+          # Only run if CLI and memory system are properly set up
+          if [ -f "cli/index.js" ] && [ -d ".claude/memory" ]; then
+            node cli/index.js memory update-from-commit \
+              --commit ${{ github.sha }} \
+              --update-project-context \
+              --detect-patterns || echo "Memory update failed but continuing..."
+          else
+            echo "CLI or memory system not available, skipping..."
+          fi
             
       - name: Document Decisions from PR
         if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
@@ -106,8 +127,13 @@ jobs:
         run: |
           echo "Analyzing code changes for patterns..."
           
-          # Analyze diffs for patterns
-          git diff HEAD~1 HEAD --unified=0 | grep "^+" | grep -v "^+++" > additions.txt
+          # Safely analyze diffs for patterns
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            git diff HEAD~1 HEAD --unified=0 | grep "^+" | grep -v "^+++" > additions.txt || echo "" > additions.txt
+          else
+            # For first commit, analyze all content
+            git show --format="" --name-only HEAD | xargs -I {} git show HEAD:{} 2>/dev/null | head -1000 > additions.txt || echo "" > additions.txt
+          fi
           
           # Look for repeated structures
           if grep -q "async.*await" additions.txt; then

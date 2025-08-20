@@ -246,6 +246,72 @@ version: 1.0
   `));
 }
 
+function generateReport(options) {
+  const memoryPath = ensureMemoryExists();
+  const outputPath = options.output || path.join(memoryPath, 'reports', `report-${Date.now()}.md`);
+  
+  // Ensure reports directory exists
+  const reportsDir = path.dirname(outputPath);
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+  
+  let report = '# Claude Memory System Report\n\n';
+  report += `Generated: ${new Date().toISOString()}\n\n`;
+  
+  // Add system statistics
+  report += '## System Statistics\n\n';
+  
+  const patternsDir = path.join(memoryPath, 'patterns');
+  const decisionsDir = path.join(memoryPath, 'decisions');
+  
+  let patternCount = 0;
+  let decisionCount = 0;
+  
+  if (fs.existsSync(patternsDir)) {
+    const patterns = fs.readdirSync(patternsDir).filter(f => f.endsWith('.md'));
+    patternCount = patterns.length;
+    
+    report += `### Patterns (${patternCount})\n\n`;
+    patterns.forEach(p => {
+      report += `- ${p}\n`;
+    });
+    report += '\n';
+  }
+  
+  if (fs.existsSync(decisionsDir)) {
+    const decisions = fs.readdirSync(decisionsDir).filter(f => f.endsWith('.md'));
+    decisionCount = decisions.length;
+    
+    report += `### Decisions (${decisionCount})\n\n`;
+    decisions.forEach(d => {
+      report += `- ${d}\n`;
+    });
+    report += '\n';
+  }
+  
+  // Add project context summary
+  const projectFile = path.join(memoryPath, 'project.md');
+  if (fs.existsSync(projectFile)) {
+    const stat = fs.statSync(projectFile);
+    report += '### Project Context\n\n';
+    report += `- Size: ${Math.round(stat.size / 1024)}KB\n`;
+    report += `- Last Updated: ${stat.mtime.toISOString()}\n\n`;
+  }
+  
+  // Add index summary
+  const indexPath = path.join(memoryPath, 'index.json');
+  if (fs.existsSync(indexPath)) {
+    const index = JSON.parse(fs.readFileSync(indexPath, 'utf8'));
+    report += '### Index\n\n';
+    report += `- Total entries: ${Object.keys(index).length}\n\n`;
+  }
+  
+  // Write report
+  fs.writeFileSync(outputPath, report);
+  console.log(chalk.green(`✓ Report generated: ${outputPath}`));
+}
+
 function learnFromCommit(commitSha, options = {}) {
   console.log(chalk.blue(`\n🧠 Learning from commit ${commitSha}\n`));
   
@@ -347,9 +413,12 @@ function execute(action, args, options) {
         console.log(chalk.yellow(`Learning from diff ${options.fromDiff}...`));
       }
       break;
+    case 'report':
+      generateReport(options);
+      break;
     default:
       console.error(chalk.red(`Unknown action: ${action}`));
-      console.log(chalk.gray('Available actions: status, inspect, search, add-pattern, add-decision, validate, cleanup, export, import, learn, update-from-commit'));
+      console.log(chalk.gray('Available actions: status, inspect, search, add-pattern, add-decision, validate, cleanup, export, import, learn, update-from-commit, report'));
   }
 }
 
