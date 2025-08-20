@@ -21,6 +21,23 @@ MultiAgent-Claude/
 │   └── commands/        # Command template library
 │       ├── TEMPLATE-COMMAND.md        # Base template for creating commands
 │       └── [various command implementations].md
+├── cli/                 # CLI implementation
+│   ├── index.js         # Main CLI entry point
+│   └── commands/        # CLI command implementations
+│       ├── init.js      # Project initialization
+│       ├── add.js       # Add features to projects
+│       ├── memory.js    # Memory system management
+│       ├── agent.js     # Agent management
+│       └── ...          # Other commands
+├── templates/           # Templates for project setup
+│   ├── workflows/       # GitHub Actions workflows
+│   │   ├── claude-memory-update.yml
+│   │   ├── playwright-cli-tests.yml
+│   │   └── playwright-web-tests.yml
+│   └── tests/           # Test templates
+│       └── cli.cli.spec.js
+├── tests/               # Project tests
+│   └── cli.cli.spec.js  # CLI tests (19 passing)
 ├── claude-code-init-prompts.md       # Master initialization prompt
 ├── claude-code-init-memory-prompt.md # Focused memory system prompt  
 ├── memory-system-addon-prompt.md     # Memory system add-on for existing setups
@@ -151,21 +168,47 @@ MultiAgent-Claude/
 
 ### Initialize Multi-Agent Environment
 ```bash
-# Use claude-code-init-prompts.md content to:
-1. Analyze project structure
-2. Create memory system at .claude/memory/
-3. Generate specialized agents in .claude/agents/
-4. Create commands in .claude/commands/
-5. Update CLAUDE.md with orchestration rules
+# Using the CLI (recommended)
+mac init
+# Prompts for memory, CI/CD, and testing options
+
+# Or manually with prompts:
+1. Copy claude-code-init-prompts.md content
+2. Paste into Claude Code conversation
+3. System will:
+   - Analyze project structure
+   - Create memory system at .claude/memory/
+   - Generate specialized agents in .claude/agents/
+   - Create commands in .claude/commands/
+   - Update CLAUDE.md with orchestration rules
+```
+
+### Add Features to Existing Projects
+```bash
+# Add CI/CD workflows
+mac add ci-cd
+
+# Add testing frameworks
+mac add testing        # CLI testing
+mac add web-testing    # Web app testing
+
+# Add everything
+mac add all
 ```
 
 ### Add Memory to Existing Setup
 ```bash
-# Use memory-system-addon-prompt.md to:
-1. Create memory infrastructure
-2. Update existing agents with memory checks
-3. Add pattern documentation
-4. Implement ADR system
+# Using CLI
+mac add-memory
+
+# Or manually:
+1. Copy memory-system-addon-prompt.md content
+2. Paste into Claude Code
+3. System will:
+   - Create memory infrastructure
+   - Update existing agents with memory checks
+   - Add pattern documentation
+   - Implement ADR system
 ```
 
 ### Agent Invocation Pattern
@@ -209,9 +252,45 @@ execute_plan(plan)
 5. **Session Continuity**: Maintain context across agent invocations
 6. **MCP Flexibility**: Adapt to available MCP servers
 
+## CLI Commands Reference
+
+### Global Commands
+- `mac init` - Initialize multi-agent environment with prompts
+- `mac add <feature>` - Add features (ci-cd, testing, web-testing, all)
+- `mac setup` - Interactive setup wizard
+- `mac add-memory` - Add memory system to existing project
+
+### Agent Management
+- `mac agent create` - Create new agent interactively
+- `mac agent list` - List available agents
+- `mac agent add <name>` - Add template agent to project
+- `mac agent deploy <name>` - Deploy agent to Claude
+
+### Memory System
+- `mac memory status` - Check memory health
+- `mac memory inspect` - View memory contents
+- `mac memory search <query>` - Search patterns/decisions
+- `mac memory report` - Generate memory report
+- `mac memory validate` - Validate memory integrity
+
+### Testing
+- `npm test` - Run all tests (19 passing, 3 skipped)
+- `npm run test:ui` - Interactive test mode
+- `npm run test:debug` - Debug tests
+
+## CI/CD Optimization
+
+### Recent Improvements
+- **No Redundant Commits**: Workflows only commit when meaningful changes occur
+- **Smart Reports**: Single `latest-report.md` instead of numbered files
+- **Daily Test Patterns**: Test patterns documented once per day
+- **Failure-Only Results**: Test results saved only when failures occur
+- **Clean Git History**: No more "Update memory from CI" spam
+
 ## Support Resources
 
 - Review `claude-code-init-prompts.md` for complete initialization workflow
 - Check `memory-system-addon-prompt.md` for memory system details
 - Reference individual agent templates for specialization patterns
 - Use command templates for consistent workflow implementation
+- Run `mac --help` for CLI documentation

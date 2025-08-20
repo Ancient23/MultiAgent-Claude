@@ -8,15 +8,38 @@ MultiAgent-Claude provides a collection of prompt engineering templates and init
 
 ## Quick Start
 
-1. **Initialize the multi-agent environment:**
-   - Copy the content from `claude-code-init-prompts.md`
-   - Paste it into a new Claude Code conversation
-   - Claude will analyze your project and set up the agent infrastructure
+### Global Installation (Recommended)
+```bash
+# Install globally via npm
+npm install -g multiagent-claude
 
-2. **Add to existing projects:**
-   - Use `memory-system-addon-prompt.md` to add just the memory system
-   - Use `playwright-testing-init.md` to add Playwright testing
-   - Use individual agent templates from `Examples/agents/` as needed
+# Or clone and link for development
+git clone https://github.com/yourusername/MultiAgent-Claude.git
+cd MultiAgent-Claude
+npm link
+```
+
+### Initialize Your Project
+```bash
+# Interactive setup with prompts
+multiagent-claude init
+# or use the short alias
+mac init
+
+# You'll be prompted for:
+# - Memory system setup
+# - GitHub Actions for CI/CD
+# - Playwright testing (CLI or web)
+```
+
+### Add Features to Existing Projects
+```bash
+# Add specific features
+mac add ci-cd          # GitHub Actions workflows
+mac add testing        # CLI testing with Playwright
+mac add web-testing    # Web app testing
+mac add all            # Everything
+```
 
 3. **Invoke specialized agents:**
    ```
@@ -129,26 +152,24 @@ See `Examples/agents/` for the complete library of agent templates.
 
 ## Installation & Usage
 
-### Quick Install
+### Global Installation
 ```bash
-# Clone the repository
+# Install from npm (when published)
+npm install -g multiagent-claude
+
+# Or install from GitHub
+npm install -g github:yourusername/MultiAgent-Claude
+
+# Or clone and link for development
 git clone https://github.com/yourusername/MultiAgent-Claude.git
 cd MultiAgent-Claude
-
-# Install dependencies
 npm install
-
-# Option 1: Use directly with Node
-node cli/index.js init
-
-# Option 2: Use shell script
-./init.sh  # Mac/Linux
-init.bat   # Windows
-
-# Option 3: Install globally
-npm install -g .
-multiagent-claude init
+npm link
 ```
+
+After installation, the CLI is available globally as:
+- `multiagent-claude` - Full command
+- `mac` - Short alias
 
 ### CLI Commands
 
@@ -240,6 +261,12 @@ multiagent-claude command add <name>
 
 The project includes comprehensive Playwright testing for CLI functionality and integration testing.
 
+#### Current Test Status
+- **19 tests passing** ✅
+- **3 tests skipped** (unimplemented features)
+- **5 test suites** covering all major functionality
+- **Parallel execution** with sharding for speed
+
 #### Test Coverage
 - **CLI Commands**: All command functionality verified
 - **Memory System**: Status, validation, and report generation
@@ -247,6 +274,7 @@ The project includes comprehensive Playwright testing for CLI functionality and 
 - **Error Handling**: Invalid commands and edge cases
 - **Performance**: Command execution time and concurrency
 - **Integration**: End-to-end workflow testing
+- **Add Command**: CI/CD and testing feature additions
 
 #### Running Tests
 
@@ -372,26 +400,55 @@ Test results are automatically documented:
 
 ### CI/CD Integration
 
-The repository includes optional GitHub Actions workflow for automated memory updates.
+The repository includes GitHub Actions workflows for automated memory updates and testing.
 
-#### Features
-- **Automatic Pattern Detection**: Learns from your commits with deduplication
-- **ADR Generation**: Creates architectural decisions from Pull Requests
-- **Duplicate Prevention**: Content-based hashing prevents duplicate entries
-- **Source Tracking**: All CI-generated files tagged with metadata headers
-- **Conflict Resolution**: Smart merging strategies for manual vs automated updates
+#### Available Workflows
+
+##### 1. Memory System Updates (`claude-memory-update.yml`)
+- **Smart Commit Detection**: Only commits when meaningful changes occur
+- **Report Generation**: Creates `latest-report.md` instead of numbered files
+- **Pattern Detection**: Learns from commits (only on significant changes)
+- **ADR Generation**: Documents architectural decisions from PRs
+- **Duplicate Prevention**: Checks for existing ADRs before creating new ones
+- **No Spam Commits**: Filters out timestamp-only changes and redundant reports
+
+##### 2. CLI Testing (`playwright-cli-tests.yml`)
+- **Automated Testing**: Runs on push and PRs
+- **Sharded Execution**: Parallel test runs for speed (3 shards)
+- **Memory Integration**: Documents test patterns (once per day maximum)
+- **Report Merging**: Combines sharded test results using blob reporter
+- **Artifact Management**: Uses numbered job indices to prevent conflicts
+- **Daily Pattern Limit**: Prevents duplicate pattern documentation
+
+##### 3. Web Testing (`playwright-web-tests.yml`)
+- **Web App Testing**: Comprehensive browser testing with 4 shards
+- **Failure-Only Tracking**: Only saves results when tests fail or are flaky
+- **Visual Regression**: Screenshot comparisons with diff detection
+- **Performance Metrics**: Tracks test duration and flakiness
+- **PR Comments**: Automated test result summaries on pull requests
+- **Smart Memory Updates**: Skips updates for successful test runs
 
 #### Setup
-Enable during initialization:
+
+##### During Initialization
 ```bash
-multiagent-claude setup
-# Answer "y" when asked about GitHub Actions
+mac init
+# You'll be prompted:
+# - Enable GitHub Actions for memory updates? (y/n)
+# - Add Playwright testing framework? (y/n)
+# - Include CLI tests? (y/n)
+# - Include web application tests? (y/n)
 ```
 
-Or add to existing project:
+##### Add to Existing Project
 ```bash
-# Copy workflow manually
-cp node_modules/multiagent-claude/.github/workflows/claude-memory-update.yml .github/workflows/
+# Add all CI/CD features
+mac add all
+
+# Or add specific features
+mac add ci-cd          # Memory system workflows
+mac add testing        # CLI testing
+mac add web-testing    # Web app testing
 ```
 
 #### GitHub Actions Permissions
@@ -423,10 +480,18 @@ If you have branch protection rules:
 **Note**: No additional secrets are needed for basic operation - the default `GITHUB_TOKEN` works with proper permissions.
 
 #### How It Works
-1. **On Every Commit**: Analyzes changes for patterns
-2. **On PR Merge**: Creates ADR with decision rationale
-3. **Deduplication**: Checks content hash before creating entries
-4. **Metadata Headers**: Tags all entries with source (manual/CI)
+
+##### Memory Updates (Optimized)
+1. **Change Detection**: Only runs when files actually change
+2. **Smart Reports**: Uses `latest-report.md` instead of numbered files
+3. **Conditional Commits**: Skips commits for timestamp-only changes
+4. **Pattern Recognition**: Documents patterns only when discovered
+
+##### Test Integration
+1. **Daily Patterns**: Documents test patterns once per day
+2. **Failure Focus**: Only saves test results when failures occur
+3. **Deduplication**: Prevents duplicate pattern files
+4. **Clean History**: No redundant commits in git log
 
 #### Preventing Duplicates
 The system prevents duplicates through:
@@ -445,6 +510,43 @@ related_pr: 123
 related_commit: abc123def
 version: 1.0
 ---
+```
+
+## Package Distribution
+
+The package is configured for npm distribution with:
+
+```json
+{
+  "name": "multiagent-claude",
+  "version": "1.0.0",
+  "bin": {
+    "multiagent-claude": "./cli/index.js",
+    "mac": "./cli/index.js"
+  },
+  "files": [
+    "cli/",
+    "Examples/",
+    "templates/",
+    "*.md",
+    "LICENSE"
+  ]
+}
+```
+
+### What's Included
+- **CLI**: Full command-line interface implementation
+- **Templates**: GitHub Actions workflows and test templates
+- **Examples**: All agent and command templates
+- **Documentation**: All markdown files
+
+### Publishing
+```bash
+# When ready to publish to npm
+npm publish
+
+# Users can then install globally
+npm install -g multiagent-claude
 ```
 
 ## Contributing
