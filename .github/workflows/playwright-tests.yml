@@ -97,25 +97,27 @@ jobs:
             // Update failures directory if there are failures
             if (memory.failed > 0) {
               fs.mkdirSync('.claude/memory/test-results/failures', { recursive: true });
+              const failureContent = [
+                '---',
+                'source: github-action',
+                'created_by: ci',
+                'created_at: ' + date,
+                'shard: ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}',
+                '---',
+                '',
+                '# Test Failures Report',
+                '',
+                '- Failed: ' + memory.failed,
+                '- Passed: ' + memory.passed,
+                '- Flaky: ' + memory.flaky,
+                '- Duration: ' + memory.duration + 'ms',
+                '',
+                '## Failed Tests',
+                results.failures?.map(f => '- ' + f.title + ': ' + f.error).join('\\n') || 'No details available'
+              ].join('\\n');
               fs.writeFileSync(
-                \`.claude/memory/test-results/failures/\${date.replace(/:/g, '-')}.md\`,
-                \`---
-source: github-action
-created_by: ci
-created_at: \${date}
-shard: ${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
----
-
-# Test Failures Report
-
-- Failed: \${memory.failed}
-- Passed: \${memory.passed}
-- Flaky: \${memory.flaky}
-- Duration: \${memory.duration}ms
-
-## Failed Tests
-\${results.failures?.map(f => \`- \${f.title}: \${f.error}\`).join('\\n') || 'No details available'}
-\`
+                '.claude/memory/test-results/failures/' + date.replace(/:/g, '-') + '.md',
+                failureContent
               );
             }
             "
