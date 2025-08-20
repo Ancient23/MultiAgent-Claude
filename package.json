@@ -57,5 +57,12 @@
   "homepage": "https://github.com/yourusername/MultiAgent-Claude#readme",
   "engines": {
     "node": ">=14.0.0"
-  }
+  },
+  "files": [
+    "cli/",
+    "Examples/",
+    "templates/",
+    "*.md",
+    "LICENSE"
+  ]
 }

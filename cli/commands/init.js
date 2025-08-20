@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const chalk = require('chalk');
+const readline = require('readline');
 
 function getPromptFile(options) {
   if (options.memoryOnly) {
@@ -15,6 +16,42 @@ function getPromptFile(options) {
 function readPrompt(promptFile) {
   const promptPath = path.join(__dirname, '..', '..', promptFile);
   return fs.readFileSync(promptPath, 'utf8');
+}
+
+function question(query) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise(resolve => rl.question(query, ans => {
+    rl.close();
+    resolve(ans);
+  }));
+}
+
+function copyWorkflowTemplate(filename) {
+  const source = path.join(__dirname, '..', '..', 'templates', 'workflows', filename);
+  const dest = path.join(process.cwd(), '.github', 'workflows', filename);
+  
+  if (!fs.existsSync(path.dirname(dest))) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+  }
+  
+  fs.copyFileSync(source, dest);
+  console.log(chalk.green(`✓ Added ${filename}`));
+}
+
+function copyTestTemplate(filename) {
+  const source = path.join(__dirname, '..', '..', 'templates', 'tests', filename);
+  const dest = path.join(process.cwd(), 'tests', filename);
+  
+  if (!fs.existsSync(path.dirname(dest))) {
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+  }
+  
+  fs.copyFileSync(source, dest);
+  console.log(chalk.green(`✓ Added ${filename}`));
 }
 
 function extractPromptContent(content) {
@@ -58,7 +95,7 @@ function executeWithClaude(prompt) {
   }
 }
 
-function execute(options) {
+async function execute(options) {
   const promptFile = getPromptFile(options);
   
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
@@ -97,6 +134,36 @@ function execute(options) {
         console.log(chalk.gray('  ├── doc/'));
         console.log(chalk.gray('  └── agents/'));
       }
+
+      // CI/CD and Testing Options
+      console.log(chalk.cyan('\n\nCI/CD and Testing Configuration:'));
+      const cicdOptions = {
+        memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
+        playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
+        includeCliTests: false
+      };
+
+      // If Playwright enabled, ask about CLI tests
+      if (cicdOptions.playwrightTests) {
+        cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
+      }
+
+      // Copy workflow files if enabled
+      if (cicdOptions.memoryWorkflow) {
+        console.log(chalk.blue('\nAdding CI/CD workflows...'));
+        copyWorkflowTemplate('claude-memory-update.yml');
+      }
+      if (cicdOptions.playwrightTests) {
+        console.log(chalk.blue('\nAdding Playwright testing...'));
+        copyWorkflowTemplate('playwright-cli-tests.yml');
+        if (cicdOptions.includeCliTests) {
+          copyTestTemplate('cli.cli.spec.js');
+        }
+        console.log(chalk.yellow('\nRun the following to install Playwright:'));
+        console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+      }
+
+      console.log(chalk.green('\n✅ Setup complete!'));
     }
   } catch (error) {
     console.error(chalk.red('Error:'), error.message);
