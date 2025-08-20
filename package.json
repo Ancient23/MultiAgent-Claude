@@ -18,7 +18,13 @@
     "agent:list": "node cli/index.js agent list",
     "command:create": "node cli/index.js command create",
     "command:list": "node cli/index.js command list",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:cli": "playwright test --project=cli-tests",
+    "test:ci": "playwright test --reporter=github"
   },
   "keywords": [
     "claude",
@@ -37,7 +43,10 @@
     "chalk": "^4.1.2",
     "commander": "^11.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "playwright": "^1.54.2"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/yourusername/MultiAgent-Claude.git"

@@ -236,16 +236,64 @@ multiagent-claude command add <name>
 }
 ```
 
-### Playwright Testing
+### Testing Framework
 
-The framework includes comprehensive Playwright testing support for automated UI testing in CI/CD.
+The project includes comprehensive Playwright testing for CLI functionality and integration testing.
 
-#### Features
-- **E2E Testing**: Automated user journey testing
-- **Visual Regression**: Screenshot comparison to catch UI changes
-- **Interaction Testing**: Form validation and click testing
-- **Accessibility Testing**: WCAG compliance verification
-- **CI/CD Integration**: Automatic test execution in GitHub Actions
+#### Test Coverage
+- **CLI Commands**: All command functionality verified
+- **Memory System**: Status, validation, and report generation
+- **Agent Management**: List, inspect, and create operations
+- **Error Handling**: Invalid commands and edge cases
+- **Performance**: Command execution time and concurrency
+- **Integration**: End-to-end workflow testing
+
+#### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with UI (interactive mode)
+npm run test:ui
+
+# Run specific test file
+npm run test:cli
+
+# Debug tests
+npm run test:debug
+
+# View test report
+npm run test:report
+
+# CI mode (GitHub Actions)
+npm run test:ci
+```
+
+#### Test Structure
+```
+tests/
+├── cli.test.js           # Core CLI functionality tests
+├── integration.test.js   # Integration workflow tests
+└── performance.test.js   # Performance benchmarks
+```
+
+#### CI/CD Integration
+Tests run automatically on:
+- Every push to main/develop branches
+- All pull requests
+- Results posted as PR comments
+- Test artifacts saved for 30 days
+- Failed test videos captured
+
+#### Writing New Tests
+```javascript
+test('should perform specific action', async () => {
+  const result = await runCLI('command args');
+  expect(result.success).toBeTruthy();
+  expect(result.stdout).toContain('expected output');
+});
+```
 
 #### Quick Setup
 ```bash
