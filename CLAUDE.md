@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a multi-agent development environment framework for Claude Code, providing setup prompts and templates for creating specialized agents, commands, and a memory system. The repository contains prompt engineering resources rather than traditional code.
 
+## 🚀 META-IMPLEMENTATION ACTIVE
+
+This project is running MultiAgent-Claude on itself! The framework manages its own development through specialized agents and commands.
+
 ## Project Structure
 
 ```
@@ -35,11 +39,22 @@ MultiAgent-Claude/
 .claude/
 ├── tasks/context_session_*.md    # Session working memory
 ├── doc/[agent]-[task]-*.md       # Agent output plans
-└── memory/                        # Persistent knowledge base
-    ├── project.md                 # Project-wide context
-    ├── patterns/                  # Successful implementation patterns
-    ├── decisions/                 # Architectural Decision Records (ADRs)
-    └── index.json                 # Quick lookup index
+├── memory/                        # Persistent knowledge base
+│   ├── project.md                 # Project-wide context
+│   ├── patterns/                  # Successful implementation patterns
+│   ├── decisions/                 # Architectural Decision Records (ADRs)
+│   └── index.json                 # Quick lookup index
+├── agents/                        # Project-specific agents
+│   ├── prompt-engineer-specialist.md
+│   ├── template-evolution-tracker.md
+│   ├── cli-test-engineer.md
+│   ├── documentation-sync-guardian.md
+│   └── agent-factory.md
+└── commands/                      # Project-specific commands
+    ├── validate-templates.md
+    ├── generate-agent.md
+    ├── test-cli.md
+    └── sync-docs.md
 ```
 
 ### 3. Agent Workflow
@@ -68,11 +83,24 @@ MultiAgent-Claude/
 - `ui-design-auditor.md` - UI/UX design analysis
 - `vercel-deployment-troubleshooter.md` - Vercel deployment issues
 
+### Project-Specific Agents (Meta-Implementation)
+- `prompt-engineer-specialist` - Expert in creating effective agent prompts
+- `template-evolution-tracker` - Track and improve template changes
+- `cli-test-engineer` - Create comprehensive tests for CLI
+- `documentation-sync-guardian` - Keep documentation synchronized
+- `agent-factory` - Specialize in creating new agents
+
 ## Command Templates
 
 - `TEMPLATE-COMMAND.md` - Base template for research-plan-execute pattern
 - `implement-feature.md` - Feature implementation workflow
 - `WAVE_EXECUTE.md` - Wave execution pattern
+
+### Project-Specific Commands (Meta-Implementation)
+- `/validate-templates` - Validate all templates for consistency
+- `/generate-agent` - Interactive agent creation with best practices
+- `/test-cli` - Comprehensive CLI testing
+- `/sync-docs` - Synchronize all documentation
 
 ## Key Conventions
 
