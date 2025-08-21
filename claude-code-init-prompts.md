@@ -19,12 +19,39 @@ Analyze this codebase and create a comprehensive Claude Code development environ
 
 ## Phase 1: Project Analysis & Context Setup
 
+### 1.0 Initialize Session Context
+**CRITICAL: Before any other work, create the session context file:**
+1. Generate session ID: `YYYYMMDD_HHMMSS_init`
+2. Create directory: `mkdir -p .claude/tasks`
+3. Create `.claude/tasks/context_session_[id].md` with:
+   ```markdown
+   # Session Context: Project Initialization
+   
+   **Session ID**: [generated_id]
+   **Date**: [current_date]
+   **Type**: Framework Initialization
+   **Status**: Active
+   
+   ## Objectives
+   - Initialize MultiAgent-Claude environment
+   - Create memory system
+   - Generate specialized agents
+   - Set up orchestration rules
+   
+   ## Current State
+   - Starting initialization
+   - Project path: [path]
+   - Available MCP tools: [list]
+   ```
+4. **Update this file after each phase completion**
+
 ### 1.1 Read Existing Structure
 First, check for existing Claude Code setup:
 - Read CLAUDE.md for current configuration
 - Check .claude/tasks/ for any context_session_*.md files
 - Scan .claude/doc/ for previous agent plans
 - Analyze project structure and technology stack
+- **Update context_session with findings**
 
 ### 1.2 Create Memory System
 Establish memory hierarchy at .claude/memory/:
@@ -84,6 +111,8 @@ Establish memory hierarchy at .claude/memory/:
 
 ## Phase 2: Enhanced CLAUDE.md Orchestration
 
+**First, update context_session with Phase 1 completion status**
+
 Update root CLAUDE.md with orchestration rules:
 
 ```markdown
@@ -92,7 +121,10 @@ Update root CLAUDE.md with orchestration rules:
 ## 🎯 ORCHESTRATION RULES
 
 ### Memory Management
-- **Session Context**: Agents MUST read .claude/tasks/context_session_*.md before any work
+- **Session Context**: Master creates .claude/tasks/context_session_*.md at session start
+  - Update after each significant action
+  - Ensure exists before deploying agents
+  - Agents MUST read before any work
 - **Agent Plans**: All agents output to .claude/doc/[agent]-[task]-[timestamp].md
 - **Project Memory**: Persistent context in .claude/memory/project.md
 - **Pattern Library**: Successful patterns in .claude/memory/patterns/
@@ -131,6 +163,8 @@ IF security_keywords IN request:
 ```
 
 ## Phase 3: Agent Generation (Research-Only Pattern)
+
+**Update context_session with Phase 2 completion and agent creation progress**
 
 ### 3.1 Agent Template Structure
 Create agents in .claude/agents/ using this template:
@@ -248,6 +282,8 @@ plan_content = read_file(plan_path)
 
 ## Phase 5: MCP Tool Configuration
 
+**Update context_session with Phase 4 completion and MCP configuration**
+
 ### Assign MCP Tools Based on Available Servers
 
 ```yaml
@@ -281,6 +317,8 @@ Playwright (if available):
 ```
 
 ## Phase 6: Optional CI/CD Integration
+
+**Update context_session with Phase 5 completion**
 
 ### GitHub Actions Setup
 Ask user: "Would you like to enable GitHub Actions for automated memory updates? (y/n)"
@@ -451,12 +489,25 @@ Create service-specific agents that:
 - Never implement directly
 ```
 
+## Phase 7: Finalize Session Context
+
+**Complete the initialization session:**
+1. Update `.claude/tasks/context_session_*.md` with:
+   - All phases completed
+   - Final status: "Initialization Complete"
+   - Summary of created agents and commands
+   - List of all files created/modified
+2. Optionally archive to `.claude/memory/sessions/archive/` for future reference
+3. Document any outstanding tasks or recommendations
+
 ## Validation Checklist
 
 After running this initialization, verify:
 
 ✅ **Memory System**
-- [ ] .claude/tasks/context_session_*.md is being read by agents
+- [ ] .claude/tasks/context_session_*.md created at session start
+- [ ] Context session updated throughout initialization
+- [ ] Agents successfully reading context session
 - [ ] .claude/doc/ contains agent plans with proper naming
 - [ ] .claude/memory/ has project.md and patterns/
 

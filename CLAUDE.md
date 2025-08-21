@@ -81,6 +81,61 @@ MultiAgent-Claude/
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
 5. Return path to parent: "Plan created at .claude/doc/..."
 
+### 4. Context Session Management
+
+#### Master Agent Responsibilities
+1. **Session Start**: Create `.claude/tasks/context_session_[timestamp].md` before any work
+2. **During Work**: Update context after each significant action
+3. **Agent Deployment**: Ensure context file exists before invoking agents
+4. **Session End**: Archive to `.claude/memory/sessions/archive/` if needed
+
+#### Context File Structure
+```markdown
+# Session Context: [Task Description]
+
+**Session ID**: [YYYYMMDD_HHMMSS_tasktype]
+**Date**: [ISO Date]
+**Type**: [orchestration mode]
+**Status**: [Active|Completed|Failed]
+
+## Objectives
+[Initial task/goals]
+
+## Current State
+[What has been done, discovered, decided]
+
+## Files Modified
+[List of changed files]
+
+## Next Steps
+[Planned actions]
+```
+
+#### Update Triggers
+- After reading/analyzing files
+- After making architectural decisions
+- Before deploying subagents
+- After subagents complete
+- After implementing changes
+- When discovering issues/blockers
+
+#### Orchestration-Specific Patterns
+
+**Sequential Mode:**
+- Single context_session file shared across all agents
+- Each agent reads before starting work
+- Master updates after each agent completes
+
+**Parallel Mode:**
+- Master creates initial context_session
+- Each parallel agent reads from same file
+- Master consolidates results after all complete
+
+**Worktree Mode:**
+- Each worktree gets own `context_session_[branch].md`
+- Master maintains merge strategy document
+- Context reconciliation after feature completion
+
 ## Available Agent Templates
 
 ### Core Agents

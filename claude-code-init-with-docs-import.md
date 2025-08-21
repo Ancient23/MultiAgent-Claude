@@ -7,6 +7,31 @@ Analyze this codebase, import all existing documentation into a persistent memor
 
 ## Phase 1: Documentation Discovery and Import
 
+### 1.0 Initialize Session Context
+**CRITICAL: Create the session context file before starting:**
+1. Generate session ID: `YYYYMMDD_HHMMSS_docs_import`
+2. Create directory: `mkdir -p .claude/tasks`
+3. Create `.claude/tasks/context_session_[id].md` with:
+   ```markdown
+   # Session Context: Documentation Import & Environment Setup
+   
+   **Session ID**: [generated_id]
+   **Date**: [current_date]
+   **Type**: Documentation Import & Initialization
+   **Status**: Active
+   
+   ## Objectives
+   - Import all existing documentation
+   - Create memory system with documentation
+   - Generate specialized agents
+   - Set up orchestration environment
+   
+   ## Current State
+   - Starting documentation discovery
+   - Project path: [path]
+   ```
+4. **Update after each phase**
+
 ### 1.1 Comprehensive Documentation Scan
 **SCAN the entire project for documentation:**
 
@@ -69,6 +94,8 @@ documentation_sources = [
    - Unclear explanations
 
 ## Phase 2: Memory System Creation with Documentation Import
+
+**Update context_session with Phase 1 documentation discovery results**
 
 ### 2.1 Create Enhanced Memory Structure
 **CREATE comprehensive memory system:**
@@ -282,6 +309,8 @@ mkdir -p .claude/memory/knowledge
 
 ## Phase 3: Enhanced CLAUDE.md with Documentation Intelligence
 
+**Update context_session with Phase 2 memory creation status**
+
 **CREATE/UPDATE root CLAUDE.md:**
 
 ```markdown
@@ -358,6 +387,8 @@ When agents discover undocumented features:
 
 ## Phase 4: Create Documentation-Aware Agents
 
+**Update context_session with Phase 3 CLAUDE.md updates**
+
 ### 4.1 Create Documentation Specialist Agent
 **CREATE: .claude/agents/documentation-curator.md**
 
@@ -412,6 +443,8 @@ This agent commonly uses:
 ```
 
 ## Phase 5: Create Import Report
+
+**Update context_session with Phase 4 agent creation**
 
 **CREATE: .claude/memory/IMPORT_REPORT.md**
 
@@ -534,8 +567,25 @@ Special features for documentation:
 
 **CREATE: .claude/memory/INTEGRATION_CHECKLIST.md**
 
+## Phase 6: Finalize Session Context
+
+**Complete the documentation import session:**
+1. Update `.claude/tasks/context_session_*.md` with:
+   - All phases completed
+   - Final status: "Documentation Import Complete"
+   - Summary of documentation imported
+   - List of patterns and ADRs created
+   - Documentation gaps identified
+2. Archive session to `.claude/memory/sessions/archive/`
+3. Document ongoing documentation maintenance needs
+
 ```markdown
 # Documentation Import Integration Checklist
+
+## Session Context Management
+- [ ] Context session created at initialization start
+- [ ] Context updated after each phase
+- [ ] Final session archived to memory/sessions/archive
 
 ## Import Verification
 - [ ] All README files imported to project.md

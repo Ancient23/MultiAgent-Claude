@@ -96,7 +96,40 @@ ${agentContent}`;
   
   fs.writeFileSync(localPath, yamlConfig);
 
+  // Create context session for agent creation
+  const sessionId = `${new Date().toISOString().replace(/[:.]/g, '-')}_create_${agentConfig.name}`;
+  const tasksDir = path.join(process.cwd(), '.claude/tasks');
+  fs.mkdirSync(tasksDir, { recursive: true });
+  
+  const contextPath = path.join(tasksDir, `context_session_${sessionId}.md`);
+  const contextContent = `# Session Context: Agent Creation
+
+**Session ID**: ${sessionId}
+**Date**: ${new Date().toISOString()}
+**Type**: Agent Creation
+**Status**: Active
+
+## Objectives
+- Create new agent: ${agentConfig.name}
+- Configure for: ${agentConfig.expertise}
+- Triggers: ${agentConfig.triggers}
+
+## Agent Configuration
+- Name: ${agentConfig.name}
+- Description: ${agentConfig.description}
+- Tools: ${agentConfig.tools.join(', ')}
+- Color: ${agentConfig.color}
+- Configuration saved: ${localPath}
+
+## Current State
+- Agent configuration created
+- Ready for deployment
+`;
+
+  fs.writeFileSync(contextPath, contextContent);
+
   console.log(chalk.green(`\n✅ Agent configuration created at ${localPath}`));
+  console.log(chalk.blue(`📝 Session context created at ${contextPath}`));
   console.log(chalk.yellow('\nTo deploy this agent in Claude:'));
   console.log(chalk.gray('1. Run: ') + chalk.cyan('/agents create'));
   console.log(chalk.gray('2. Paste the configuration from: ') + chalk.cyan(localPath));
@@ -140,12 +173,44 @@ async function deployAgent(name) {
   
   const content = fs.readFileSync(localPath, 'utf8');
   
+  // Create context session for agent deployment
+  const sessionId = `${new Date().toISOString().replace(/[:.]/g, '-')}_agent_${name}`;
+  const tasksDir = path.join(process.cwd(), '.claude/tasks');
+  fs.mkdirSync(tasksDir, { recursive: true });
+  
+  const contextPath = path.join(tasksDir, `context_session_${sessionId}.md`);
+  const contextContent = `# Session Context: Agent Deployment
+
+**Session ID**: ${sessionId}
+**Date**: ${new Date().toISOString()}
+**Type**: Agent Deployment
+**Status**: Active
+
+## Objectives
+- Deploy agent: ${name}
+- Configure in Claude environment
+- Verify agent functionality
+
+## Agent Details
+- Name: ${name}
+- Configuration: ${localPath}
+- Deployment method: Manual paste
+
+## Current State
+- Agent configuration loaded
+- Ready for deployment in Claude
+`;
+
+  fs.writeFileSync(contextPath, contextContent);
+  console.log(chalk.blue(`📝 Session context created: ${contextPath}`));
+  
   try {
     execSync(`echo '${content}' | pbcopy`, { encoding: 'utf8' });
     console.log(chalk.green(`✅ Agent configuration copied to clipboard`));
     console.log(chalk.yellow('\nNow in Claude:'));
     console.log(chalk.gray('1. Run: ') + chalk.cyan('/agents create'));
     console.log(chalk.gray('2. Paste the configuration (Cmd+V)'));
+    console.log(chalk.gray('3. The agent will check: ') + chalk.cyan(contextPath));
   } catch (error) {
     console.log(chalk.yellow('Could not copy to clipboard. Configuration:'));
     console.log(chalk.gray('─'.repeat(80)));

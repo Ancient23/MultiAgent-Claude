@@ -5,9 +5,38 @@
 ```markdown
 Add a comprehensive memory system to this existing Claude Code setup. The agents and commands are already created, but we need to add persistent memory and update the existing files to use it.
 
+## Phase 0: Initialize Session Context
+
+**CRITICAL: Before any memory work, create session context:**
+1. Generate session ID: `YYYYMMDD_HHMMSS_memory_addon`
+2. Create directory: `mkdir -p .claude/tasks`
+3. Create `.claude/tasks/context_session_[id].md` with:
+   ```markdown
+   # Session Context: Memory System Add-on
+   
+   **Session ID**: [generated_id]
+   **Date**: [current_date]
+   **Type**: Memory System Integration
+   **Status**: Active
+   
+   ## Objectives
+   - Add memory system to existing setup
+   - Update agents to use memory
+   - Create pattern library
+   - Set up ADR system
+   
+   ## Current State
+   - Starting memory add-on
+   - Existing agents: [list]
+   - Existing commands: [list]
+   ```
+4. **Update throughout the process**
+
 ## Phase 1: Create Memory Infrastructure
 
 ### Create Directory Structure and Files
+
+**First, update context_session with existing setup analysis**
 
 **CREATE these directories:**
 ```bash
@@ -369,6 +398,8 @@ save(".claude/memory/index.json", memory_index)
 
 ## Phase 2: Update Existing CLAUDE.md
 
+**Update context_session with Phase 1 memory infrastructure completion**
+
 ### ADD these sections to the existing CLAUDE.md:
 
 Find the main orchestration section and ADD:
@@ -427,6 +458,8 @@ Create ADRs for:
 
 ## Phase 3: Update All Existing Agents
 
+**Update context_session with Phase 2 CLAUDE.md updates**
+
 ### For EACH agent file in .claude/agents/, UPDATE the Core Workflow section:
 
 **FIND sections like:**
@@ -461,6 +494,8 @@ Create ADRs for:
 
 ## Phase 4: Update Existing Commands (if any)
 
+**Update context_session with Phase 3 agent updates**
+
 ### For EACH command in .claude/commands/, ADD memory checking:
 
 **In Phase 1 (Context Loading):**
@@ -480,6 +515,8 @@ Create ADRs for:
 ```
 
 ## Phase 5: Verification
+
+**Update context_session with Phase 4 command updates**
 
 ### Run these checks to ensure memory system is working:
 
@@ -521,10 +558,27 @@ After running this, you'll have a complete memory system integrated with your ex
 
 ## Quick Verification Script
 
+## Phase 6: Finalize Session Context
+
+**Complete the memory addon session:**
+1. Update `.claude/tasks/context_session_*.md` with:
+   - All phases completed
+   - Final status: "Memory System Integrated"
+   - Summary of memory components added
+   - List of agents and commands updated
+   - Verification results
+2. Archive session to `.claude/memory/sessions/archive/`
+3. Document memory maintenance schedule
+
 After running the prompt above, verify with:
 
 ```markdown
 Check memory system installation:
+
+0. Context session management:
+   - [ ] Context session created at start
+   - [ ] Updated throughout all phases
+   - [ ] Archived to memory/sessions/archive
 
 1. Directory structure exists:
    - [ ] .claude/memory/

@@ -33,12 +33,33 @@ This command follows the research-only agent pattern where specialist agents cre
 
 ## Execution Flow
 
+### Phase 0: Initialize Session Context
+```yaml
+step: "Create/Update Session Context"
+handler: "main-system"
+actions:
+  - Generate session ID: "YYYYMMDD_HHMMSS_[command]"
+  - Create/update .claude/tasks/context_session_[id].md
+  - Document command objectives
+  - List available agents
+  - Record initial state
+output: ".claude/tasks/context_session_[id].md"
+content:
+  - Session metadata (ID, date, type, status)
+  - Command objectives and parameters
+  - Current project state
+  - Available resources
+note: "Update this file after each phase"
+```
+
 ### Phase 1: Research & Planning
 ```yaml
 step: "Delegate to Specialist Agent"
 agent: "[specialist-agent-name]"
 purpose: "Create detailed implementation plan"
+context_input: ".claude/tasks/context_session_*.md (latest)"
 actions:
+  - Read session context file
   - Analyze current codebase/situation
   - Research latest best practices via Context7
   - Identify all requirements and dependencies
@@ -56,6 +77,7 @@ step: "Main System Reads Plan"
 handler: "main-system"
 actions:
   - Read plan from .claude/doc/
+  - Update context_session with plan summary
   - Parse implementation steps
   - Prepare execution environment
   - Create TodoWrite list from plan
@@ -72,6 +94,7 @@ handler: "main-system"
 input: "Plan from .claude/doc/"
 actions:
   - Execute each step from plan
+  - Update context_session with progress
   - Handle file modifications
   - Run commands
   - Deploy if needed
@@ -99,9 +122,10 @@ tools: [Bash, Read, Grep]
 step: "Update Records"
 handler: "main-system"
 actions:
+  - Update context_session with completion status
   - Update status files
   - Log completion
-  - Archive plan
+  - Archive plan to .claude/memory/sessions/archive/
   - Update CHANGELOG if needed
 ```
 
@@ -119,6 +143,10 @@ When this command is invoked:
 ```python
 # Correct pattern for main system:
 if command == "/[command-name]":
+    # Step 0: Initialize session context
+    session_id = generate_session_id()
+    create_context_session(session_id, command, objectives)
+    
     # Step 1: Get plan from specialist
     invoke_task_tool(
         agent="[specialist-agent]",
