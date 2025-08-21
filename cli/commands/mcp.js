@@ -1,19 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const inquirer = require('inquirer');
+const inquirer = require('inquirer').default;
 const chalk = require('chalk');
 
 const MCP_SERVERS = {
   playwright: {
-    package: '@modelcontextprotocol/server-playwright',
+    package: '@playwright/mcp',
     config: {
       command: "npx",
-      args: ["@modelcontextprotocol/server-playwright"],
-      env: {
-        PLAYWRIGHT_BROWSER: "chromium",
-        PLAYWRIGHT_HEADLESS: "false"
-      }
+      args: ["@playwright/mcp@latest"],
+      env: {}
     }
   },
   filesystem: {

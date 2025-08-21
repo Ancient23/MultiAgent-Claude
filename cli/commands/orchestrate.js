@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const inquirer = require('inquirer');
+const inquirer = require('inquirer').default;
 const chalk = require('chalk');
 
 async function orchestrate() {
