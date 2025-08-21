@@ -154,7 +154,7 @@ MultiAgent-Claude is a **meta-framework** that uses itself to develop itself. Th
 Agents used exclusively for developing the MultiAgent-Claude framework:
 - Never distributed to user projects
 - Access via `mac meta` commands (coming soon)
-- Examples: meta-development-orchestrator, meta-cli-engineer
+- Examples: meta-development-orchestrator, cli-test-engineer
 
 #### Template Agents (Examples/agents/)
 Agents distributed to user projects via `mac init`:
