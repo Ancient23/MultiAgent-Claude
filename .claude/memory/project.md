@@ -4,8 +4,9 @@
 
 **Name**: MultiAgent-Claude  
 **Purpose**: A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, and intelligent task delegation  
-**Version**: 1.0.0  
-**License**: MIT
+**Version**: 2.0.0  
+**License**: MIT  
+**Last Major Update**: 2025-08-21 (v2.0 Orchestration Upgrade)
 
 ## Technology Stack
 
@@ -148,6 +149,13 @@ All commands follow the "research → plan → execute" pattern:
 - `command create`: Create new command workflow
 - `command list`: List available commands
 - `command add <name>`: Add command template
+
+**Orchestration (v2.0)**:
+- `orchestrate`: Start orchestrated multi-agent workflow
+- `parallel`: Deploy agents in parallel
+- `verify`: Create verification agent
+- `mcp [server]`: Setup MCP servers (playwright/filesystem/github)
+- `worktree <features...>`: Setup git worktrees for parallel development
 
 ### Internal APIs
 - Template processing engine
