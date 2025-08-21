@@ -158,4 +158,13 @@ program
     await setupWorktrees(features);
   });
 
+// Wave Execution Pattern
+program
+  .command('wave-execute')
+  .description('Execute tasks using the 7-wave systematic pattern')
+  .action(async () => {
+    const { executeWavePattern } = require('./commands/wave-execute');
+    await executeWavePattern();
+  });
+
 program.parse();

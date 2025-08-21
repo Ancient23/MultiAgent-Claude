@@ -99,6 +99,20 @@ Examples:
 3. **Agent Deployment**: Ensure context file exists before invoking agents
 4. **Session End**: Archive to `.claude/memory/sessions/archive/` if needed
 
+#### Wave Execution Context Management
+When using `mac wave-execute`, the CLI automatically:
+1. Creates properly structured context session file
+2. Initializes with Wave 0 (session setup)
+3. Documents objectives and wave progression
+4. Assigns agents to each wave (user-selected or defaults)
+5. Provides clear execution instructions
+
+Claude will:
+1. Read context before each wave
+2. Update context during wave execution
+3. Mark waves as complete
+4. Document discoveries and blockers
+
 #### Context File Structure
 ```markdown
 # Session Context: [Task Description]
@@ -331,6 +345,27 @@ mac orchestrate
 "Execute the orchestration config in .claude/orchestration/config.json"
 ```
 
+#### Wave Execution Pattern
+```bash
+# Initialize 7-wave systematic execution
+mac wave-execute
+
+# The command will:
+# 1. Create context session file at .claude/tasks/context_session_[id].md
+# 2. Let you select which waves to execute
+# 3. Allow agent assignment to each wave (or use smart defaults)
+# 4. Generate execution plan at .claude/doc/wave-execution-plan-[id].md
+
+# Tell Claude:
+"Execute the wave pattern from session [session-id]"
+
+# Claude will then:
+# - Read the context session file
+# - Follow the wave progression
+# - Update context after each wave
+# - Deploy agents as specified
+```
+
 #### Deploy Parallel Agents
 ```bash
 # Select and deploy multiple agents
@@ -457,6 +492,7 @@ execute_plan(plan)
 - `mac orchestrate [--mode <mode>]` - Start orchestrated workflow (auto/parallel/sequential/meta)
 - `mac parallel` - Deploy multiple agents in parallel
 - `mac verify` - Create verification agent for current task
+- `mac wave-execute` - Execute tasks using 7-wave systematic pattern
 - `mac worktree <features...>` - Create git worktrees for parallel development
 
 ### MCP (Model Context Protocol) Commands
@@ -467,6 +503,21 @@ execute_plan(plan)
   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
   - Windows: `%APPDATA%/Claude/claude_desktop_config.json`
   - Linux: `~/.config/Claude/claude_desktop_config.json`
+
+### Wave Execution Command
+- `mac wave-execute` - Initialize 7-wave systematic task execution
+  - Creates context session with proper structure
+  - Scans available agents from Examples/agents/
+  - Allows custom agent assignment or uses smart defaults
+  - Generates execution plan for Claude to follow
+  - Wave defaults:
+    - Wave 1: codebase-truth-analyzer, aws-backend-architect
+    - Wave 2: fullstack-feature-orchestrator, infrastructure-migration-architect
+    - Wave 3: backend-api-frontend-integrator, ai-agent-architect
+    - Wave 4: playwright-test-engineer, ui-design-auditor
+    - Wave 5: documentation-architect
+    - Wave 6: code-review-orchestrator
+    - Wave 7: aws-deployment-specialist, vercel-deployment-troubleshooter
 
 ### Testing
 - `npm test` - Run all tests with Playwright
