@@ -1,0 +1,83 @@
+{
+  "type": "meta",
+  "version": "2.0.0",
+  "description": "Meta-agents for developing the MultiAgent-Claude framework itself",
+  "purpose": "These agents are used exclusively for framework self-development and should not be distributed to user projects",
+  "agents": [
+    {
+      "name": "meta-development-orchestrator",
+      "file": "meta-development-orchestrator.md",
+      "model": "opus",
+      "role": "orchestrator",
+      "purpose": "Orchestrate framework self-improvement using the framework's own agents",
+      "keywords": ["meta", "framework", "self-improvement", "orchestration"]
+    },
+    {
+      "name": "meta-agent-factory",
+      "file": "meta-agent-factory.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Create new agent templates for the framework",
+      "keywords": ["create", "agent", "template", "factory"]
+    },
+    {
+      "name": "meta-template-tracker",
+      "file": "meta-template-tracker.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Track and analyze template evolution patterns",
+      "keywords": ["template", "evolution", "track", "pattern", "analysis"]
+    },
+    {
+      "name": "meta-cli-engineer",
+      "file": "meta-cli-engineer.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Test and enhance CLI functionality",
+      "keywords": ["cli", "test", "command", "engineer", "testing"]
+    },
+    {
+      "name": "meta-documentation-guardian",
+      "file": "meta-documentation-guardian.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Maintain framework documentation consistency",
+      "keywords": ["documentation", "sync", "guardian", "consistency"]
+    },
+    {
+      "name": "meta-prompt-specialist",
+      "file": "meta-prompt-specialist.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Optimize prompts for framework agents",
+      "keywords": ["prompt", "engineer", "optimize", "specialist"]
+    }
+  ],
+  "commands": [
+    {
+      "name": "validate-templates",
+      "file": "validate-templates.md",
+      "purpose": "Validate all agent templates for consistency"
+    },
+    {
+      "name": "generate-agent",
+      "file": "generate-agent.md",
+      "purpose": "Interactive agent creation following best practices"
+    },
+    {
+      "name": "test-cli",
+      "file": "test-cli.md",
+      "purpose": "Comprehensive CLI testing suite"
+    },
+    {
+      "name": "sync-docs",
+      "file": "sync-docs.md",
+      "purpose": "Synchronize all documentation sources"
+    }
+  ],
+  "usage_notes": {
+    "distribution": "These agents should NEVER be copied to user projects via 'mac init'",
+    "access": "Use 'mac meta' commands to work with meta-agents",
+    "purpose": "For MultiAgent-Claude framework development only"
+  }
+}

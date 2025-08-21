@@ -4,7 +4,7 @@
 2025-08-21
 
 ## Status
-Proposed
+Implemented
 
 ## Context
 MultiAgent-Claude is a meta-framework that:
@@ -233,3 +233,22 @@ This separation is critical for the framework's maturity. It enables:
 4. Better maintenance and evolution
 
 The key insight is that MultiAgent-Claude is both a product (the templates) and a project (using itself to develop). This ADR formalizes that duality.
+
+## Implementation Status (2025-08-21)
+
+### Completed
+- ✅ Created orchestrators/ and specialists/ subdirectories in Examples/agents/
+- ✅ Moved 7 orchestrators to Examples/agents/orchestrators/
+- ✅ Moved all specialists to Examples/agents/specialists/
+- ✅ Renamed meta-agents with "meta-" prefix
+- ✅ Created manifest.json files for both meta and template agents
+- ✅ Updated CLI commands (wave-execute, agent list) to handle new structure
+- ✅ Updated CLAUDE.md with new directory structure and hierarchy
+- ✅ Moved implementation-verifier from .claude/ to specialists/
+
+### Key Changes
+1. **Directory Structure**: Clear separation with orchestrators/ and specialists/ subdirectories
+2. **Meta-Agent Naming**: All framework development agents now prefixed with "meta-"
+3. **Manifest System**: JSON manifests track agent types and purposes
+4. **CLI Compatibility**: Commands updated to scan new directory structure
+5. **Documentation**: CLAUDE.md reflects the meta vs template separation

@@ -14,13 +14,14 @@ This project is running MultiAgent-Claude on itself! The framework manages its o
 
 ```
 MultiAgent-Claude/
-├── Examples/
-│   ├── agents/          # Agent template library for specialized tasks
-│   │   ├── TEMPLATE-agent.md         # Base template for creating new agents
-│   │   └── [various specialized agents].md
-│   └── commands/        # Command template library
-│       ├── TEMPLATE-COMMAND.md        # Base template for creating commands
-│       └── [various command implementations].md
+├── Examples/                          # Templates for user projects
+│   └── agents/                        # Agent template library
+│       ├── orchestrators/             # Opus-model coordination agents
+│       │   └── [orchestrator agents].md
+│       ├── specialists/               # Sonnet-model domain experts
+│       │   ├── TEMPLATE-agent.md     # Base template
+│       │   └── [specialist agents].md
+│       └── manifest.json              # Template registry
 ├── cli/                 # CLI implementation
 │   ├── index.js         # Main CLI entry point
 │   └── commands/        # CLI command implementations
@@ -61,12 +62,14 @@ MultiAgent-Claude/
 │   ├── patterns/                  # Successful implementation patterns
 │   ├── decisions/                 # Architectural Decision Records (ADRs)
 │   └── index.json                 # Quick lookup index
-├── agents/                        # Project-specific agents
-│   ├── prompt-engineer-specialist.md
-│   ├── template-evolution-tracker.md
-│   ├── cli-test-engineer.md
-│   ├── documentation-sync-guardian.md
-│   └── agent-factory.md
+├── agents/                        # Meta-agents (framework development)
+│   ├── meta-development-orchestrator.md
+│   ├── meta-agent-factory.md
+│   ├── meta-template-tracker.md
+│   ├── meta-cli-engineer.md
+│   ├── meta-documentation-guardian.md
+│   ├── meta-prompt-specialist.md
+│   └── manifest.json              # Meta-agent registry
 └── commands/                      # Project-specific commands
     ├── validate-templates.md
     ├── generate-agent.md
@@ -163,10 +166,19 @@ Claude will:
 ## Agent Orchestration Hierarchy
 
 ### Two-Tier Architecture
-The framework uses a two-tier hierarchy of orchestrators and specialists:
+The framework uses a two-tier hierarchy with clear separation between meta-agents (framework development) and template agents (for user projects):
 
-#### **Orchestrators (Opus Model)**
-High-level coordinators that manage complex workflows and other agents:
+#### **Meta-Agents (.claude/agents/)**
+Agents used exclusively for developing the MultiAgent-Claude framework:
+- **meta-development-orchestrator** (Opus) - Framework self-improvement coordination
+- **meta-agent-factory** (Sonnet) - Creates new agent templates
+- **meta-template-tracker** (Sonnet) - Tracks template evolution
+- **meta-cli-engineer** (Sonnet) - Tests and enhances CLI
+- **meta-documentation-guardian** (Sonnet) - Maintains documentation consistency
+- **meta-prompt-specialist** (Sonnet) - Optimizes agent prompts
+
+#### **Template Orchestrators (Examples/agents/orchestrators/)**
+High-level coordinators using Opus model for user projects:
 - **master-orchestrator** - Top-level task analysis and strategy
 - **fullstack-feature-orchestrator** - End-to-end feature coordination
 - **infrastructure-migration-architect** - Infrastructure transformation
@@ -174,16 +186,22 @@ High-level coordinators that manage complex workflows and other agents:
 - **wave-execution-orchestrator** - 7-phase systematic execution
 - **issue-triage-orchestrator** - Issue analysis and resolution
 - **code-review-orchestrator** - Comprehensive code reviews
-- **meta-development-orchestrator** - Framework self-improvement
-- **implementation-verifier** - Verification coordination
 
-#### **Specialists (Sonnet Model)**
-Domain experts that create plans and perform focused tasks:
-- All development specialists (frontend, backend, AI, etc.)
-- All deployment specialists (AWS, Vercel, etc.)
-- All testing specialists (Playwright, CLI, etc.)
-- All documentation specialists
-- All framework meta-specialists
+#### **Template Specialists (Examples/agents/specialists/)**
+Domain experts using Sonnet model for focused tasks in user projects:
+- **frontend-ui-expert** - Frontend UI design and development
+- **aws-backend-architect** - AWS backend architecture
+- **ai-agent-architect** - AI agentic systems design
+- **multimodal-ai-specialist** - Multimodal AI and VLMs
+- **documentation-architect** - Comprehensive documentation
+- **codebase-truth-analyzer** - Code-documentation alignment
+- **aws-deployment-specialist** - AWS deployment and troubleshooting
+- **backend-api-frontend-integrator** - API integration optimization
+- **ui-design-auditor** - UI/UX design analysis
+- **vercel-deployment-troubleshooter** - Vercel deployment issues
+- **cpp-plugin-api-expert** - Cross-platform C++ development
+- **implementation-verifier** - Verify implementation matches requirements
+- And other specialized domain experts
 
 ### Orchestration Patterns
 

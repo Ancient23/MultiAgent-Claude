@@ -22,14 +22,34 @@ async function executeWavePattern() {
     console.log(chalk[wave.color](`${wave.icon} ${wave.name}`));
   });
   
-  // Get available agents from Examples/agents
+  // Get available agents from Examples/agents (both orchestrators and specialists)
   const agentsDir = path.join(process.cwd(), 'Examples', 'agents');
   let availableAgents = [];
   
   if (fs.existsSync(agentsDir)) {
-    availableAgents = fs.readdirSync(agentsDir)
+    // Get orchestrators
+    const orchestratorsDir = path.join(agentsDir, 'orchestrators');
+    if (fs.existsSync(orchestratorsDir)) {
+      const orchestrators = fs.readdirSync(orchestratorsDir)
+        .filter(file => file.endsWith('.md') && !file.startsWith('TEMPLATE'))
+        .map(file => `orchestrators/${file.replace('.md', '')}`);
+      availableAgents.push(...orchestrators);
+    }
+    
+    // Get specialists
+    const specialistsDir = path.join(agentsDir, 'specialists');
+    if (fs.existsSync(specialistsDir)) {
+      const specialists = fs.readdirSync(specialistsDir)
+        .filter(file => file.endsWith('.md') && !file.startsWith('TEMPLATE'))
+        .map(file => `specialists/${file.replace('.md', '')}`);
+      availableAgents.push(...specialists);
+    }
+    
+    // Also check root directory for backward compatibility
+    const rootAgents = fs.readdirSync(agentsDir)
       .filter(file => file.endsWith('.md') && !file.startsWith('TEMPLATE'))
       .map(file => file.replace('.md', ''));
+    availableAgents.push(...rootAgents);
   }
   
   const answers = await inquirer.prompt([

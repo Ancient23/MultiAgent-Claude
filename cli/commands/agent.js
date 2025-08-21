@@ -143,13 +143,29 @@ function listAgents() {
   console.log(chalk.blue('\n📋 Available Agent Templates:\n'));
   
   if (fs.existsSync(agentsDir)) {
-    const templates = fs.readdirSync(agentsDir)
-      .filter(f => f.endsWith('.md') && f !== 'TEMPLATE-agent.md' && f !== 'README.md');
+    // List orchestrators
+    const orchestratorsDir = path.join(agentsDir, 'orchestrators');
+    if (fs.existsSync(orchestratorsDir)) {
+      console.log(chalk.yellow('🎭 Orchestrators (Opus):'));
+      const orchestrators = fs.readdirSync(orchestratorsDir)
+        .filter(f => f.endsWith('.md') && !f.startsWith('TEMPLATE'));
+      orchestrators.forEach(template => {
+        const name = template.replace('.md', '');
+        console.log(chalk.green(`  • ${name}`));
+      });
+    }
     
-    templates.forEach(template => {
-      const name = template.replace('.md', '');
-      console.log(chalk.green(`  • ${name}`));
-    });
+    // List specialists
+    const specialistsDir = path.join(agentsDir, 'specialists');
+    if (fs.existsSync(specialistsDir)) {
+      console.log(chalk.cyan('\n🔬 Specialists (Sonnet):'));
+      const specialists = fs.readdirSync(specialistsDir)
+        .filter(f => f.endsWith('.md') && !f.startsWith('TEMPLATE'));
+      specialists.forEach(template => {
+        const name = template.replace('.md', '');
+        console.log(chalk.green(`  • ${name}`));
+      });
+    }
   }
   
   if (fs.existsSync(localAgentsDir)) {

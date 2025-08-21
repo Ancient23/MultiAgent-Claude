@@ -146,6 +146,23 @@ This tiered approach ensures:
 
 ## Agent Architecture
 
+### Meta-Framework Design
+
+MultiAgent-Claude is a **meta-framework** that uses itself to develop itself. This creates two distinct categories of agents:
+
+#### Meta-Agents (.claude/agents/)
+Agents used exclusively for developing the MultiAgent-Claude framework:
+- Prefixed with `meta-` for clear identification
+- Never distributed to user projects
+- Access via `mac meta` commands (coming soon)
+- Examples: meta-development-orchestrator, meta-cli-engineer
+
+#### Template Agents (Examples/agents/)
+Agents distributed to user projects via `mac init`:
+- Organized into `orchestrators/` (Opus) and `specialists/` (Sonnet)
+- Available through standard `mac agent` commands
+- Form the actual toolkit for end users
+
 ### Two-Tier Hierarchy
 MultiAgent-Claude uses a two-tier hierarchy of orchestrators and specialists:
 
