@@ -1,14 +1,21 @@
 {
   "name": "multiagent-claude",
-  "version": "1.0.0",
-  "description": "A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, and intelligent task delegation",
+  "version": "2.0.0",
+  "description": "Multi-agent orchestration framework for Claude Code with visual development support",
   "main": "cli/index.js",
   "bin": {
     "multiagent-claude": "./cli/index.js",
     "mac": "./cli/index.js"
   },
   "scripts": {
-    "setup": "node cli/index.js setup",
+    "setup": "multiagent-claude init",
+    "mcp:setup": "multiagent-claude mcp setup",
+    "agents:parallel": "multiagent-claude parallel",
+    "orchestrate": "multiagent-claude orchestrate",
+    "verify": "multiagent-claude verify",
+    "visual:test": "playwright test tests/visual/",
+    "visual:update": "playwright test tests/visual/ --update-snapshots",
+    "visual:ui": "playwright test --ui",
     "init": "node cli/index.js init",
     "init:memory": "node cli/index.js init --memory-only",
     "init:docs": "node cli/index.js init --with-docs",
@@ -40,12 +47,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "commander": "^11.0.0",
+    "inquirer": "^9.2.0",
     "chalk": "^4.1.2",
-    "commander": "^11.1.0"
+    "ora": "^5.4.1",
+    "fs-extra": "^11.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.54.2",
-    "playwright": "^1.54.2"
+    "@playwright/test": "^1.40.0"
   },
   "repository": {
     "type": "git",

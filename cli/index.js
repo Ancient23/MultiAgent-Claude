@@ -98,4 +98,51 @@ program
     addCommand.execute(feature);
   });
 
+// MCP Setup
+program
+  .command('mcp')
+  .description('Setup MCP servers')
+  .argument('[server]', 'specific server to add (playwright/filesystem/github)')
+  .action(async (server) => {
+    const { setupMCP } = require('./commands/mcp');
+    await setupMCP(server);
+  });
+
+// Orchestration
+program
+  .command('orchestrate')
+  .description('Start orchestrated multi-agent workflow')
+  .action(async () => {
+    const { orchestrate } = require('./commands/orchestrate');
+    await orchestrate();
+  });
+
+// Parallel Execution
+program
+  .command('parallel')
+  .description('Deploy agents in parallel')
+  .action(async () => {
+    const { deployParallel } = require('./commands/parallel');
+    await deployParallel();
+  });
+
+// Verification
+program
+  .command('verify')
+  .description('Create verification agent for current task')
+  .action(async () => {
+    const { createVerificationAgent } = require('./commands/verify');
+    await createVerificationAgent();
+  });
+
+// Git Worktrees
+program
+  .command('worktree')
+  .description('Setup git worktrees for parallel development')
+  .argument('<features...>', 'feature names')
+  .action(async (features) => {
+    const { setupWorktrees } = require('./commands/worktree');
+    await setupWorktrees(features);
+  });
+
 program.parse();
