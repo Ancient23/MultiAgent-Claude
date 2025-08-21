@@ -81,6 +81,16 @@ MultiAgent-Claude/
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
 5. Return path to parent: "Plan created at .claude/doc/..."
 
+#### MCP Tool Naming Convention
+All MCP tools follow the pattern `mcp__<server>__<tool>` where:
+- `server` is the MCP server name (e.g., memory, filesystem, github)
+- `tool` is the specific tool name (e.g., create_entities, read_file)
+
+Examples:
+- `mcp__memory__create_entities`
+- `mcp__filesystem__read_file`
+- `mcp__github__search_repositories`
+
 ### 4. Context Session Management
 
 #### Master Agent Responsibilities
@@ -207,19 +217,31 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `infrastructure-migration-architect.md` - Infrastructure re-architecture
 - `codebase-truth-analyzer.md` - Code-documentation alignment verification
 
+### Orchestrator Agents (Opus Model)
+- `master-orchestrator.md` - Top-level task analysis and strategy
+- `parallel-controller.md` - Concurrent agent management
+- `wave-execution-orchestrator.md` - 7-phase systematic execution
+- `issue-triage-orchestrator.md` - Issue analysis and resolution
+- `code-review-orchestrator.md` - Comprehensive code reviews
+- `meta-development-orchestrator.md` - Framework self-improvement
+- `implementation-verifier.md` - Verification coordination
+
 ### Specialized Agents
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
 - `backend-api-frontend-integrator.md` - API-frontend integration
 - `cpp-plugin-api-expert.md` - Cross-platform C++ libraries
 - `ui-design-auditor.md` - UI/UX design analysis
 - `vercel-deployment-troubleshooter.md` - Vercel deployment issues
+- `playwright-test-engineer.md` - E2E testing with Playwright
+- `playwright-visual-developer.md` - Visual regression testing
 
-### Project-Specific Agents (Meta-Implementation)
-- `prompt-engineer-specialist` - Expert in creating effective agent prompts
-- `template-evolution-tracker` - Track and improve template changes
-- `cli-test-engineer` - Create comprehensive tests for CLI
-- `documentation-sync-guardian` - Keep documentation synchronized
-- `agent-factory` - Specialize in creating new agents
+## MultiAgent-Claude Project-Specific Agents (Meta-Implementation)
+- `prompt-engineer-specialist.md` - Expert in creating effective agent prompts
+- `template-evolution-tracker.md` - Track and improve template changes
+- `cli-test-engineer.md` - Create comprehensive tests for CLI
+- `documentation-sync-guardian.md` - Keep documentation synchronized
+- `agent-factory.md` - Specialize in creating new agents
+- `implementation-verifier.md` - Verify implementation matches requirements
 
 ## Command Templates
 
@@ -432,18 +454,36 @@ execute_plan(plan)
 - `mac memory validate` - Validate memory integrity
 
 ### v2.0 Orchestration Commands
-- `mac orchestrate` - Start orchestrated workflow with mode selection
+- `mac orchestrate [--mode <mode>]` - Start orchestrated workflow (auto/parallel/sequential/meta)
 - `mac parallel` - Deploy multiple agents in parallel
 - `mac verify` - Create verification agent for current task
-- `mac mcp [server]` - Setup MCP servers (playwright/filesystem/github)
 - `mac worktree <features...>` - Create git worktrees for parallel development
 
+### MCP (Model Context Protocol) Commands
+- `mac mcp [server]` - Add MCP server (playwright/filesystem/github)
+- `mac mcp serve` - Start Claude Code as MCP server
+- `mac mcp add-from-claude-desktop` - Import servers from Claude Desktop
+- Uses proper Claude Desktop config paths:
+  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+  - Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+  - Linux: `~/.config/Claude/claude_desktop_config.json`
+
 ### Testing
-- `npm test` - Run all tests (19 passing, 3 skipped)
-- `npm run test:ui` - Interactive test mode
-- `npm run test:debug` - Debug tests
+- `npm test` - Run all tests with Playwright
+- `npm run test:ui` - Interactive test mode with Playwright UI
+- `npm run test:debug` - Debug tests with Playwright inspector
+- `npm run test:headed` - Run tests with browser visible
+- `npm run test:cli` - Run CLI-specific tests
+- `npm run test:ci` - Run tests with GitHub reporter
 - `npm run visual:test` - Visual regression tests
 - `npm run visual:update` - Update visual baselines
+
+#### Test Configuration
+- Tests use latest Playwright v1.48.2+
+- Default timeout: 30 seconds
+- Trace on failure for debugging
+- Blob reporter for sharded tests
+- GitHub Actions optimized with v4 actions
 
 ## CI/CD Best Practices
 

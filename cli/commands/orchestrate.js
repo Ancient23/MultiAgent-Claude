@@ -3,20 +3,29 @@ const path = require('path');
 const inquirer = require('inquirer').default;
 const chalk = require('chalk');
 
-async function orchestrate() {
+async function orchestrate(options = {}) {
+  let mode = options.mode;
+  
+  // If mode not provided via CLI, prompt for it
+  if (!mode) {
+    const modeAnswer = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'mode',
+        message: 'Select orchestration mode:',
+        choices: [
+          { name: '🤖 Auto - Let master orchestrator decide', value: 'auto' },
+          { name: '📋 Plan Only - Generate plans without implementation', value: 'plan' },
+          { name: '🚀 Parallel - Deploy multiple agents', value: 'parallel' },
+          { name: '📝 Sequential - Step by step execution', value: 'sequential' },
+          { name: '🏗️ Meta - Complex architectural changes', value: 'meta' }
+        ]
+      }
+    ]);
+    mode = modeAnswer.mode;
+  }
+  
   const answers = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'mode',
-      message: 'Select orchestration mode:',
-      choices: [
-        { name: '🤖 Auto - Let master orchestrator decide', value: 'auto' },
-        { name: '📋 Plan Only - Generate plans without implementation', value: 'plan' },
-        { name: '🚀 Parallel - Deploy multiple agents', value: 'parallel' },
-        { name: '📝 Sequential - Step by step execution', value: 'sequential' },
-        { name: '🏗️ Meta - Complex architectural changes', value: 'meta' }
-      ]
-    },
     {
       type: 'input',
       name: 'task',
@@ -37,7 +46,7 @@ async function orchestrate() {
   ]);
 
   const config = {
-    mode: answers.mode,
+    mode: mode,
     task: answers.task,
     options: answers.options,
     timestamp: new Date().toISOString()

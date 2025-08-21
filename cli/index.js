@@ -101,20 +101,33 @@ program
 // MCP Setup
 program
   .command('mcp')
-  .description('Setup MCP servers')
+  .description('Manage MCP servers')
+  .argument('[action]', 'action to perform: add, serve, add-from-claude-desktop')
   .argument('[server]', 'specific server to add (playwright/filesystem/github)')
-  .action(async (server) => {
-    const { setupMCP } = require('./commands/mcp');
-    await setupMCP(server);
+  .action(async (action, server) => {
+    const mcpCommands = require('./commands/mcp');
+    
+    if (!action || action === 'add') {
+      // Default to add if no action specified
+      await mcpCommands.setupMCP(server || action);
+    } else if (action === 'serve') {
+      await mcpCommands.serveMCP();
+    } else if (action === 'add-from-claude-desktop') {
+      await mcpCommands.addFromClaudeDesktop();
+    } else {
+      // If action is actually a server name, add it
+      await mcpCommands.setupMCP(action);
+    }
   });
 
 // Orchestration
 program
   .command('orchestrate')
   .description('Start orchestrated multi-agent workflow')
-  .action(async () => {
+  .option('--mode <mode>', 'orchestration mode: auto, parallel, sequential, meta')
+  .action(async (options) => {
     const { orchestrate } = require('./commands/orchestrate');
-    await orchestrate();
+    await orchestrate(options);
   });
 
 // Parallel Execution

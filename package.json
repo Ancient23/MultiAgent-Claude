@@ -48,14 +48,14 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
-    "commander": "^11.0.0",
-    "fs-extra": "^11.0.0",
-    "inquirer": "^9.2.0",
+    "commander": "^12.1.0",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^9.3.7",
     "ora": "^5.4.1"
   },
   "devDependencies": {
-    "@playwright/mcp": "^0.0.34",
-    "@playwright/test": "^1.40.0"
+    "@playwright/mcp": "^0.1.0",
+    "@playwright/test": "^1.48.2"
   },
   "repository": {
     "type": "git",
@@ -66,7 +66,7 @@
   },
   "homepage": "https://github.com/yourusername/MultiAgent-Claude#readme",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "files": [
     "cli/",

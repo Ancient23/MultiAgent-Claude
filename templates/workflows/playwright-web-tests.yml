@@ -26,12 +26,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 'lts/*'
           cache: 'npm'
       
       - name: Install dependencies
@@ -47,7 +47,7 @@ jobs:
       
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ matrix.shardIndex }}
           path: playwright-report/
@@ -55,14 +55,14 @@ jobs:
       
       - name: Upload screenshots on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-screenshots-${{ matrix.shardIndex }}
           path: .playwright/screenshots/
       
       - name: Upload videos on failure
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-videos-${{ matrix.shardIndex }}
           path: test-results/
@@ -140,15 +140,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 'lts/*'
       
       - name: Download all reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: all-reports/
       
@@ -157,7 +157,7 @@ jobs:
           npx playwright merge-reports --reporter html ./all-reports || true
       
       - name: Upload merged report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-complete
           path: playwright-report/
