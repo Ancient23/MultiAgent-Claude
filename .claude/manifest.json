@@ -13,40 +13,40 @@
       "keywords": ["meta", "framework", "self-improvement", "orchestration"]
     },
     {
-      "name": "meta-agent-factory",
-      "file": "meta-agent-factory.md",
+      "name": "agent-factory",
+      "file": "agent-factory.md",
       "model": "sonnet",
       "role": "specialist",
       "purpose": "Create new agent templates for the framework",
       "keywords": ["create", "agent", "template", "factory"]
     },
     {
-      "name": "meta-template-tracker",
-      "file": "meta-template-tracker.md",
+      "name": "template-evolution-tracker",
+      "file": "template-evolution-tracker.md",
       "model": "sonnet",
       "role": "specialist",
       "purpose": "Track and analyze template evolution patterns",
       "keywords": ["template", "evolution", "track", "pattern", "analysis"]
     },
     {
-      "name": "meta-cli-engineer",
-      "file": "meta-cli-engineer.md",
+      "name": "cli-test-engineer",
+      "file": "cli-test-engineer.md",
       "model": "sonnet",
       "role": "specialist",
       "purpose": "Test and enhance CLI functionality",
       "keywords": ["cli", "test", "command", "engineer", "testing"]
     },
     {
-      "name": "meta-documentation-guardian",
-      "file": "meta-documentation-guardian.md",
+      "name": "documentation-sync-guardian",
+      "file": "documentation-sync-guardian.md",
       "model": "sonnet",
       "role": "specialist",
       "purpose": "Maintain framework documentation consistency",
       "keywords": ["documentation", "sync", "guardian", "consistency"]
     },
     {
-      "name": "meta-prompt-specialist",
-      "file": "meta-prompt-specialist.md",
+      "name": "prompt-engineer-specialist",
+      "file": "prompt-engineer-specialist.md",
       "model": "sonnet",
       "role": "specialist",
       "purpose": "Optimize prompts for framework agents",
