@@ -136,6 +136,65 @@ MultiAgent-Claude/
 - Master maintains merge strategy document
 - Context reconciliation after feature completion
 
+## Agent Orchestration Hierarchy
+
+### Two-Tier Architecture
+The framework uses a two-tier hierarchy of orchestrators and specialists:
+
+#### **Orchestrators (Opus Model)**
+High-level coordinators that manage complex workflows and other agents:
+- **master-orchestrator** - Top-level task analysis and strategy
+- **fullstack-feature-orchestrator** - End-to-end feature coordination
+- **infrastructure-migration-architect** - Infrastructure transformation
+- **parallel-controller** - Concurrent agent management
+- **wave-execution-orchestrator** - 7-phase systematic execution
+- **issue-triage-orchestrator** - Issue analysis and resolution
+- **code-review-orchestrator** - Comprehensive code reviews
+- **meta-development-orchestrator** - Framework self-improvement
+- **implementation-verifier** - Verification coordination
+
+#### **Specialists (Sonnet Model)**
+Domain experts that create plans and perform focused tasks:
+- All development specialists (frontend, backend, AI, etc.)
+- All deployment specialists (AWS, Vercel, etc.)
+- All testing specialists (Playwright, CLI, etc.)
+- All documentation specialists
+- All framework meta-specialists
+
+### Orchestration Patterns
+
+#### Complex Task Flow
+```
+User Request → Master Orchestrator (Opus)
+                ↓
+        Domain Orchestrator (Opus)
+                ↓
+    [Parallel Specialist Agents (Sonnet)]
+                ↓
+        Results Consolidation
+                ↓
+           User Response
+```
+
+#### Simple Task Flow
+```
+User Request → Specialist Agent (Sonnet) → User Response
+```
+
+### When to Use Orchestrators
+- Task requires 2+ specialist domains
+- Complex phased execution needed
+- Parallel coordination required
+- Architectural decisions involved
+- Pass/fail decisions needed
+
+### When to Use Specialists
+- Single domain expertise required
+- Focused analysis or planning
+- Research and documentation
+- Specific technical implementation
+- Independent execution possible
+
 ## Available Agent Templates
 
 ### Core Agents
