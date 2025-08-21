@@ -1,6 +1,13 @@
-# MultiAgent-Claude
+# MultiAgent-Claude v2.0
 
-**A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, and intelligent task delegation.**
+**A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, intelligent task delegation, and visual development capabilities.**
+
+🚀 **Version 2.0 Features:**
+- **Orchestration Modes**: Auto, Plan-Only, Parallel, Sequential, Meta execution strategies
+- **Parallel Agent Deployment**: Run multiple agents simultaneously with conflict prevention
+- **Visual Development**: Playwright MCP integration for iterative UI refinement
+- **Git Worktrees**: True parallel development in isolated environments
+- **Verification System**: Automated validation of implementations against plans
 
 ## Overview
 
@@ -39,6 +46,13 @@ mac add ci-cd          # GitHub Actions workflows
 mac add testing        # CLI testing with Playwright
 mac add web-testing    # Web app testing
 mac add all            # Everything
+
+# NEW v2.0 Commands
+mac orchestrate        # Start orchestrated workflow with mode selection
+mac parallel           # Deploy multiple agents in parallel
+mac verify             # Create verification agent
+mac mcp playwright     # Setup Playwright MCP for visual development
+mac worktree feature1  # Create git worktree for parallel development
 ```
 
 3. **Invoke specialized agents:**
@@ -46,6 +60,8 @@ mac add all            # Everything
    "Use the frontend-ui-expert agent to design a dashboard component"
    "Launch the aws-backend-architect to plan our API structure"
    "Deploy the playwright-test-engineer to create E2E tests"
+   "Execute the parallel agents defined in .claude/parallel-execution.json"
+   "Use the master-orchestrator agent to analyze complexity and select strategy"
    ```
 
 ## Why Multi-Agent Architecture?
@@ -138,6 +154,12 @@ This tiered approach ensures:
 - **infrastructure-migration-architect**: Re-platforming, migrations
 - **codebase-truth-analyzer**: Code-documentation alignment
 - **ui-design-auditor**: UX/UI analysis, design improvements
+
+### v2.0 Orchestration Agents
+- **master-orchestrator**: Analyzes task complexity and selects execution strategy
+- **playwright-visual-developer**: Iterative UI refinement with Playwright MCP
+- **parallel-controller**: Manages parallel agent execution and prevents conflicts
+- **implementation-verifier**: Validates implementations against plans
 
 See `Examples/agents/` for the complete library of agent templates.
 
@@ -242,6 +264,89 @@ multiagent-claude command list
 multiagent-claude command add <name>
 ```
 
+#### v2.0 Orchestration Commands
+```bash
+# Start orchestrated workflow with mode selection
+multiagent-claude orchestrate
+
+# Deploy agents in parallel
+multiagent-claude parallel
+
+# Create verification agent
+multiagent-claude verify
+
+# Setup MCP servers (playwright/filesystem/github)
+multiagent-claude mcp [server]
+
+# Create git worktrees for parallel development
+multiagent-claude worktree feature1 feature2
+```
+
+## v2.0 Orchestration Modes
+
+### Auto Mode
+Let the master-orchestrator analyze your task and select the optimal strategy:
+- Evaluates complexity (1-10 scale)
+- Considers parallelization opportunities
+- Selects appropriate agent combination
+- Creates comprehensive execution plan
+
+### Plan-Only Mode
+All agents operate in planning mode without implementation:
+- Ideal for architectural reviews
+- Pre-implementation validation
+- Multi-perspective analysis
+- Risk assessment before execution
+
+### Parallel Mode
+Deploy multiple agents simultaneously:
+- Frontend and backend development in parallel
+- Automatic conflict prevention
+- File locking mechanism
+- Status tracking in `.claude/parallel-status.json`
+
+### Sequential Mode
+Step-by-step execution for dependent tasks:
+- Ensures proper order of operations
+- Ideal for migration workflows
+- Clear progress tracking
+- Rollback points between steps
+
+### Meta Mode
+For complex architectural changes:
+- Framework migrations
+- System-wide refactoring
+- Multi-phase execution
+- Comprehensive verification at each phase
+
+## Visual Development with Playwright MCP
+
+The v2.0 upgrade includes first-class support for visual development:
+
+### Setup
+```bash
+# Install Playwright MCP
+mac mcp playwright
+
+# Creates directories:
+# .claude/mocks/           - Design mockups
+# .claude/visual-iterations/ - Screenshot history
+# .claude/visual-reports/   - Implementation reports
+```
+
+### Iteration Workflow
+1. **Capture Baseline**: Screenshot current implementation
+2. **Compare with Mock**: Identify differences
+3. **Iterate**: Make improvements (2-3 cycles recommended)
+4. **Verify**: Achieve < 5% visual difference
+5. **Test Responsive**: Validate at multiple viewports
+
+### Playwright MCP Tools
+- `playwright_navigate` - Navigate to URLs
+- `playwright_screenshot` - Capture screenshots
+- `playwright_set_viewport` - Test responsive designs
+- `playwright_click/fill` - Interact with elements
+
 ### NPM Scripts
 ```json
 {
@@ -252,7 +357,11 @@ multiagent-claude command add <name>
     "init:docs": "multiagent-claude init --with-docs",
     "memory:status": "multiagent-claude memory status",
     "agent:create": "multiagent-claude agent create",
-    "command:create": "multiagent-claude command create"
+    "command:create": "multiagent-claude command create",
+    "orchestrate": "multiagent-claude orchestrate",
+    "verify": "multiagent-claude verify",
+    "visual:test": "playwright test tests/visual/",
+    "visual:update": "playwright test tests/visual/ --update-snapshots"
   }
 }
 ```

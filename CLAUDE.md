@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is a multi-agent development environment framework for Claude Code, providing setup prompts and templates for creating specialized agents, commands, and a memory system. The repository contains prompt engineering resources rather than traditional code.
+This is a multi-agent development environment framework for Claude Code v2.0, providing orchestration capabilities, visual development support, and intelligent task delegation through specialized agents, commands, and a memory system. The repository contains both prompt engineering resources and a functional CLI orchestration system.
 
 ## 🚀 META-IMPLEMENTATION ACTIVE
 
@@ -183,6 +183,50 @@ mac init
    - Update CLAUDE.md with orchestration rules
 ```
 
+### v2.0 Orchestration Workflows
+
+#### Start Orchestrated Development
+```bash
+# Interactive mode selection
+mac orchestrate
+# Choose: Auto, Plan-Only, Parallel, Sequential, or Meta
+
+# Tell Claude:
+"Execute the orchestration config in .claude/orchestration/config.json"
+```
+
+#### Deploy Parallel Agents
+```bash
+# Select and deploy multiple agents
+mac parallel
+
+# Tell Claude:
+"Execute the parallel agents defined in .claude/parallel-execution.json"
+```
+
+#### Visual Development Iteration
+```bash
+# Setup Playwright MCP first
+mac mcp playwright
+
+# Then in Claude:
+"Use playwright_navigate to go to http://localhost:3000
+Use playwright_screenshot to capture baseline
+Compare with mock at .claude/mocks/component.png
+Iterate until < 5% difference"
+```
+
+#### Parallel Feature Development
+```bash
+# Create worktrees for features
+mac worktree auth-feature payment-feature ui-redesign
+
+# Each worktree gets its own:
+- Feature branch
+- Claude configuration
+- Independent development environment
+```
+
 ### Add Features to Existing Projects
 ```bash
 # Add CI/CD workflows
@@ -273,10 +317,19 @@ execute_plan(plan)
 - `mac memory report` - Generate memory report
 - `mac memory validate` - Validate memory integrity
 
+### v2.0 Orchestration Commands
+- `mac orchestrate` - Start orchestrated workflow with mode selection
+- `mac parallel` - Deploy multiple agents in parallel
+- `mac verify` - Create verification agent for current task
+- `mac mcp [server]` - Setup MCP servers (playwright/filesystem/github)
+- `mac worktree <features...>` - Create git worktrees for parallel development
+
 ### Testing
 - `npm test` - Run all tests (19 passing, 3 skipped)
 - `npm run test:ui` - Interactive test mode
 - `npm run test:debug` - Debug tests
+- `npm run visual:test` - Visual regression tests
+- `npm run visual:update` - Update visual baselines
 
 ## CI/CD Best Practices
 
