@@ -366,14 +366,18 @@ class VariableResolver {
                     return value;
                 }
                 if (args) {
-                    // Remove quotes and evaluate the default value
-                    const defaultValue = args.replace(/['"]/g, '');
                     // Check if it's a function call first
-                    if (defaultValue.includes('(') && defaultValue.includes(')')) {
+                    if (args.includes('(') && args.includes(')')) {
+                        const defaultValue = args.replace(/['"]/g, '');
                         return this.callFunction(defaultValue, context);
                     }
-                    // Otherwise get the value normally
-                    return this.getValue(defaultValue, context);
+                    // If it starts and ends with quotes, treat as literal string
+                    if ((args.startsWith('"') && args.endsWith('"')) || (args.startsWith("'") && args.endsWith("'"))) {
+                        return args.slice(1, -1); // Remove quotes and return literal
+                    }
+                    // Otherwise try to get the value (for variable references)
+                    const defaultValue = this.getValue(args, context);
+                    return defaultValue !== undefined ? defaultValue : args; // Fall back to literal if variable not found
                 }
                 return '';
             default:
