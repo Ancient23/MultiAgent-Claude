@@ -230,13 +230,13 @@ You're working on MultiAgent-Claude, a sophisticated orchestration framework for
 
 ## Core Principles
 - **Research-Plan-Execute**: Always research context, create plans, then implement
-- **Memory-Driven**: Check \`.claude/memory/\` for patterns and decisions before implementing
+- **Memory-Driven**: Check \`.ai/memory/\` for patterns and decisions before implementing
 - **Cross-Platform**: Ensure compatibility between Claude and ChatGPT
 
 ## Key Directories
 - \`cli/commands/\` - CLI command implementations
 - \`Examples/agents/\` - Agent templates
-- \`.claude/memory/\` - Knowledge base and patterns
+- \`.ai/memory/\` - Knowledge base and patterns
 - \`.chatgpt/\` - OpenAI-specific configs
 
 ## Development Workflow

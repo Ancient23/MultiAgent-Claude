@@ -112,7 +112,7 @@ async function detectChanges(state) {
   }
 
   // Check memory files
-  const memoryDir = path.join(process.cwd(), '.claude', 'memory');
+  const memoryDir = path.join(process.cwd(), '.ai', 'memory');
   if (await fs.pathExists(memoryDir)) {
     const memoryFiles = await getMemoryFiles(memoryDir);
     for (const file of memoryFiles) {
@@ -277,7 +277,7 @@ async function applyConflictResolutions(state) {
 async function syncMemory(state) {
   console.log(chalk.blue('Syncing memory system...'));
   
-  const memoryDir = path.join(process.cwd(), '.claude', 'memory');
+  const memoryDir = path.join(process.cwd(), '.ai', 'memory');
   const snapshotDir = path.join(process.cwd(), '.chatgpt', 'snapshots');
   
   if (!await fs.pathExists(memoryDir)) {
@@ -356,7 +356,7 @@ async function updateSyncMetadata(state) {
   state.checksums.agents = await calculateChecksum(path.join(process.cwd(), 'AGENTS.md'));
 
   // Update memory checksums
-  const memoryDir = path.join(process.cwd(), '.claude', 'memory');
+  const memoryDir = path.join(process.cwd(), '.ai', 'memory');
   if (await fs.pathExists(memoryDir)) {
     const memoryFiles = await getMemoryFiles(memoryDir);
     for (const file of memoryFiles) {

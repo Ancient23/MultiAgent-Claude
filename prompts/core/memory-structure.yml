@@ -5,7 +5,7 @@ category: core
 tags: [memory, persistence, knowledge-base]
 
 variables:
-  memory_path: ".claude/memory"
+  memory_path: ".ai/memory"
   project_name: "${workflow.project_name | default('Project')}"
   tech_stack: "${workflow.tech_stack | default('Auto-detect')}"
   architecture: "${workflow.architecture | default('Auto-detect')}"

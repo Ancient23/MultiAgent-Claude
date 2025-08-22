@@ -125,7 +125,7 @@ actions:
   - Update context_session with completion status
   - Update status files
   - Log completion
-  - Archive plan to .claude/memory/sessions/archive/
+  - Archive plan to .ai/memory/sessions/archive/
   - Update CHANGELOG if needed
 ```
 

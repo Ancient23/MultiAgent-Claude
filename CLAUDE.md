@@ -55,13 +55,8 @@ MultiAgent-Claude/
 ### 2. Standard File Paths
 ```
 .claude/
-├── tasks/context_session_*.md    # Session working memory
+├── tasks/context_session_*.md    # Session working memory (includes memory from .ai/memory/)
 ├── doc/[agent]-[task]-*.md       # Agent output plans
-├── memory/                        # Persistent knowledge base
-│   ├── project.md                 # Project-wide context
-│   ├── patterns/                  # Successful implementation patterns
-│   ├── decisions/                 # Architectural Decision Records (ADRs)
-│   └── index.json                 # Quick lookup index
 ├── agents/                        # Project-specific agents
 │   ├── prompt-engineer-specialist.md
 │   ├── template-evolution-tracker.md
@@ -73,11 +68,18 @@ MultiAgent-Claude/
     ├── generate-agent.md
     ├── test-cli.md
     └── sync-docs.md
+
+.ai/
+└── memory/                        # Unified persistent knowledge base (all platforms)
+    ├── project.md                 # Project-wide context
+    ├── patterns/                  # Successful implementation patterns
+    ├── decisions/                 # Architectural Decision Records (ADRs)
+    └── index.json                 # Quick lookup index
 ```
 
 ### 3. Agent Workflow
-1. Read session context from `.claude/tasks/context_session_*.md`
-2. Check memory system in `.claude/memory/`
+1. Read session context from `.claude/tasks/context_session_*.md` (contains relevant memory)
+2. Master agent loads memory from `.ai/memory/` and includes in context session
 3. Research using MCP tools (Context7, Sequential, etc.)
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
 5. Return path to parent: "Plan created at .claude/doc/..."
@@ -98,7 +100,7 @@ Examples:
 1. **Session Start**: Create `.claude/tasks/context_session_[timestamp].md` before any work
 2. **During Work**: Update context after each significant action
 3. **Agent Deployment**: Ensure context file exists before invoking agents
-4. **Session End**: Archive to `.claude/memory/sessions/archive/` if needed
+4. **Session End**: Archive to `.ai/memory/sessions/archive/` if needed
 
 #### Wave Execution Context Management
 When using `mac wave-execute`, the CLI automatically:
@@ -302,9 +304,9 @@ User Request → Specialist Agent (Sonnet) → User Response
 5. Return file path to parent, not plan content
 
 ### Memory System Usage
-1. Check `.claude/memory/project.md` for project conventions
-2. Scan `.claude/memory/patterns/` for existing solutions
-3. Reference ADRs in `.claude/memory/decisions/`
+1. Master agent checks `.ai/memory/project.md` for project conventions
+2. Scans `.ai/memory/patterns/` for existing solutions
+3. References ADRs in `.ai/memory/decisions/`
 4. Suggest (don't write) memory updates
 5. Document successful patterns after 2+ uses
 
@@ -350,7 +352,7 @@ mac init
 2. Paste into Claude Code conversation
 3. System will:
    - Analyze project structure
-   - Create memory system at .claude/memory/
+   - Create memory system at .ai/memory/
    - Generate specialized agents in .claude/agents/
    - Create commands in .claude/commands/
    - Update CLAUDE.md with orchestration rules

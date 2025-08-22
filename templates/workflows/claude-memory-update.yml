@@ -29,12 +29,12 @@ jobs:
         
       - name: Initialize Memory System
         run: |
-          # Ensure .claude/memory directory exists
-          if [ ! -d ".claude/memory" ]; then
+          # Ensure .ai/memory directory exists
+          if [ ! -d ".ai/memory" ]; then
             echo "Creating memory system directories..."
-            mkdir -p .claude/memory/{patterns,decisions,reports}
-            echo "# Project Context" > .claude/memory/project.md
-            echo "{}" > .claude/memory/index.json
+            mkdir -p .ai/memory/{patterns,decisions,reports}
+            echo "# Project Context" > .ai/memory/project.md
+            echo "{}" > .ai/memory/index.json
           fi
         
       - name: Analyze Changes
@@ -65,7 +65,7 @@ jobs:
         if: steps.analyze.outputs.api_changed == 'true'
         run: |
           # Only run if CLI and memory system are properly set up
-          if [ -f "cli/index.js" ] && [ -d ".claude/memory" ]; then
+          if [ -f "cli/index.js" ] && [ -d ".ai/memory" ]; then
             node cli/index.js memory update-from-commit \
               --commit ${{ github.sha }} \
               --update-project-context \
@@ -82,7 +82,7 @@ jobs:
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_NUMBER="${{ github.event.pull_request.number }}"
           PR_BODY="${{ github.event.pull_request.body }}"
-          ADR_FILE=".claude/memory/decisions/${DATE}-pr-${PR_NUMBER}.md"
+          ADR_FILE=".ai/memory/decisions/${DATE}-pr-${PR_NUMBER}.md"
           
           # Check if ADR already exists
           if [ -f "$ADR_FILE" ]; then
@@ -91,7 +91,7 @@ jobs:
           fi
           
           # Check for duplicate content based on PR number
-          if grep -r "related_pr: ${PR_NUMBER}" .claude/memory/decisions/ 2>/dev/null; then
+          if grep -r "related_pr: ${PR_NUMBER}" .ai/memory/decisions/ 2>/dev/null; then
             echo "ADR with PR #${PR_NUMBER} already documented"
             exit 0
           fi
@@ -158,7 +158,7 @@ jobs:
       - name: Generate Memory Report
         id: report
         run: |
-          mkdir -p .claude/memory/reports
+          mkdir -p .ai/memory/reports
           
           # Generate report to temp file first
           TEMP_REPORT="/tmp/memory-report-temp.md"
@@ -169,7 +169,7 @@ jobs:
           
           # Only save report if there are patterns/decisions or it's a milestone
           if [ "$PATTERN_COUNT" -gt "0" ] || [ "$((${{ github.run_number }} % 10))" -eq "0" ]; then
-            cp "$TEMP_REPORT" .claude/memory/reports/latest-report.md
+            cp "$TEMP_REPORT" .ai/memory/reports/latest-report.md
             echo "report_generated=true" >> $GITHUB_OUTPUT
           else
             echo "No meaningful changes to report"
@@ -183,18 +183,18 @@ jobs:
           git config --local user.name "GitHub Action"
           
           # Check for meaningful changes (exclude reports that are just timestamps)
-          CHANGES=$(git status --porcelain .claude/memory/ | grep -v "reports/" || true)
-          REPORT_CHANGED=$(git diff .claude/memory/reports/latest-report.md 2>/dev/null | grep -v "Generated:" | grep -v "Last Updated:" || true)
+          CHANGES=$(git status --porcelain .ai/memory/ | grep -v "reports/" || true)
+          REPORT_CHANGED=$(git diff .ai/memory/reports/latest-report.md 2>/dev/null | grep -v "Generated:" | grep -v "Last Updated:" || true)
           
           if [ -n "$CHANGES" ] || [ -n "$REPORT_CHANGED" ]; then
             # Only add files with real changes
             if [ -n "$CHANGES" ]; then
-              git add .claude/memory/patterns/ .claude/memory/decisions/ .claude/memory/project.md .claude/memory/index.json 2>/dev/null || true
+              git add .ai/memory/patterns/ .ai/memory/decisions/ .ai/memory/project.md .ai/memory/index.json 2>/dev/null || true
             fi
             
             # Only add report if it has meaningful changes
             if [ -n "$REPORT_CHANGED" ] && [ "${{ steps.report.outputs.report_generated }}" == "true" ]; then
-              git add .claude/memory/reports/latest-report.md
+              git add .ai/memory/reports/latest-report.md
             fi
             
             # Commit if there are staged changes
@@ -219,10 +219,10 @@ jobs:
           echo "## Memory System Statistics"
           echo ""
           echo "### Patterns"
-          ls -la .claude/memory/patterns/ 2>/dev/null | wc -l || echo "0 patterns"
+          ls -la .ai/memory/patterns/ 2>/dev/null | wc -l || echo "0 patterns"
           
           echo "### Decisions"
-          ls -la .claude/memory/decisions/ 2>/dev/null | wc -l || echo "0 decisions"
+          ls -la .ai/memory/decisions/ 2>/dev/null | wc -l || echo "0 decisions"
           
           echo "### Project Context"
-          wc -l .claude/memory/project.md 2>/dev/null || echo "No project context"
+          wc -l .ai/memory/project.md 2>/dev/null || echo "No project context"

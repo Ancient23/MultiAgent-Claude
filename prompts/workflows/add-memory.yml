@@ -43,7 +43,7 @@ metadata:
   modifies_files: true
 
 outputs:
-  - path: ".claude/memory/"
+  - path: ".ai/memory/"
     description: "New memory system"
   - path: "CLAUDE.md"
     description: "Updated with memory rules"
@@ -56,8 +56,8 @@ validation:
     - "Pattern Documentation"
     - "ADR System"
   required_files:
-    - ".claude/memory/project.md"
-    - ".claude/memory/index.json"
+    - ".ai/memory/project.md"
+    - ".ai/memory/index.json"
   preserve_files:
     - ".claude/agents/*.md"
     - ".claude/commands/*.md"

@@ -308,9 +308,9 @@ npm run lint          # Code style check
   }
 
   getDefaultMemoryNavigation() {
-    return `- **Patterns**: \`.claude/memory/patterns/\`
-- **Decisions**: \`.claude/memory/decisions/\`
-- **Project Context**: \`.claude/memory/project.md\``;
+    return `- **Patterns**: \`.ai/memory/patterns/\`
+- **Decisions**: \`.ai/memory/decisions/\`
+- **Project Context**: \`.ai/memory/project.md\``;
   }
 
   getDefaultWorkflowPatterns() {

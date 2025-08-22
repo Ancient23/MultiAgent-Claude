@@ -72,10 +72,10 @@ async function createAgent() {
 
   const memoryIntegration = `
 ## Memory System Integration
-1. Check .claude/memory/project.md for project conventions
+1. Check .ai/memory/project.md for project conventions
 2. Read .claude/tasks/context_session_*.md for current session context
-3. Review .claude/memory/patterns/ for existing successful solutions
-4. Consult .claude/memory/decisions/ for architectural decisions`;
+3. Review .ai/memory/patterns/ for existing successful solutions
+4. Consult .ai/memory/decisions/ for architectural decisions`;
 
   agentContent = agentContent.replace('## Core Workflow', memoryIntegration + '\n\n## Core Workflow');
 

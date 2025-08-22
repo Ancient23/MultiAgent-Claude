@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const { execSync } = require('child_process');
 
 function getMemoryPath() {
-  return path.join(process.cwd(), '.claude', 'memory');
+  return path.join(process.cwd(), '.ai', 'memory');
 }
 
 function generateContentHash(content) {
@@ -177,7 +177,7 @@ function searchMemory(query) {
 function addPattern() {
   console.log(chalk.blue('\n📝 Add New Pattern\n'));
   console.log(chalk.yellow('Create a new pattern file at:'));
-  console.log(chalk.cyan('.claude/memory/patterns/[pattern-name].md'));
+  console.log(chalk.cyan('.ai/memory/patterns/[pattern-name].md'));
   console.log(chalk.gray('\nTemplate with metadata:'));
   console.log(chalk.gray(`
 ---
@@ -214,7 +214,7 @@ function addDecision() {
   const date = new Date().toISOString().split('T')[0];
   console.log(chalk.blue('\n📝 Add New Architectural Decision\n'));
   console.log(chalk.yellow('Create a new ADR file at:'));
-  console.log(chalk.cyan(`.claude/memory/decisions/${date}-[decision-name].md`));
+  console.log(chalk.cyan(`.ai/memory/decisions/${date}-[decision-name].md`));
   console.log(chalk.gray('\nTemplate with metadata:'));
   console.log(chalk.gray(`
 ---
@@ -362,7 +362,7 @@ Detected from commit ${commitSha}`;
         }
       });
       
-      console.log(chalk.yellow('\nConsider documenting these in .claude/memory/patterns/'));
+      console.log(chalk.yellow('\nConsider documenting these in .ai/memory/patterns/'));
     } else {
       console.log(chalk.gray('No specific patterns detected'));
     }

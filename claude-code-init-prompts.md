@@ -54,10 +54,10 @@ First, check for existing Claude Code setup:
 - **Update context_session with findings**
 
 ### 1.2 Create Memory System
-Establish memory hierarchy at .claude/memory/:
+Establish memory hierarchy at .ai/memory/:
 
 ```markdown
-.claude/memory/
+.ai/memory/
 ├── project.md                    # Persistent project-wide context
 ├── patterns/                     # Documented successful patterns
 │   ├── authentication.md
@@ -126,8 +126,8 @@ Update root CLAUDE.md with orchestration rules:
   - Ensure exists before deploying agents
   - Agents MUST read before any work
 - **Agent Plans**: All agents output to .claude/doc/[agent]-[task]-[timestamp].md
-- **Project Memory**: Persistent context in .claude/memory/project.md
-- **Pattern Library**: Successful patterns in .claude/memory/patterns/
+- **Project Memory**: Persistent context in .ai/memory/project.md
+- **Pattern Library**: Successful patterns in .ai/memory/patterns/
 
 ### Agent Activation Matrix
 | Trigger Pattern | Primary Agent | Support Agents | Output Location |
@@ -183,7 +183,7 @@ Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
 
 ## Core Workflow
 1. Check .claude/tasks/context_session_*.md for session context
-2. Read .claude/memory/project.md for project patterns
+2. Read .ai/memory/project.md for project patterns
 3. Use Context7 MCP for latest documentation
 4. Research using Sequential MCP for complex analysis
 5. Create detailed plan with all implementation steps
@@ -238,7 +238,7 @@ description: "[Purpose]"
 
 ### Phase 1: Context Loading
 1. Read .claude/tasks/context_session_*.md for current state
-2. Read .claude/memory/project.md for patterns
+2. Read .ai/memory/project.md for patterns
 3. Determine complexity and agent needs
 
 ### Phase 2: Agent Delegation (if complex)
@@ -263,8 +263,8 @@ plan_content = read_file(plan_path)
 - Handle errors and rollbacks
 
 ### Phase 5: Documentation
-- Update .claude/memory/patterns/ if successful
-- Document decisions in .claude/memory/decisions/
+- Update .ai/memory/patterns/ if successful
+- Document decisions in .ai/memory/decisions/
 - Update session context with completion status
 ```
 
@@ -356,7 +356,7 @@ Generate .claude/tests/integration.md:
 ## Memory System
 - [ ] Session context readable from .claude/tasks/context_session_*.md
 - [ ] Agents creating plans in .claude/doc/
-- [ ] Project memory persisting in .claude/memory/
+- [ ] Project memory persisting in .ai/memory/
 
 ## Agent Activation
 - [ ] Correct agent triggered for keywords
@@ -395,7 +395,7 @@ Create Claude Code environment for this Next.js project.
 Use established memory patterns:
 - Session: .claude/tasks/context_session_*.md
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md
-- Memory: .claude/memory/ for patterns and decisions
+- Memory: .ai/memory/ for patterns and decisions
 
 Generate agents for:
 - React components (using Magic MCP if available)
@@ -414,7 +414,7 @@ Setup Claude Code for this FastAPI project.
 Memory locations:
 - Session context: .claude/tasks/context_session_*.md
 - Agent plans: .claude/doc/[agent]-[task]-[timestamp].md
-- Patterns: .claude/memory/patterns/
+- Patterns: .ai/memory/patterns/
 
 Create research-only agents for:
 - API endpoint design
@@ -433,7 +433,7 @@ Initialize Claude Code for full-stack development.
 Critical paths:
 - Session: .claude/tasks/context_session_*.md (maintain across agents)
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md (agent outputs)
-- Memory: .claude/memory/ (persistent patterns)
+- Memory: .ai/memory/ (persistent patterns)
 
 Create orchestrator and specialized agents:
 - fullstack-orchestrator (coordinates frontend/backend)
@@ -480,7 +480,7 @@ Create multi-agent system for microservices.
 Memory strategy:
 - Global context: .claude/tasks/context_session_*.md
 - Service plans: .claude/doc/[service]-[agent]-[task]-[timestamp].md
-- Shared patterns: .claude/memory/patterns/microservices/
+- Shared patterns: .ai/memory/patterns/microservices/
 
 Create service-specific agents that:
 - Read global session context
@@ -497,7 +497,7 @@ Create service-specific agents that:
    - Final status: "Initialization Complete"
    - Summary of created agents and commands
    - List of all files created/modified
-2. Optionally archive to `.claude/memory/sessions/archive/` for future reference
+2. Optionally archive to `.ai/memory/sessions/archive/` for future reference
 3. Document any outstanding tasks or recommendations
 
 ## Validation Checklist
@@ -509,7 +509,7 @@ After running this initialization, verify:
 - [ ] Context session updated throughout initialization
 - [ ] Agents successfully reading context session
 - [ ] .claude/doc/ contains agent plans with proper naming
-- [ ] .claude/memory/ has project.md and patterns/
+- [ ] .ai/memory/ has project.md and patterns/
 
 ✅ **Agent Behavior**
 - [ ] Agents read session context first

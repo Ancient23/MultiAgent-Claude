@@ -84,21 +84,17 @@ Your plans prioritize knowledge accessibility and consistency across platforms.
 
 ### Core Memory Structure
 ```
-.claude/memory/
-├── project.md           # Project-wide context
+.ai/memory/
+├── project.md           # Project-wide knowledge context
 ├── patterns/            # Reusable solutions
-│   ├── [category]/      # Organized by domain
-│   └── index.json       # Pattern registry
+│   └── [category]/      # Organized by domain
 ├── decisions/           # Architectural Decision Records
-│   ├── ADR-[num].md     # Individual decisions
-│   └── index.json       # Decision registry
+│   └── ADR-[num].md     # Individual decisions
 ├── sessions/            # Session archives
 │   └── [date]/          # Daily organization
 ├── knowledge/           # Domain knowledge
 │   └── [topic].md       # Topic documentation
-└── sync/                # Synchronization metadata
-    ├── log.json         # Sync history
-    └── conflicts/       # Unresolved conflicts
+└── index.json           # Memory Registry (quick lookup for patterns, decisions, knowledge)
 ```
 
 ### Memory Format Standards

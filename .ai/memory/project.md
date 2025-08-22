@@ -22,7 +22,6 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 .claude/                    # Claude-specific configuration
 ├── agents/                # Project agents
 ├── commands/             # Project commands
-├── memory/               # Knowledge base
 └── tasks/                # Session contexts
 
 .chatgpt/                  # OpenAI-specific configuration
@@ -30,6 +29,9 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 ├── bundles/              # File bundles
 ├── workflows/            # Step-by-step guides
 └── sync/                 # Sync metadata
+
+.ai/
+└── memory/               # Knowledge base
 ```
 
 ### Development Patterns

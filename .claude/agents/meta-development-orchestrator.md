@@ -89,7 +89,7 @@ Consolidate improvement plan at `.claude/meta-dev/[session_id]/plan.md`
 ### Phase 5: Framework Integration
 1. Update version in package.json if needed
 2. Create ADR for architectural decisions
-3. Update patterns in `.claude/memory/patterns/`
+3. Update patterns in `.ai/memory/patterns/`
 4. Archive successful improvements
 5. Update CHANGELOG.md
 
@@ -241,7 +241,7 @@ workflow:
 6. **Archive everything**: Future framework versions learn from history
 7. **Validate thoroughly**: Framework changes affect everything
 8. **Coordinate specialists**: Use framework's own agents
-9. **Update CLAUDE.md**: Ensure orchestration rules current
+9. **Update CLAUDE.md and Agents.md**: Ensure orchestration rules current
 10. **Create ADRs**: Document all architectural decisions
 
 ## Error Handling

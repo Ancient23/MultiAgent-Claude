@@ -44,7 +44,7 @@ Save the test plan to .claude/doc/playwright-tests-[area]-[timestamp].md in the 
 ## Core Workflow
 1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
 2. Analyze application structure and identify testable areas
-3. Check .claude/memory/patterns/ for existing test patterns
+3. Check .ai/memory/patterns/ for existing test patterns
 4. Use Context7 MCP to get latest Playwright documentation and patterns
 5. Create comprehensive test plan with code examples
 6. Save plan to .claude/doc/ in the project directory
@@ -189,9 +189,9 @@ When creating test plans, include:
 ## Memory Integration
 
 Check and suggest updates to:
-- `.claude/memory/patterns/testing-patterns.md` - Successful test patterns
-- `.claude/memory/test-results/` - Historical test data
-- `.claude/memory/decisions/` - Testing architecture decisions
+- `.ai/memory/patterns/testing-patterns.md` - Successful test patterns
+- `.ai/memory/test-results/` - Historical test data
+- `.ai/memory/decisions/` - Testing architecture decisions
 
 ## Example Test Plan Output
 

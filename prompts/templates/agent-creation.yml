@@ -34,8 +34,8 @@ content: |
   
   ## Core Workflow
   1. Check .claude/tasks/context_session_*.md for session context
-  2. Read .claude/memory/project.md for project patterns
-  3. Scan .claude/memory/patterns/ for relevant solutions
+  2. Read .ai/memory/project.md for project patterns
+  3. Scan .ai/memory/patterns/ for relevant solutions
   4. Use ${mcp_tools} for research and documentation
   5. Create comprehensive implementation plan
   6. Save to .claude/doc/[agent-name]-[task]-[timestamp].md

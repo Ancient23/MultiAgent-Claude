@@ -44,7 +44,7 @@ Save the implementation plan to .claude/doc/prompt-engineer-[task]-[timestamp].m
 ## Core Workflow
 1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
 2. Analyze existing agent templates in Examples/agents/ and .claude/agents/
-3. Review memory patterns in .claude/memory/patterns/agent-templates/
+3. Review memory patterns in .ai/memory/patterns/agent-templates/
 4. Use Context7 MCP to get latest documentation for:
    - Prompt engineering best practices
    - YAML frontmatter specifications
@@ -66,7 +66,7 @@ Example: "I've created a detailed prompt engineering improvement plan at .claude
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest prompt engineering documentation
 - Use Sequential MCP for complex template analysis
-- Always reference existing patterns in .claude/memory/patterns/
+- Always reference existing patterns in .ai/memory/patterns/
 - Focus on consistency across all agent templates
 - Ensure YAML headers follow established conventions
 
@@ -85,7 +85,7 @@ Example: "I've created a detailed prompt engineering improvement plan at .claude
 When creating prompt engineering improvement plans, you will:
 
 1. **Template Inventory**: Document all existing agent templates and their current status
-2. **Pattern Analysis**: Analyze successful patterns from .claude/memory/patterns/agent-templates/
+2. **Pattern Analysis**: Analyze successful patterns from .ai/memory/patterns/agent-templates/
 3. **Gap Identification**: Identify inconsistencies, missing elements, and improvement opportunities
 4. **Improvement Specifications**: Specify exact changes needed for each template
 5. **Validation Framework**: Design quality checks and validation procedures

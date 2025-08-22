@@ -44,11 +44,11 @@ step: "Initialize session context"
 handler: main-system
 actions:
   - Generate session ID (timestamp-based)
-  - Create .claude/memory/tasks/context_session_[timestamp].md
-  - Load .claude/memory/project.md into session context
+  - Create .ai/memory/tasks/context_session_[timestamp].md
+  - Load .ai/memory/project.md into session context
   - Document initial task list and objectives
   - Set session metadata (start time, user, goals)
-output: .claude/memory/tasks/context_session_[timestamp].md
+output: .ai/memory/tasks/context_session_[timestamp].md
 ```
 
 ## Command Execution Pattern
@@ -59,7 +59,7 @@ step: "Get analysis plan from specialists"
 agents: 
   - aws-backend-architect (for AWS analysis plan)
   - codebase-truth-analyzer (for verification plan)
-context_input: .claude/memory/tasks/context_session_*.md (latest)
+context_input: .ai/memory/tasks/context_session_*.md (latest)
 purpose: "Create discovery and validation plan"
 actions:
   - Read session context if available
@@ -78,7 +78,7 @@ step: "Main system executes discovery"
 handler: main-system
 input: 
   - Plans from .claude/doc/
-  - Context from .claude/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_*.md
 actions:
   - Execute AWS CLI commands per plan
   - Check Vercel logs as specified
@@ -90,7 +90,7 @@ actions:
     * Dependencies mapped
     * Blockers documented
 tools: [mcp__aws-api-mcp-server__call_aws, Bash, Read, Grep, TodoWrite, Write]
-output_update: .claude/memory/tasks/context_session_*.md (append findings)
+output_update: .ai/memory/tasks/context_session_*.md (append findings)
 ```
 
 ### Wave 2: Implementation Planning
@@ -99,7 +99,7 @@ step: "Get implementation plan from specialists"
 agents:
   - fullstack-feature-orchestrator (for feature plan)
   - ai-agent-architect (for agent system plan)
-context_input: .claude/memory/tasks/context_session_*.md (with Wave 1 findings)
+context_input: .ai/memory/tasks/context_session_*.md (with Wave 1 findings)
 purpose: "Create detailed implementation plan based on discoveries"
 actions:
   - Read updated session context with findings
@@ -119,7 +119,7 @@ step: "Main system implements per plans"
 handler: main-system
 input: 
   - Implementation plans from .claude/doc/
-  - Context from .claude/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_*.md
 actions:
   - Implement fixes as specified in plans
   - Add error handling per specifications
@@ -131,7 +131,7 @@ actions:
     * New discoveries
 tools: [Edit, MultiEdit, Write]
 confidence_threshold: 85%
-output_update: .claude/memory/tasks/context_session_*.md (append implementation notes)
+output_update: .ai/memory/tasks/context_session_*.md (append implementation notes)
 ```
 
 ### Wave 3: Deployment Planning
@@ -140,7 +140,7 @@ step: "Get deployment plan from specialists"
 agents:
   - aws-deployment-specialist (for AWS deployment plan)
   - vercel-deployment-troubleshooter (for Vercel plan)
-context_input: .claude/memory/tasks/context_session_*.md (with implementation details)
+context_input: .ai/memory/tasks/context_session_*.md (with implementation details)
 purpose: "Create deployment strategy based on implementations"
 actions:
   - Read session context with implementation details
@@ -160,7 +160,7 @@ step: "Main system deploys per plans"
 handler: main-system
 input: 
   - Deployment plans from .claude/doc/
-  - Context from .claude/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_*.md
 actions:
   - Deploy Lambda functions as specified
   - Run terraform commands per plan
@@ -173,7 +173,7 @@ actions:
     * Errors encountered
     * Rollback actions taken
 tools: [Bash, mcp__aws-api-mcp-server__call_aws, Git commands, Write]
-output_update: .claude/memory/tasks/context_session_*.md (append deployment results)
+output_update: .ai/memory/tasks/context_session_*.md (append deployment results)
 ```
 
 ### Wave 4: Testing Planning
@@ -182,7 +182,7 @@ step: "Get testing plan from specialists"
 agents:
   - codebase-truth-analyzer (for test strategy)
   - ui-design-auditor (for UI testing plan)
-context_input: .claude/memory/tasks/context_session_*.md (with deployment info)
+context_input: .ai/memory/tasks/context_session_*.md (with deployment info)
 purpose: "Create comprehensive testing plan"
 actions:
   - Read session context with deployment endpoints
@@ -201,7 +201,7 @@ step: "Main system executes tests"
 handler: main-system
 input:
   - Testing plans from .claude/doc/
-  - Context from .claude/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_*.md
 actions:
   - Run API tests with authentication
   - Execute Playwright E2E tests
@@ -213,20 +213,20 @@ actions:
     * Performance data
 tools: [Bash, mcp__playwright__browser_*, TodoWrite, Write]
 coverage_target: 90%
-output_update: .claude/memory/tasks/context_session_*.md (append test results)
+output_update: .ai/memory/tasks/context_session_*.md (append test results)
 ```
 
 ### Wave 5: Documentation Planning
 ```yaml
 step: "Get documentation plan from specialist"
 agent: documentation-architect
-context_input: .claude/memory/tasks/context_session_*.md (complete session)
+context_input: .ai/memory/tasks/context_session_*.md (complete session)
 purpose: "Create documentation strategy"
 actions:
   - Read entire session context
   - Plan summary documentation
-  - Identify patterns for .claude/memory/patterns/
-  - Document decisions for .claude/memory/decisions/
+  - Identify patterns for .ai/memory/patterns/
+  - Document decisions for .ai/memory/decisions/
   - Specify cleanup tasks
 output: .claude/doc/documentation-plan-[timestamp].md
 ```
@@ -237,20 +237,20 @@ step: "Main system creates documentation"
 handler: main-system
 input:
   - Documentation plan from .claude/doc/
-  - Complete context from .claude/memory/tasks/
+  - Complete context from .ai/memory/tasks/
 actions:
   - Create WAVE_EXECUTION_SUMMARY.md
-  - Extract patterns to .claude/memory/patterns/
-  - Document decisions in .claude/memory/decisions/
-  - Update .claude/memory/project.md with learnings
-  - Update .claude/memory/index.json
+  - Extract patterns to .ai/memory/patterns/
+  - Document decisions in .ai/memory/decisions/
+  - Update .ai/memory/project.md with learnings
+  - Update .ai/memory/index.json
   - Archive session context
   - Create NEXT_WAVE_TASKS.md if needed
 tools: [Write, Read, Bash]
 final_outputs:
   - WAVE_EXECUTION_SUMMARY.md
-  - .claude/memory/patterns/[pattern].md (if new patterns)
-  - .claude/memory/decisions/[decision].md (if new decisions)
+  - .ai/memory/patterns/[pattern].md (if new patterns)
+  - .ai/memory/decisions/[decision].md (if new decisions)
   - NEXT_WAVE_TASKS.md (if incomplete items)
 ```
 
@@ -350,22 +350,22 @@ memory_updated: true
 
 ### Required Deliverables
 1. `WAVE_EXECUTION_SUMMARY.md` - Complete execution report
-2. `.claude/memory/tasks/context_session_*.md` - Full session context
-3. `.claude/memory/patterns/*.md` - Extracted patterns
-4. `.claude/memory/decisions/*.md` - Architectural decisions
+2. `.ai/memory/tasks/context_session_*.md` - Full session context
+3. `.ai/memory/patterns/*.md` - Extracted patterns
+4. `.ai/memory/decisions/*.md` - Architectural decisions
 5. `NEXT_WAVE_TASKS.md` - Remaining tasks (if any)
 
 ### Memory Updates
-- `.claude/memory/project.md` - Updated with session learnings
-- `.claude/memory/index.json` - Updated with new entries
+- `.ai/memory/project.md` - Updated with session learnings
+- `.ai/memory/index.json` - Updated with new entries
 
 ## Error Handling
 
 ### Context Recovery
 ```yaml
 if_context_missing:
-  - Check .claude/memory/tasks/ for latest
-  - Fallback to .claude/memory/project.md
+  - Check .ai/memory/tasks/ for latest
+  - Fallback to .ai/memory/project.md
   - Create new session if none exists
 ```
 
@@ -380,7 +380,7 @@ preserve_context: always
 ## Integration with SuperClaude
 
 ### Memory-Aware Execution
-- Reads from `.claude/memory/` hierarchy
+- Reads from `.ai/memory/` hierarchy
 - Updates persistent project knowledge
 - Maintains session isolation
 - Enables learning across sessions

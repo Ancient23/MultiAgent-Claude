@@ -113,12 +113,13 @@ Having agents only create plans rather than directly modifying code provides sev
 ### Structure and Purpose
 
 ```
-.claude/
+.ai/
 ├── memory/
 │   ├── project.md           # Project-wide conventions and context
 │   ├── patterns/            # Successful implementation patterns
 │   ├── decisions/           # Architectural Decision Records (ADRs)
 │   └── index.json          # Quick lookup and statistics
+.claude/
 ├── tasks/
 │   └── context_session_*.md # Current session working memory
 └── doc/
@@ -137,7 +138,7 @@ Having agents only create plans rather than directly modifying code provides sev
 
 - **Session Context** (`.claude/tasks/`): Immediate task focus
 - **Agent Plans** (`.claude/doc/`): Detailed implementation blueprints  
-- **Persistent Memory** (`.claude/memory/`): Long-term project knowledge
+- **Persistent Memory** (`.ai/memory/`): Long-term project knowledge
 
 This tiered approach ensures:
 - Fast access to current task information
@@ -660,7 +661,7 @@ The workflow includes:
 
 #### Memory Integration
 Test results are automatically documented:
-- Failed tests create entries in `.claude/memory/test-results/failures/`
+- Failed tests create entries in `.ai/memory/test-results/failures/`
 - Visual regressions tracked over time
 - Test patterns documented for reuse
 - Coverage metrics stored for analysis

@@ -1,20 +1,20 @@
 # Claude Code Working Directories
 .claude/tasks/
 .claude/doc/
-.claude/memory/sessions/
-.claude/memory/index.json
+.ai/memory/sessions/
 
 # CI/CD temporary memory files
-.claude/memory/reports/ci-*.md
-.claude/memory/test-results/ci-shard-*.json
-.claude/memory/test-results/failure-shard-*.json
+.ai/memory/reports/ci-*.md
+.ai/memory/test-results/ci-shard-*.json
+.ai/memory/test-results/failure-shard-*.json
 
 # Keep memory patterns and decisions (they're valuable documentation)
-!.claude/memory/patterns/
-!.claude/memory/decisions/
-!.claude/memory/project.md
-!.claude/memory/HOW_TO_USE.md
-!.claude/memory/reports/latest-report.md
+!.ai/memory/patterns/
+!.ai/memory/decisions/
+!.ai/memory/project.md
+!.ai/memory/HOW_TO_USE.md
+!.ai/memory/index.json
+!.ai/memory/reports/latest-report.md
 
 # OS Files
 .DS_Store
@@ -176,7 +176,6 @@ test-results/
 # Large files
 *.pdf
 *.psd
-*.ai
 *.sketch
 
 # Keep Examples directory intact

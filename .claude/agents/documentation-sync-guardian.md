@@ -45,7 +45,7 @@ Save the implementation plan to .claude/doc/documentation-sync-[task]-[timestamp
 1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
 2. Analyze current documentation state across all sources (README.md, CLAUDE.md, agent templates, etc.)
 3. Compare documentation with actual implementation in cli/ and Examples/
-4. Review .claude/memory/documentation/ for documented gaps and inconsistencies
+4. Review .ai/memory/documentation/ for documented gaps and inconsistencies
 5. Use Context7 MCP to get latest documentation for:
    - Documentation management best practices
    - Technical writing standards

@@ -58,7 +58,7 @@ When working on specific areas, adopt these specialized roles:
 - Testing: Playwright tests, visual regression, E2E scenarios
 
 ## Memory System
-Check `.claude/memory/` for:
+Check `.ai/memory/` for:
 - `/patterns/` - Proven solutions
 - `/decisions/` - Architectural Decision Records
 - `/project.md` - Project conventions
@@ -129,7 +129,7 @@ function convertAgentToRole(agentPath) {
 ```javascript
 // Convert memory structure to uploadable files
 function convertMemoryToProject() {
-  // Scan .claude/memory/
+  // Scan .ai/memory/
   // Extract key patterns
   // Compress ADRs
   // Create snapshot
@@ -170,7 +170,7 @@ Create step-by-step guides for common workflows:
 **Feature Development Workflow:**
 ```markdown
 1. Read context: .claude/tasks/context_session_*.md
-2. Check memory: .claude/memory/patterns/
+2. Check memory: .ai/memory/patterns/
 3. Research using web search
 4. Create plan: .claude/doc/feature-plan-[timestamp].md
 5. Implement following plan
@@ -184,7 +184,7 @@ Create step-by-step guides for common workflows:
 **Essential Files Bundle (5-10 files max):**
 1. `AGENTS.md` - Main configuration
 2. `.chatgpt/project-instructions.md` - Compressed instructions
-3. `.claude/memory/project.md` - Project conventions
+3. `.ai/memory/project.md` - Project conventions
 4. `package.json` - Dependencies and scripts
 5. `README.md` - Project overview
 6. `.chatgpt/role-definitions/current-role.md` - Active role
@@ -215,14 +215,13 @@ function loadContextForTask(taskType) {
 
 **Unified Memory Structure:**
 ```
-.claude/memory/
+.ai/memory/
 ├── project.md           # Both systems read/write
 ├── patterns/           # Shared successful solutions
 │   └── [pattern].md    # Markdown format
 ├── decisions/          # Architectural Decision Records
 │   └── ADR-[number].md # Standard ADR format
-├── index.json          # Quick lookup for both systems
-└── sync.log            # Track updates from both platforms
+└──  index.json          # Quick memory lookup
 ```
 
 #### 5.2 Decision Documentation

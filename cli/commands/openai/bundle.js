@@ -138,7 +138,7 @@ async function validateFile(filePath) {
 }
 
 async function createMemorySnapshot() {
-  const memoryDir = path.join(process.cwd(), '.claude', 'memory');
+  const memoryDir = path.join(process.cwd(), '.ai', 'memory');
   const snapshotDir = path.join(process.cwd(), '.chatgpt', 'snapshots');
   
   if (!await fs.pathExists(memoryDir)) {

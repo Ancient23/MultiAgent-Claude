@@ -9,8 +9,8 @@ description: "Generate comprehensive Playwright tests for the application"
 1. Read .claude/tasks/context_session_*.md for current context
 2. Analyze application structure and routes
 3. Identify critical user paths
-4. Check .claude/memory/patterns/ for existing test patterns
-5. Review .claude/memory/test-results/ for historical test data
+4. Check .ai/memory/patterns/ for existing test patterns
+5. Review .ai/memory/test-results/ for historical test data
 
 ### Phase 2: Test Planning
 Invoke playwright-test-engineer agent to create test plan:
@@ -205,7 +205,7 @@ Update GitHub Actions workflow:
 
 ### Phase 7: Memory Integration
 Document patterns and results:
-- Save successful test patterns to .claude/memory/patterns/testing/
+- Save successful test patterns to .ai/memory/patterns/testing/
 - Track test coverage trends
 - Document flaky tests for investigation
 - Create ADRs for testing decisions

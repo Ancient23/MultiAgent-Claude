@@ -67,12 +67,9 @@ CLAUDE.md (Claude Code)          AGENTS.md (OpenAI Codex)
 │   └── [other-roles].md
 ├── bundles/                   # Task-specific file bundles
 │   └── [task]-bundle-[date].zip
-├── workflows/                 # Step-by-step procedures
-│   ├── feature-development.md
-│   └── bug-fixing.md
-├── snapshots/                 # Memory snapshots
-└── sync/                      # Synchronization metadata
-    └── metadata.json
+└── workflows/                 # Step-by-step procedures
+    ├── feature-development.md
+    └── bug-fixing.md
 ```
 
 ## CLI Commands
@@ -191,10 +188,10 @@ When user mentions: UI, components, React, frontend...
 
 ### Shared Memory Format
 
-Both platforms read/write to `.claude/memory/`:
+Both platforms read/write to `.ai/memory/`:
 
 ```
-.claude/memory/
+.ai/memory/
 ├── project.md          # Project conventions (both platforms)
 ├── patterns/           # Successful solutions
 │   ├── openai-compatibility-pattern.md
@@ -263,6 +260,7 @@ mac openai sync
    - Uses role instructions
    - Follows workflows in `.chatgpt/workflows/`
    - Updates AGENTS.md
+   - Documents patterns in memory
 
 3. **Both**:
    - Run `mac openai sync` regularly

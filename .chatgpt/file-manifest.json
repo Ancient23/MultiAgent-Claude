@@ -31,7 +31,7 @@
         ".chatgpt/project-instructions.md",
         "Examples/agents/specialists/TEMPLATE-agent.md",
         "Examples/agents/manifest.json",
-        ".claude/memory/patterns/agent-creation-pattern.md",
+        ".ai/memory/patterns/agent-creation-pattern.md",
         ".chatgpt/roles/agent-developer-role.md"
       ],
       "maxSize": "8MB"
@@ -53,9 +53,9 @@
       "files": [
         "AGENTS.md",
         ".chatgpt/project-instructions.md",
-        ".claude/memory/project.md",
-        ".claude/memory/patterns/index.json",
-        ".claude/memory/decisions/index.json",
+        ".ai/memory/project.md",
+        ".ai/memory/patterns/index.json",
+        ".ai/memory/decisions/index.json",
         ".chatgpt/roles/memory-curator-role.md"
       ],
       "maxSize": "5MB"

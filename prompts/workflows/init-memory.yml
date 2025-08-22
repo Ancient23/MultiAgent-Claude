@@ -42,11 +42,11 @@ metadata:
   modifies_files: false
 
 outputs:
-  - path: ".claude/memory/"
+  - path: ".ai/memory/"
     description: "Memory system structure"
-  - path: ".claude/memory/project.md"
+  - path: ".ai/memory/project.md"
     description: "Project context document"
-  - path: ".claude/memory/index.json"
+  - path: ".ai/memory/index.json"
     description: "Memory index file"
 
 validation:
@@ -55,7 +55,7 @@ validation:
     - "Phase 1: Project Analysis"
     - "Create Memory System"
   required_files:
-    - ".claude/memory/project.md"
-    - ".claude/memory/index.json"
-    - ".claude/memory/patterns/"
-    - ".claude/memory/decisions/"
+    - ".ai/memory/project.md"
+    - ".ai/memory/index.json"
+    - ".ai/memory/patterns/"
+    - ".ai/memory/decisions/"

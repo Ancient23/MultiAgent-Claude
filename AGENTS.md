@@ -23,12 +23,17 @@ src/
 │   └── tests/            # Test templates
 ├── tests/                 # Test suite
 ├── .claude/              # Claude-specific configuration
-│   ├── memory/           # Knowledge base
 │   ├── agents/           # Project agents
 │   └── tasks/            # Session contexts
-└── .chatgpt/             # OpenAI-specific configuration
-    ├── bundles/          # Optimized file bundles
-    └── roles/            # Agent role instructions
+├── .chatgpt/             # OpenAI-specific configuration
+│   ├── bundles/          # Optimized file bundles
+│   └── roles/            # Agent role instructions
+└── .ai/
+    └── memory/                        # Unified persistent knowledge base (all platforms)
+        ├── project.md                 # Project-wide context
+        ├── patterns/                  # Successful implementation patterns
+        ├── decisions/                 # Architectural Decision Records (ADRs)
+        └── index.json                 # Quick lookup index
 ```
 
 ## Role Guidelines
@@ -63,7 +68,7 @@ src/
 **Triggers**: Memory, patterns, ADRs, knowledge base, documentation
 
 **Approach**:
-1. Review `.claude/memory/` structure
+1. Review `.ai/memory/` structure
 2. Document patterns after 2+ successful uses
 3. Create ADRs for architectural decisions
 4. Update project.md with conventions
@@ -125,16 +130,15 @@ npm run visual:update  # Update baseline screenshots
 ## Memory System Navigation
 
 ### Key Locations
-- **Project Context**: `.claude/memory/project.md` - Conventions and standards
-- **Patterns**: `.claude/memory/patterns/` - Proven solutions by domain
-- **Decisions**: `.claude/memory/decisions/` - Architectural Decision Records
-- **Session Context**: `.claude/tasks/context_session_*.md` - Current work state
-- **ChatGPT Memory**: `.chatgpt/memory/` - Task notes and ADRs for Codex sessions
+- **Project Context**: `.ai/memory/project.md` - Conventions and standards
+- **Patterns**: `.ai/memory/patterns/` - Proven solutions by domain
+- **Decisions**: `.ai/memory/decisions/` - Architectural Decision Records
+- **Session Context**: `.claude/tasks/context_session_*.md` - Current work state (includes relevant memory)
 
-### OpenAI Memory Usage
-When working through Codex/ChatGPT:
+### Unified Memory Usage
+When working through any platform:
 1. Load `.chatgpt/project-instructions.md` for repository guidelines.
-2. Search `.chatgpt/memory/` for files related to the current task or component.
+2. Search `.ai/memory/` for files related to the current task or component.
 3. Incorporate relevant notes and decisions into planning and implementation.
 
 ### Pattern Documentation
@@ -147,7 +151,7 @@ When discovering successful patterns:
 
 ### Decision Records
 For architectural decisions:
-1. Create ADR in `.claude/memory/decisions/`
+1. Create ADR in `.ai/memory/decisions/`
 2. Include context, decision, and consequences
 3. Document both Claude and OpenAI considerations
 4. Reference in related implementations
