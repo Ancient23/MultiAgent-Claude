@@ -184,50 +184,102 @@ class VariableResolver {
     }
 
     /**
+     * Parse function arguments, handling quoted strings properly
+     */
+    parseArguments(argsString) {
+        if (!argsString.trim()) return [];
+        
+        const args = [];
+        let current = '';
+        let inQuotes = false;
+        let quoteChar = null;
+        
+        for (let i = 0; i < argsString.length; i++) {
+            const char = argsString[i];
+            
+            if (!inQuotes && (char === '"' || char === "'")) {
+                inQuotes = true;
+                quoteChar = char;
+            } else if (inQuotes && char === quoteChar) {
+                inQuotes = false;
+                quoteChar = null;
+            } else if (!inQuotes && char === ',') {
+                args.push(current.trim());
+                current = '';
+                continue;
+            }
+            
+            current += char;
+        }
+        
+        if (current.trim()) {
+            args.push(current.trim());
+        }
+        
+        return args;
+    }
+
+    /**
+     * Evaluate a string literal or variable reference
+     */
+    evaluateArgument(arg, context) {
+        arg = arg.trim();
+        
+        // Handle string literals
+        if ((arg.startsWith('"') && arg.endsWith('"')) || 
+            (arg.startsWith("'") && arg.endsWith("'"))) {
+            return arg.slice(1, -1);
+        }
+        
+        // Handle variable references
+        return this.getValue(arg, context);
+    }
+
+    /**
      * Call a function in the expression
      */
     callFunction(expression, context) {
         const match = expression.match(/(\w+)\((.*)\)/);
         if (!match) return undefined;
         
-        const [, funcName, args] = match;
+        const [, funcName, argsString] = match;
+        const args = this.parseArguments(argsString);
         
         // Built-in functions
         switch (funcName) {
             case 'upper':
-                return this.getValue(args, context)?.toUpperCase();
+                return this.evaluateArgument(args[0] || '', context)?.toUpperCase();
             case 'lower':
-                return this.getValue(args, context)?.toLowerCase();
+                return this.evaluateArgument(args[0] || '', context)?.toLowerCase();
             case 'capitalize':
-                return this.capitalize(this.getValue(args, context));
+                return this.capitalize(this.evaluateArgument(args[0] || '', context));
             case 'trim':
-                return this.getValue(args, context)?.trim();
+                return this.evaluateArgument(args[0] || '', context)?.trim();
             case 'length':
-                const val = this.getValue(args, context);
+                const val = this.evaluateArgument(args[0] || '', context);
                 return Array.isArray(val) || typeof val === 'string' ? val.length : 0;
             case 'join':
-                const [arrayExpr, separator] = args.split(',').map(a => a.trim());
-                const array = this.getValue(arrayExpr, context);
-                const sep = separator ? this.getValue(separator.replace(/['"]/g, ''), context) : ',';
-                return Array.isArray(array) ? array.join(sep) : '';
+                const array = this.evaluateArgument(args[0] || '', context);
+                const separator = args[1] ? this.evaluateArgument(args[1], context) : ',';
+                return Array.isArray(array) ? array.join(separator) : '';
             case 'default':
-                const [valueExpr, defaultExpr] = args.split(',').map(a => a.trim());
-                const value = this.getValue(valueExpr, context);
+                const value = this.evaluateArgument(args[0] || '', context);
+                const defaultValue = args[1] ? this.evaluateArgument(args[1], context) : '';
                 return value !== undefined && value !== null && value !== '' 
                     ? value 
-                    : this.getValue(defaultExpr.replace(/['"]/g, ''), context);
+                    : defaultValue;
             case 'exists':
-                return this.getValue(args, context) !== undefined;
+                return this.evaluateArgument(args[0] || '', context) !== undefined;
             case 'empty':
-                const checkVal = this.getValue(args, context);
+                const checkVal = this.evaluateArgument(args[0] || '', context);
                 return !checkVal || (Array.isArray(checkVal) && checkVal.length === 0);
             case 'not':
-                return !this.getValue(args, context);
+                return !this.evaluateArgument(args[0] || '', context);
             case 'if':
-                const [condition, trueVal, falseVal] = args.split(',').map(a => a.trim());
-                return this.getValue(condition, context) 
-                    ? this.getValue(trueVal, context)
-                    : this.getValue(falseVal, context);
+                const condition = this.evaluateArgument(args[0] || '', context);
+                const trueVal = args[1] ? this.evaluateArgument(args[1], context) : '';
+                const falseVal = args[2] ? this.evaluateArgument(args[2], context) : '';
+                return condition ? trueVal : falseVal;
             default:
                 // Check custom functions
                 if (this.options.customFunctions && this.options.customFunctions[funcName]) {
@@ -309,8 +361,14 @@ class VariableResolver {
                     return value;
                 }
                 if (args) {
-                    // Handle function calls in default value like process.cwd()
-                    return this.getValue(args.replace(/['"]/g, ''), context);
+                    // Remove quotes and evaluate the default value
+                    const defaultValue = args.replace(/['"]/g, '');
+                    // Check if it's a function call first
+                    if (defaultValue.includes('(') && defaultValue.includes(')')) {
+                        return this.callFunction(defaultValue, context);
+                    }
+                    // Otherwise get the value normally
+                    return this.getValue(defaultValue, context);
                 }
                 return '';
             default:
