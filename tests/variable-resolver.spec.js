@@ -340,7 +340,7 @@ test.describe('VariableResolver', () => {
       
       expect(result).toContain('TEST-PROJECT');
       expect(result).toContain('Version: 1.0.0');
-      expect(result).toContain('/very/long/path/to/...');
+      expect(result).toContain('/very/long/path/to/p...');
       expect(result).toContain('item1, item2, item3');
     });
   });

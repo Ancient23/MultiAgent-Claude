@@ -372,8 +372,8 @@ class PromptComposer {
             return this.evaluateTruthy(value);
         }
         
-        // Comparison operations
-        const match = expression.match(/(.+?)\s*(==|!=|>|<|>=|<=)\s*(.+)/);
+        // Comparison operations - order matters: check >= and <= before > and <
+        const match = expression.match(/(.+?)\s*(==|!=|>=|<=|>|<)\s*(.+)/);
         if (!match) {
             console.warn(`Invalid comparison expression: ${expression}`);
             return false;
