@@ -20,20 +20,25 @@ memory-aware: true
 - **Tool Orchestration**: [Task, Read, Grep, Bash, TodoWrite, Edit, MultiEdit, AWS CLI, Vercel CLI]
 - **Arguments**: `[task-file.md]`, `--confidence-check`, `--no-stubs`, `--cleanup`, `--session-id`
 
-## Memory Structure
-
+## Session Memory Structure
 ```
 .claude/
-├── CLAUDE.md                    # Orchestration rules
-├── memory/
-│   ├── project.md              # Persistent project context
-│   ├── tasks/               # Session-specific memory
-│   │   └── context_session_[timestamp].md
-│   ├── patterns/               # Successful patterns
-│   ├── decisions/              # ADRs
-│   └── index.json             # Quick lookup index
-├── doc/                        # Agent-created plans
-│   └── [agent]-[task]-[timestamp].md
+├── tasks/               # Session-specific memory
+│   └── context_session_*.md
+└── doc/                        # Agent-created plans
+    └── [agent]-[task]-[timestamp].md
+```
+
+## Long Term Memory Structure
+```
+.ai/
+└── memory/
+    ├── project.md              # Persistent project context
+    ├── reports/               # Memory reports
+    ├── patterns/               # Successful patterns
+    ├── decisions/              # ADRs
+    └── index.json             # Quick lookup index
+
 ```
 
 ## Context Management Protocol

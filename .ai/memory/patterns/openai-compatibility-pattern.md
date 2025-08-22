@@ -42,7 +42,7 @@ Extend CLI with OpenAI commands:
 - `mac openai convert-agent` - Convert individual agents
 
 ### 5. Memory Unification
-Shared memory format in `.claude/memory/`:
+Shared memory format in `.ai/memory/`:
 - Platform-agnostic markdown format
 - Cross-platform ADR templates
 - Unified pattern documentation

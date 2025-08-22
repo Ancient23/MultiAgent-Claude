@@ -76,7 +76,7 @@ Implement a multi-level sync protocol with:
   "checksums": {
     "claude": "md5hash1",
     "agents": "md5hash2",
-    ".claude/memory/project.md": "md5hash3"
+    ".ai/memory/project.md": "md5hash3"
   },
   "conflicts": [],
   "history": [

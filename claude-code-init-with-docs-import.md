@@ -326,9 +326,7 @@ mkdir -p .ai/memory/knowledge
 
 ### Memory Architecture with Documentation
 ```
-.claude/
-├── tasks/context_session_*.md      # Session working memory
-├── doc/[agent]-[task]-*.md         # Agent plans
+.ai/
 └── memory/                          # Persistent knowledge base
     ├── project.md                   # Project overview (from docs)
     ├── documentation/               # Imported & cleaned docs
@@ -340,6 +338,13 @@ mkdir -p .ai/memory/knowledge
     ├── decisions/                   # Architectural decisions (ADRs)
     ├── knowledge/                   # Domain knowledge base
     └── index.json                   # Complete knowledge index
+```
+
+### Session Memory and working plans
+```
+.claude/
+├── tasks/context_session_*.md      # Session working memory
+├── doc/[agent]-[task]-*.md         # Agent plans
 ```
 
 ### Documentation-Aware Orchestration Rules

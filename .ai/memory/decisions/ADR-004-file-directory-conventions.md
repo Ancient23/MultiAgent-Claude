@@ -50,13 +50,6 @@ We establish **Standardized File and Directory Conventions** with:
 ### Root Directory Structure
 ```
 .claude/
-├── memory/                     # Persistent knowledge base
-│   ├── patterns/              # Implementation patterns
-│   ├── decisions/             # Architectural decisions
-│   ├── documentation/         # Organized documentation
-│   ├── knowledge/            # Domain knowledge
-│   ├── project.md            # Project overview
-│   └── index.json            # Quick lookup index
 ├── tasks/                     # Session working memory
 │   └── context_session_*.md  # Session context files
 ├── doc/                       # Agent implementation plans
@@ -95,12 +88,12 @@ We establish **Standardized File and Directory Conventions** with:
 **ADR Files**:
 - Format: `ADR-[number]-[kebab-case-title].md`
 - Examples: `ADR-001-research-plan-execute-pattern.md`
-- Location: `.claude/memory/decisions/`
+- Location: `.ai/memory/decisions/`
 
 **Pattern Files**:
 - Format: `[pattern-name].md`
 - Examples: `yaml-headers.md`, `workflow-patterns.md`
-- Location: `.claude/memory/patterns/[category]/`
+- Location: `.ai/memory/patterns/[category]/`
 
 ### File Content Standards
 
@@ -137,7 +130,7 @@ status: "Proposed|Accepted|Deprecated|Superseded"
 
 **Memory Subdirectories**:
 ```
-.claude/memory/
+.ai/memory/
 ├── patterns/
 │   ├── agent-templates/       # Agent design patterns
 │   ├── command-patterns/      # Command workflow patterns
@@ -176,14 +169,14 @@ status: "Proposed|Accepted|Deprecated|Superseded"
 - `${CLAUDE_ROOT}`: `.claude/` directory
 - `${PROJECT_ROOT}`: Project root directory
 - `${AGENT_DIR}`: `.claude/agents/`
-- `${MEMORY_DIR}`: `.claude/memory/`
+- `${MEMORY_DIR}`: `.ai/memory/`
 
 ### Common File Paths
 - Session Context: `.claude/tasks/context_session_latest.md`
-- Project Overview: `.claude/memory/project.md`
+- Project Overview: `.ai/memory/project.md`
 - Agent Registry: `.claude/agents/README.md`
 - Command Registry: `.claude/commands/README.md`
-- Memory Index: `.claude/memory/index.json`
+- Memory Index: `.ai/memory/index.json`
 
 ## Quality Standards
 
