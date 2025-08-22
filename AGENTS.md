@@ -11,7 +11,7 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 ## Directory Structure
 
 ```
-src/
+MultiAgent-Claude/
 ├── cli/                    # CLI implementation
 │   ├── index.js           # Main entry point
 │   └── commands/          # Command implementations

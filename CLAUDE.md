@@ -177,8 +177,6 @@ High-level coordinators that manage complex workflows and other agents:
 - **wave-execution-orchestrator** - 7-phase systematic execution
 - **issue-triage-orchestrator** - Issue analysis and resolution
 - **code-review-orchestrator** - Comprehensive code reviews
-- **meta-development-orchestrator** - Framework self-improvement
-- **implementation-verifier** - Verification coordination
 
 #### **Specialists (Sonnet Model)**
 Domain experts that create plans and perform focused tasks:
@@ -240,8 +238,8 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `wave-execution-orchestrator.md` - 7-phase systematic execution
 - `issue-triage-orchestrator.md` - Issue analysis and resolution
 - `code-review-orchestrator.md` - Comprehensive code reviews
-- `meta-development-orchestrator.md` - Framework self-improvement
-- `implementation-verifier.md` - Verification coordination
+- `fullstack-feature-orchestrator.md` - End-to-end feature coordination
+- `infrastructure-migration-architect.md` - Infrastructure transformation
 
 ### Specialized Agents
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
@@ -253,6 +251,8 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `playwright-visual-developer.md` - Visual regression testing
 
 ## MultiAgent-Claude Project-Specific Agents (Meta-Implementation)
+Located in `.claude/agents/` - these are project-specific agents for framework development:
+- `meta-development-orchestrator.md` - Framework self-improvement orchestration
 - `prompt-engineer-specialist.md` - Expert in creating effective agent prompts
 - `template-evolution-tracker.md` - Track and improve template changes
 - `cli-test-engineer.md` - Create comprehensive tests for CLI

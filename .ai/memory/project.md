@@ -1,7 +1,7 @@
 # MultiAgent-Claude Project Memory
 
 **Last Updated**: 2025-01-22  
-**Version**: 2.1.0  
+**Version**: 2.0.0  
 **Status**: Active Development
 
 ## Project Overview

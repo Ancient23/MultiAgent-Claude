@@ -225,8 +225,8 @@ High-level coordinators that manage complex workflows and other agents:
 - **wave-execution-orchestrator**: 7-phase systematic task execution
 - **issue-triage-orchestrator**: Comprehensive issue analysis and resolution
 - **code-review-orchestrator**: Multi-aspect code review coordination
-- **meta-development-orchestrator**: Framework self-improvement orchestration
-- **implementation-verifier**: Verification and validation coordination
+
+**Note**: The `meta-development-orchestrator` exists in `.claude/agents/` for framework self-improvement, not in template library.
 
 #### Specialists (Sonnet Model)
 Domain experts that create plans and perform focused tasks:
@@ -359,6 +359,47 @@ multiagent-claude command list
 multiagent-claude command add <name>
 ```
 
+#### OpenAI Integration Commands
+```bash
+# Initialize OpenAI/ChatGPT compatibility
+multiagent-claude openai init
+# Creates AGENTS.md configuration
+# Sets up .chatgpt/ directory structure
+# Configures dual-platform support
+
+# Bundle files for ChatGPT upload
+multiagent-claude openai bundle [files...]
+# Optimizes and compresses files for token limits
+# Uses COMPACT algorithm for maximum compression
+# Creates timestamped bundles in .chatgpt/bundles/
+
+# Sync configurations between platforms
+multiagent-claude openai sync
+# Synchronizes CLAUDE.md ↔ AGENTS.md
+# Updates agent definitions across platforms
+# Resolves configuration conflicts
+# Generates sync report
+
+# Convert Claude agent to ChatGPT role
+multiagent-claude openai convert-agent <agent-name>
+# Transforms agent template to role instructions
+# Optimizes for ChatGPT's 1500-character limit
+# Creates role file in .chatgpt/roles/
+# Maintains behavior parity
+
+# List available bundles
+multiagent-claude openai list-bundles
+# Shows all bundles in .chatgpt/bundles/
+# Displays size and token count
+# Indicates sync status
+
+# Extract bundle contents
+multiagent-claude openai extract <bundle-file>
+# Decompresses and restores original files
+# Validates bundle integrity
+# Preserves directory structure
+```
+
 #### v2.0 Orchestration Commands
 ```bash
 # Start orchestrated workflow with mode selection
@@ -381,22 +422,66 @@ multiagent-claude worktree feature1 feature2
 ```bash
 # List available workflows
 multiagent-claude prompt list
+# Shows all YAML workflows in prompts/
+# Displays workflow type and description
+# Indicates composition dependencies
 
 # Show workflow details
 multiagent-claude prompt show init-full
+# Displays workflow metadata and components
+# Shows variable definitions and requirements
+# Lists included prompt files
+
+# Create new workflow
+multiagent-claude prompt create <name>
+# Interactive workflow builder
+# Select components to include
+# Define variables and metadata
+# Generates YAML configuration
 
 # Validate all workflows
 multiagent-claude prompt validate
+# Checks YAML syntax and structure
+# Verifies component references exist
+# Validates variable interpolation
+# Reports any schema violations
 
 # Test workflow composition
 multiagent-claude prompt test init-full --preview
+# Composes workflow with test variables
+# Shows final assembled prompt
+# Validates output format
+# Checks token count estimation
 
 # Export workflow with dependencies
 multiagent-claude prompt export init-full
+# Bundles workflow and all components
+# Resolves variable interpolation
+# Creates standalone prompt file
+# Optionally compresses for sharing
 
 # Cache management
 multiagent-claude prompt cache-stats
+# Shows cache size and hit rate
+# Lists cached workflows
+# Displays memory usage
+
 multiagent-claude prompt cache-clear
+# Clears composed prompt cache
+# Resets validation cache
+# Frees memory resources
+
+# Variable management
+multiagent-claude prompt vars <workflow>
+# Lists all variables in workflow
+# Shows default values and types
+# Indicates required vs optional
+
+# Component management
+multiagent-claude prompt components
+# Lists all available components
+# Shows component dependencies
+# Displays usage statistics
 ```
 
 ## v2.0 Orchestration Modes
