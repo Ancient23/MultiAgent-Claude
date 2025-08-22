@@ -4,7 +4,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import crypto from 'crypto';
-import { confirm, select } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 
 export default async function syncCommand(options) {
   console.log(chalk.cyan('\n🔄 Synchronizing Claude ↔ OpenAI Configurations\n'));
@@ -15,10 +15,15 @@ export default async function syncCommand(options) {
     
     if (syncState.conflicts.length > 0) {
       console.log(chalk.yellow(`⚠️  ${syncState.conflicts.length} conflicts detected`));
-      const resolve = await confirm({
-        message: 'Resolve conflicts before syncing?',
-        default: true
-      });
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'resolve',
+          message: 'Resolve conflicts before syncing?',
+          default: true
+        }
+      ]);
+      const resolve = answers.resolve;
       
       if (resolve) {
         await resolveConflicts(syncState.conflicts);
@@ -207,15 +212,20 @@ async function resolveConflicts(conflicts) {
     console.log(chalk.gray('Claude version:'), conflict.claude);
     console.log(chalk.gray('OpenAI version:'), conflict.openai);
     
-    const resolution = await select({
-      message: 'Choose resolution:',
-      choices: [
-        { value: 'claude', name: 'Use Claude version' },
-        { value: 'openai', name: 'Use OpenAI version' },
-        { value: 'merge', name: 'Merge both versions' },
-        { value: 'skip', name: 'Skip this conflict' }
-      ]
-    });
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'resolution',
+        message: 'Choose resolution:',
+        choices: [
+          { value: 'claude', name: 'Use Claude version' },
+          { value: 'openai', name: 'Use OpenAI version' },
+          { value: 'merge', name: 'Merge both versions' },
+          { value: 'skip', name: 'Skip this conflict' }
+        ]
+      }
+    ]);
+    const resolution = answers.resolution;
 
     conflict.resolution = resolution;
   }

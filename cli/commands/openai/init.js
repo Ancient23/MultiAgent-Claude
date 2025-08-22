@@ -3,7 +3,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { confirm, checkbox } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 import { ConfigConverter } from '../lib/config-converter.js';
 import { AgentRoleConverter } from '../lib/agent-role-converter.js';
 
@@ -17,10 +17,15 @@ export default async function initCommand(options) {
     const agentsFile = path.join(process.cwd(), 'AGENTS.md');
     
     if (await fs.pathExists(openaiDir) || await fs.pathExists(chatgptDir) || await fs.pathExists(agentsFile)) {
-      const overwrite = await confirm({
-        message: 'OpenAI configuration already exists. Overwrite?',
-        default: false
-      });
+      const answers = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'overwrite',
+          message: 'OpenAI configuration already exists. Overwrite?',
+          default: false
+        }
+      ]);
+      const overwrite = answers.overwrite;
       
       if (!overwrite) {
         console.log(chalk.yellow('Initialization cancelled.'));
@@ -141,14 +146,19 @@ async function selectPriorityAgents() {
     return allAgents.slice(0, 5); // Take first 5 if no defaults found
   }
 
-  const selectedAgents = await checkbox({
-    message: 'Select agents to convert to ChatGPT roles (max 5 recommended):',
-    choices: allAgents.map(a => ({
-      value: a,
-      name: `${a.name} (${a.type})`,
-      checked: defaultAgents.includes(a.name)
-    }))
-  });
+  const answers = await inquirer.prompt([
+    {
+      type: 'checkbox',
+      name: 'selectedAgents',
+      message: 'Select agents to convert to ChatGPT roles (max 5 recommended):',
+      choices: allAgents.map(a => ({
+        value: a,
+        name: `${a.name} (${a.type})`,
+        checked: defaultAgents.includes(a.name)
+      }))
+    }
+  ]);
+  const selectedAgents = answers.selectedAgents;
 
   return selectedAgents.slice(0, 5); // Limit to 5 for initial setup
 }

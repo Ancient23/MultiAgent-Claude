@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import { select } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 import initCommand from './init.js';
 import bundleCommand from './bundle.js';
 import syncCommand from './sync.js';
@@ -12,15 +12,20 @@ export default async function openaiCommand(args) {
   const options = args.slice(1);
 
   if (!subcommand) {
-    const choice = await select({
-      message: 'Select OpenAI integration command:',
-      choices: [
-        { value: 'init', name: `${chalk.green('init')} - Initialize OpenAI compatibility layer` },
-        { value: 'bundle', name: `${chalk.blue('bundle')} - Create optimized ChatGPT Project bundles` },
-        { value: 'sync', name: `${chalk.yellow('sync')} - Synchronize between Claude and OpenAI configurations` },
-        { value: 'convert-agent', name: `${chalk.cyan('convert-agent')} - Convert individual agents to role instructions` },
-      ],
-    });
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'choice',
+        message: 'Select OpenAI integration command:',
+        choices: [
+          { value: 'init', name: `${chalk.green('init')} - Initialize OpenAI compatibility layer` },
+          { value: 'bundle', name: `${chalk.blue('bundle')} - Create optimized ChatGPT Project bundles` },
+          { value: 'sync', name: `${chalk.yellow('sync')} - Synchronize between Claude and OpenAI configurations` },
+          { value: 'convert-agent', name: `${chalk.cyan('convert-agent')} - Convert individual agents to role instructions` },
+        ]
+      }
+    ]);
+    const choice = answers.choice;
     
     return await executeSubcommand(choice, options);
   }

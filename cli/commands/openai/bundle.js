@@ -3,8 +3,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import archiver from 'archiver';
-import { select } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 
 export default async function bundleCommand(args) {
   const taskType = args[0];
@@ -52,16 +51,21 @@ export default async function bundleCommand(args) {
 }
 
 async function selectBundleType() {
-  return await select({
-    message: 'Select bundle type:',
-    choices: [
-      { value: 'core', name: 'Core - Essential configuration files' },
-      { value: 'cli-development', name: 'CLI Development - CLI implementation files' },
-      { value: 'agent-development', name: 'Agent Development - Agent templates and tools' },
-      { value: 'testing', name: 'Testing - Test suite and workflows' },
-      { value: 'memory-management', name: 'Memory Management - Knowledge base files' }
-    ]
-  });
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'bundleType',
+      message: 'Select bundle type:',
+      choices: [
+        { value: 'core', name: 'Core - Essential configuration files' },
+        { value: 'cli-development', name: 'CLI Development - CLI implementation files' },
+        { value: 'agent-development', name: 'Agent Development - Agent templates and tools' },
+        { value: 'testing', name: 'Testing - Test suite and workflows' },
+        { value: 'memory-management', name: 'Memory Management - Knowledge base files' }
+      ]
+    }
+  ]);
+  return answers.bundleType;
 }
 
 async function prepareBundleFiles(bundleConfig) {
@@ -201,31 +205,22 @@ async function createBundleArchive(bundleType, files) {
   await fs.ensureDir(outputDir);
   
   const timestamp = new Date().toISOString().split('T')[0];
-  const outputPath = path.join(outputDir, `${bundleType}-bundle-${timestamp}.zip`);
+  const bundleDir = path.join(outputDir, `${bundleType}-bundle-${timestamp}`);
+  await fs.ensureDir(bundleDir);
   
-  return new Promise((resolve, reject) => {
-    const output = fs.createWriteStream(outputPath);
-    const archive = archiver('zip', {
-      zlib: { level: 9 } // Maximum compression
-    });
-    
-    output.on('close', () => resolve(outputPath));
-    archive.on('error', err => reject(err));
-    
-    archive.pipe(output);
-    
-    // Add files to archive
-    for (const file of files) {
-      const fullPath = path.join(process.cwd(), file.path);
-      archive.file(fullPath, { name: file.path });
-    }
-    
-    // Add bundle README
-    const readme = createBundleReadme(bundleType, files);
-    archive.append(readme, { name: 'BUNDLE_README.md' });
-    
-    archive.finalize();
-  });
+  // Copy files to bundle directory
+  for (const file of files) {
+    const sourcePath = path.join(process.cwd(), file.path);
+    const targetPath = path.join(bundleDir, file.path);
+    await fs.ensureDir(path.dirname(targetPath));
+    await fs.copy(sourcePath, targetPath);
+  }
+  
+  // Add bundle README
+  const readme = createBundleReadme(bundleType, files);
+  await fs.writeFile(path.join(bundleDir, 'BUNDLE_README.md'), readme);
+  
+  return bundleDir;
 }
 
 function createBundleReadme(bundleType, files) {

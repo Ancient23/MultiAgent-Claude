@@ -3,7 +3,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
-import { select, input } from '@inquirer/prompts';
+import inquirer from 'inquirer';
 import { AgentRoleConverter } from '../lib/agent-role-converter.js';
 
 export default async function convertAgentCommand(args) {
@@ -109,12 +109,16 @@ async function selectAgent() {
     }`
   }));
 
-  const selected = await select({
-    message: 'Select agent to convert:',
-    choices: choices
-  });
+  const answers = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'selected',
+      message: 'Select agent to convert:',
+      choices: choices
+    }
+  ]);
 
-  return selected.name;
+  return answers.selected.name;
 }
 
 async function findAgentFile(agentName) {
@@ -165,15 +169,20 @@ async function saveRole(agentName, roleContent) {
   
   // Check if role already exists
   if (await fs.pathExists(outputPath)) {
-    const overwrite = await select({
-      message: 'Role already exists. What would you like to do?',
-      choices: [
-        { value: 'overwrite', name: 'Overwrite existing role' },
-        { value: 'backup', name: 'Backup and overwrite' },
-        { value: 'rename', name: 'Save with different name' },
-        { value: 'cancel', name: 'Cancel' }
-      ]
-    });
+    const answers = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'overwrite',
+        message: 'Role already exists. What would you like to do?',
+        choices: [
+          { value: 'overwrite', name: 'Overwrite existing role' },
+          { value: 'backup', name: 'Backup and overwrite' },
+          { value: 'rename', name: 'Save with different name' },
+          { value: 'cancel', name: 'Cancel' }
+        ]
+      }
+    ]);
+    const overwrite = answers.overwrite;
 
     if (overwrite === 'cancel') {
       console.log(chalk.yellow('Conversion cancelled.'));
@@ -187,10 +196,15 @@ async function saveRole(agentName, roleContent) {
     }
 
     if (overwrite === 'rename') {
-      const newName = await input({
-        message: 'Enter new role name:',
-        default: `${agentName}-v2`
-      });
+      const nameAnswers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'newName',
+          message: 'Enter new role name:',
+          default: `${agentName}-v2`
+        }
+      ]);
+      const newName = nameAnswers.newName;
       
       return path.join(rolesDir, `${newName}-role.md`);
     }
