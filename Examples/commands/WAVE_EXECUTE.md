@@ -48,7 +48,7 @@ memory-aware: true
 step: "Initialize session context"
 handler: main-system
 actions:
-  - Generate session_id (claude_session_id)
+  - Generate session_id using getSessionId('wave')
   - Create .ai/memory/tasks/context_session_[session_id].md
   - Load .ai/memory/project.md into session context
   - Document initial task list and objectives

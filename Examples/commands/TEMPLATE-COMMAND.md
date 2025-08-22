@@ -38,12 +38,12 @@ This command follows the research-only agent pattern where specialist agents cre
 step: "Create/Update Session Context"
 handler: "main-system"
 actions:
-  - Generate session ID: "[claude_session_id]_[command]"
-  - Create/update .claude/tasks/context_session_[id].md
+  - Generate session ID: getSessionId('[command]')
+  - Create/update .claude/tasks/context_session_${sessionId}.md
   - Document command objectives
   - List available agents
   - Record initial state
-output: ".claude/tasks/context_session_[id].md"
+output: ".claude/tasks/context_session_${sessionId}.md"
 content:
   - Session metadata (ID, date, type, status)
   - Command objectives and parameters
