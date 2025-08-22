@@ -44,10 +44,8 @@ class VariableResolver {
         while (hasChanges && iterations < this.maxIterations) {
             const before = result;
             
-            // Resolve different variable patterns
-            result = await this.resolvePattern(result, context, /\$\{([^}]+)\}/g);  // ${var}
-            result = await this.resolvePattern(result, context, /\{\{([^}]+)\}\}/g); // {{var}}
-            result = await this.resolvePattern(result, context, /<%=\s*([^%]+)\s*%>/g); // <%= var %>
+            // Resolve different variable patterns with single regex for better performance
+            result = await this.resolvePattern(result, context, /\$\{([^}]+)\}|\{\{([^}]+)\}\}|<%=\s*([^%]+)\s*%>/g);
             
             hasChanges = result !== before;
             iterations++;
@@ -64,11 +62,15 @@ class VariableResolver {
      * Resolve variables matching a specific pattern
      */
     async resolvePattern(template, context, pattern) {
-        return template.replace(pattern, (match, expression) => {
+        return template.replace(pattern, (match, ...groups) => {
             try {
+                // Find the first non-undefined capture group
+                const expression = groups.find(group => group !== undefined);
+                if (!expression) return match;
+                
                 return this.evaluateExpression(expression.trim(), context);
             } catch (error) {
-                console.warn(`Failed to resolve variable '${expression}': ${error.message}`);
+                console.warn(`Failed to resolve variable '${match}': ${error.message}`);
                 return match; // Keep original if resolution fails
             }
         });
@@ -294,6 +296,16 @@ class VariableResolver {
                     .replace(/\n/g, '\\n')
                     .replace(/\r/g, '\\r')
                     .replace(/\t/g, '\\t');
+            case 'default':
+                // Handle default transformation (fallback value)
+                if (value !== undefined && value !== null && value !== '') {
+                    return value;
+                }
+                if (args) {
+                    // Handle function calls in default value like process.cwd()
+                    return this.getValue(args.replace(/['"]/g, ''), context);
+                }
+                return '';
             default:
                 // Check custom transformations
                 if (this.options.customTransformations && this.options.customTransformations[transform]) {

@@ -39,7 +39,7 @@ class PromptComposer {
             const workflow = await this.workflowLoader.load(workflowName);
             
             // Merge context with workflow variables
-            const mergedContext = this.mergeContext(workflow, context);
+            const mergedContext = await this.mergeContext(workflow, context);
             
             // Build component list based on workflow
             const componentList = await this.buildComponentList(workflow, mergedContext);
@@ -308,7 +308,27 @@ class PromptComposer {
      * Remove duplicate sections
      */
     removeDuplicates(content) {
-        const sections = content.split(/^#{1,3}\s+/m);
+        // Match all headers (level 1-3) and their content
+        const sectionRegex = /(^#{1,3}\s.*(?:\n(?!#{1,3}\s).*)*)/gm;
+        const sections = [];
+        let lastIndex = 0;
+        let match;
+        
+        // Extract sections while preserving their original header levels
+        while ((match = sectionRegex.exec(content)) !== null) {
+            // Push content before the first header as a section
+            if (sections.length === 0 && match.index > 0) {
+                sections.push(content.slice(0, match.index));
+            }
+            sections.push(match[0]);
+            lastIndex = sectionRegex.lastIndex;
+        }
+        
+        // Push any remaining content after the last header
+        if (lastIndex < content.length) {
+            sections.push(content.slice(lastIndex));
+        }
+        
         const seen = new Set();
         const unique = [];
         
@@ -322,7 +342,7 @@ class PromptComposer {
             }
         }
         
-        return unique.join('\n## ');
+        return unique.join('\n');
     }
 
     /**
@@ -403,13 +423,27 @@ class PromptComposer {
     /**
      * Merge workflow and context variables
      */
-    mergeContext(workflow, context) {
+    async mergeContext(workflow, context) {
+        const resolvedVariables = {};
+        
+        // Resolve workflow variables
+        if (workflow.variables) {
+            for (const [key, value] of Object.entries(workflow.variables)) {
+                if (typeof value === 'string' && (value.includes('${') || value.includes('{{') || value.includes('<%='))) {
+                    resolvedVariables[key] = await this.variableResolver.resolve(value, context);
+                } else {
+                    resolvedVariables[key] = value;
+                }
+            }
+        }
+        
         return {
             ...context,
+            ...resolvedVariables,  // Make variables available at top level for conditionals
             workflow: {
                 name: workflow.name,
                 version: workflow.version,
-                ...workflow.variables
+                ...resolvedVariables
             }
         };
     }
@@ -440,8 +474,8 @@ class PromptComposer {
      * Hash a section for duplicate detection
      */
     hashSection(text) {
-        // Simple hash for section comparison
-        return text.substring(0, 100);
+        const crypto = require('crypto');
+        return crypto.createHash('md5').update(text).digest('hex');
     }
 
     /**

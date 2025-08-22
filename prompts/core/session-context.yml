@@ -7,7 +7,7 @@ tags: [initialization, context, memory]
 variables:
   session_id: "${date}_${time}_${session_type | snakeCase}"
   session_type: "${workflow.session_type | default('general')}"
-  project_path: "${process.cwd()}"
+  project_path: "${project.path | default(process.cwd())}"
   objectives: "${workflow.objectives | default('Initialize environment')}"
   date: "${date}"
   time: "${time}"
