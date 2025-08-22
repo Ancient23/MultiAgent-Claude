@@ -1,0 +1,110 @@
+name: quality-standards
+version: 1.0.0
+description: Quality criteria and validation standards
+category: core
+tags: [quality, validation, standards]
+
+variables:
+  test_coverage_target: "${workflow.test_coverage | default(80)}"
+  max_complexity: "${workflow.max_complexity | default(10)}"
+
+content: |
+  ## Quality Standards & Validation
+  
+  ### Success Criteria Checklist
+  
+  **Environment Setup:**
+  - [ ] Session context file created and maintained
+  - [ ] Memory system initialized with proper structure
+  - [ ] Project analysis completed and documented
+  - [ ] All required directories created
+  - [ ] Index.json properly initialized
+  
+  **Agent Configuration:**
+  - [ ] Agents follow research-only pattern
+  - [ ] All agents check session context first
+  - [ ] Agent outputs go to `.claude/doc/`
+  - [ ] Agents return file paths, not content
+  - [ ] MCP tools properly assigned to agents
+  
+  **Memory Management:**
+  - [ ] Project.md contains accurate project info
+  - [ ] Patterns documented after 2+ uses
+  - [ ] ADRs created for architectural decisions
+  - [ ] Memory index kept up to date
+  - [ ] Session contexts properly archived
+  
+  **Code Quality:**
+  - [ ] Follows detected project conventions
+  - [ ] Test coverage >= ${test_coverage_target}%
+  - [ ] Complexity score <= ${max_complexity}
+  - [ ] No hardcoded paths or credentials
+  - [ ] Proper error handling implemented
+  
+  **Documentation:**
+  - [ ] CLAUDE.md updated with orchestration rules
+  - [ ] README.md includes setup instructions
+  - [ ] Agent descriptions are clear and specific
+  - [ ] Command usage documented
+  - [ ] API documentation current
+  
+  ### Validation Steps
+  
+  1. **File Structure Validation**
+     ```bash
+     # Verify required directories exist
+     test -d .claude/tasks && echo "✓ Tasks directory"
+     test -d .claude/doc && echo "✓ Doc directory"
+     test -d .claude/memory && echo "✓ Memory directory"
+     test -d .claude/agents && echo "✓ Agents directory"
+     ```
+  
+  2. **Memory System Validation**
+     ```bash
+     # Check memory files
+     test -f .claude/memory/project.md && echo "✓ Project context"
+     test -f .claude/memory/index.json && echo "✓ Memory index"
+     test -d .claude/memory/patterns && echo "✓ Patterns directory"
+     test -d .claude/memory/decisions && echo "✓ Decisions directory"
+     ```
+  
+  3. **Agent Validation**
+     - Each agent has clear trigger patterns
+     - Agent model specified (sonnet/haiku)
+     - Output format documented
+     - MCP tools listed if needed
+     - Research-only pattern enforced
+  
+  4. **Orchestration Validation**
+     - CLAUDE.md contains orchestration matrix
+     - Auto-delegation rules defined
+     - Workflow patterns documented
+     - Memory management rules clear
+  
+  ### Anti-Patterns to Avoid
+  
+  ❌ **Agents directly editing files** - Must only create plans
+  ❌ **Skipping session context check** - Always check first
+  ❌ **Implementing without planning** - Plan first, execute second
+  ❌ **Hardcoding paths** - Use standard locations
+  ❌ **Forgetting to return plan path** - Always return path from agents
+  ❌ **Writing to memory directly** - Suggest updates, don't write
+  ❌ **Missing error handling** - Always handle errors gracefully
+  ❌ **Ignoring project conventions** - Follow existing patterns
+  
+  ### Performance Targets
+  
+  - Agent response time: < 30 seconds
+  - Memory lookup time: < 100ms
+  - Pattern matching accuracy: > 95%
+  - Session context updates: < 500ms
+  - Plan generation: < 45 seconds
+  
+  ### Monitoring & Metrics
+  
+  Track in `.claude/memory/index.json`:
+  - Agent activation frequency
+  - Pattern usage statistics
+  - Session duration metrics
+  - Error rates by component
+  - Memory growth over time

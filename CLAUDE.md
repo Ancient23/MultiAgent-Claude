@@ -14,13 +14,14 @@ This project is running MultiAgent-Claude on itself! The framework manages its o
 
 ```
 MultiAgent-Claude/
-├── Examples/
-│   ├── agents/          # Agent template library for specialized tasks
-│   │   ├── TEMPLATE-agent.md         # Base template for creating new agents
-│   │   └── [various specialized agents].md
-│   └── commands/        # Command template library
-│       ├── TEMPLATE-COMMAND.md        # Base template for creating commands
-│       └── [various command implementations].md
+├── Examples/                          # Templates for user projects
+│   └── agents/                        # Agent template library
+│       ├── orchestrators/             # Opus-model coordination agents
+│       │   └── [orchestrator agents].md
+│       ├── specialists/               # Sonnet-model domain experts
+│       │   ├── TEMPLATE-agent.md     # Base template
+│       │   └── [specialist agents].md
+│       └── manifest.json              # Template registry
 ├── cli/                 # CLI implementation
 │   ├── index.js         # Main CLI entry point
 │   └── commands/        # CLI command implementations
@@ -81,6 +82,16 @@ MultiAgent-Claude/
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
 5. Return path to parent: "Plan created at .claude/doc/..."
 
+#### MCP Tool Naming Convention
+All MCP tools follow the pattern `mcp__<server>__<tool>` where:
+- `server` is the MCP server name (e.g., memory, filesystem, github)
+- `tool` is the specific tool name (e.g., create_entities, read_file)
+
+Examples:
+- `mcp__memory__create_entities`
+- `mcp__filesystem__read_file`
+- `mcp__github__search_repositories`
+
 ### 4. Context Session Management
 
 #### Master Agent Responsibilities
@@ -88,6 +99,20 @@ MultiAgent-Claude/
 2. **During Work**: Update context after each significant action
 3. **Agent Deployment**: Ensure context file exists before invoking agents
 4. **Session End**: Archive to `.claude/memory/sessions/archive/` if needed
+
+#### Wave Execution Context Management
+When using `mac wave-execute`, the CLI automatically:
+1. Creates properly structured context session file
+2. Initializes with Wave 0 (session setup)
+3. Documents objectives and wave progression
+4. Assigns agents to each wave (user-selected or defaults)
+5. Provides clear execution instructions
+
+Claude will:
+1. Read context before each wave
+2. Update context during wave execution
+3. Mark waves as complete
+4. Document discoveries and blockers
 
 #### Context File Structure
 ```markdown
@@ -136,6 +161,65 @@ MultiAgent-Claude/
 - Master maintains merge strategy document
 - Context reconciliation after feature completion
 
+## Agent Orchestration Hierarchy
+
+### Two-Tier Architecture
+The framework uses a two-tier hierarchy of orchestrators and specialists:
+
+#### **Orchestrators (Opus Model)**
+High-level coordinators that manage complex workflows and other agents:
+- **master-orchestrator** - Top-level task analysis and strategy
+- **fullstack-feature-orchestrator** - End-to-end feature coordination
+- **infrastructure-migration-architect** - Infrastructure transformation
+- **parallel-controller** - Concurrent agent management
+- **wave-execution-orchestrator** - 7-phase systematic execution
+- **issue-triage-orchestrator** - Issue analysis and resolution
+- **code-review-orchestrator** - Comprehensive code reviews
+- **meta-development-orchestrator** - Framework self-improvement
+- **implementation-verifier** - Verification coordination
+
+#### **Specialists (Sonnet Model)**
+Domain experts that create plans and perform focused tasks:
+- All development specialists (frontend, backend, AI, etc.)
+- All deployment specialists (AWS, Vercel, etc.)
+- All testing specialists (Playwright, CLI, etc.)
+- All documentation specialists
+- All framework meta-specialists
+
+### Orchestration Patterns
+
+#### Complex Task Flow
+```
+User Request → Master Orchestrator (Opus)
+                ↓
+        Domain Orchestrator (Opus)
+                ↓
+    [Parallel Specialist Agents (Sonnet)]
+                ↓
+        Results Consolidation
+                ↓
+           User Response
+```
+
+#### Simple Task Flow
+```
+User Request → Specialist Agent (Sonnet) → User Response
+```
+
+### When to Use Orchestrators
+- Task requires 2+ specialist domains
+- Complex phased execution needed
+- Parallel coordination required
+- Architectural decisions involved
+- Pass/fail decisions needed
+
+### When to Use Specialists
+- Single domain expertise required
+- Focused analysis or planning
+- Research and documentation
+- Specific technical implementation
+- Independent execution possible
+
 ## Available Agent Templates
 
 ### Core Agents
@@ -148,19 +232,31 @@ MultiAgent-Claude/
 - `infrastructure-migration-architect.md` - Infrastructure re-architecture
 - `codebase-truth-analyzer.md` - Code-documentation alignment verification
 
+### Orchestrator Agents (Opus Model)
+- `master-orchestrator.md` - Top-level task analysis and strategy
+- `parallel-controller.md` - Concurrent agent management
+- `wave-execution-orchestrator.md` - 7-phase systematic execution
+- `issue-triage-orchestrator.md` - Issue analysis and resolution
+- `code-review-orchestrator.md` - Comprehensive code reviews
+- `meta-development-orchestrator.md` - Framework self-improvement
+- `implementation-verifier.md` - Verification coordination
+
 ### Specialized Agents
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
 - `backend-api-frontend-integrator.md` - API-frontend integration
 - `cpp-plugin-api-expert.md` - Cross-platform C++ libraries
 - `ui-design-auditor.md` - UI/UX design analysis
 - `vercel-deployment-troubleshooter.md` - Vercel deployment issues
+- `playwright-test-engineer.md` - E2E testing with Playwright
+- `playwright-visual-developer.md` - Visual regression testing
 
-### Project-Specific Agents (Meta-Implementation)
-- `prompt-engineer-specialist` - Expert in creating effective agent prompts
-- `template-evolution-tracker` - Track and improve template changes
-- `cli-test-engineer` - Create comprehensive tests for CLI
-- `documentation-sync-guardian` - Keep documentation synchronized
-- `agent-factory` - Specialize in creating new agents
+## MultiAgent-Claude Project-Specific Agents (Meta-Implementation)
+- `prompt-engineer-specialist.md` - Expert in creating effective agent prompts
+- `template-evolution-tracker.md` - Track and improve template changes
+- `cli-test-engineer.md` - Create comprehensive tests for CLI
+- `documentation-sync-guardian.md` - Keep documentation synchronized
+- `agent-factory.md` - Specialize in creating new agents
+- `implementation-verifier.md` - Verify implementation matches requirements
 
 ## Command Templates
 
@@ -248,6 +344,27 @@ mac orchestrate
 
 # Tell Claude:
 "Execute the orchestration config in .claude/orchestration/config.json"
+```
+
+#### Wave Execution Pattern
+```bash
+# Initialize 7-wave systematic execution
+mac wave-execute
+
+# The command will:
+# 1. Create context session file at .claude/tasks/context_session_[id].md
+# 2. Let you select which waves to execute
+# 3. Allow agent assignment to each wave (or use smart defaults)
+# 4. Generate execution plan at .claude/doc/wave-execution-plan-[id].md
+
+# Tell Claude:
+"Execute the wave pattern from session [session-id]"
+
+# Claude will then:
+# - Read the context session file
+# - Follow the wave progression
+# - Update context after each wave
+# - Deploy agents as specified
 ```
 
 #### Deploy Parallel Agents
@@ -373,18 +490,52 @@ execute_plan(plan)
 - `mac memory validate` - Validate memory integrity
 
 ### v2.0 Orchestration Commands
-- `mac orchestrate` - Start orchestrated workflow with mode selection
+- `mac orchestrate [--mode <mode>]` - Start orchestrated workflow (auto/parallel/sequential/meta)
 - `mac parallel` - Deploy multiple agents in parallel
 - `mac verify` - Create verification agent for current task
-- `mac mcp [server]` - Setup MCP servers (playwright/filesystem/github)
+- `mac wave-execute` - Execute tasks using 7-wave systematic pattern
 - `mac worktree <features...>` - Create git worktrees for parallel development
 
+### MCP (Model Context Protocol) Commands
+- `mac mcp [server]` - Add MCP server (playwright/filesystem/github)
+- `mac mcp serve` - Start Claude Code as MCP server
+- `mac mcp add-from-claude-desktop` - Import servers from Claude Desktop
+- Uses proper Claude Desktop config paths:
+  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+  - Windows: `%APPDATA%/Claude/claude_desktop_config.json`
+  - Linux: `~/.config/Claude/claude_desktop_config.json`
+
+### Wave Execution Command
+- `mac wave-execute` - Initialize 7-wave systematic task execution
+  - Creates context session with proper structure
+  - Scans available agents from Examples/agents/
+  - Allows custom agent assignment or uses smart defaults
+  - Generates execution plan for Claude to follow
+  - Wave defaults:
+    - Wave 1: codebase-truth-analyzer, aws-backend-architect
+    - Wave 2: fullstack-feature-orchestrator, infrastructure-migration-architect
+    - Wave 3: backend-api-frontend-integrator, ai-agent-architect
+    - Wave 4: playwright-test-engineer, ui-design-auditor
+    - Wave 5: documentation-architect
+    - Wave 6: code-review-orchestrator
+    - Wave 7: aws-deployment-specialist, vercel-deployment-troubleshooter
+
 ### Testing
-- `npm test` - Run all tests (19 passing, 3 skipped)
-- `npm run test:ui` - Interactive test mode
-- `npm run test:debug` - Debug tests
+- `npm test` - Run all tests with Playwright
+- `npm run test:ui` - Interactive test mode with Playwright UI
+- `npm run test:debug` - Debug tests with Playwright inspector
+- `npm run test:headed` - Run tests with browser visible
+- `npm run test:cli` - Run CLI-specific tests
+- `npm run test:ci` - Run tests with GitHub reporter
 - `npm run visual:test` - Visual regression tests
 - `npm run visual:update` - Update visual baselines
+
+#### Test Configuration
+- Tests use latest Playwright v1.48.2+
+- Default timeout: 30 seconds
+- Trace on failure for debugging
+- Blob reporter for sharded tests
+- GitHub Actions optimized with v4 actions
 
 ## CI/CD Best Practices
 

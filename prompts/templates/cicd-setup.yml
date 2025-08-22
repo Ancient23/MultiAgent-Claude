@@ -1,0 +1,45 @@
+name: cicd-setup
+version: 1.0.0
+description: Configure CI/CD pipelines for the project
+category: templates
+tags: [cicd, automation, deployment]
+
+variables:
+  workflow_dir: ".github/workflows"
+  ci_platform: "${options.ci_platform | default('github')}"
+
+content: |
+  ## CI/CD Configuration
+  
+  ### GitHub Actions Setup
+  Create the following workflow files in `${workflow_dir}/`:
+  
+  1. **Memory Update Workflow** (`claude-memory-update.yml`):
+     - Triggers on push to main branch
+     - Updates memory system with latest changes
+     - Creates memory reports
+     - Archives session contexts
+  
+  2. **Test Automation** (`test-automation.yml`):
+     - Runs on pull requests
+     - Executes test suite
+     - Reports coverage
+     - Blocks merge on failure
+  
+  3. **Deployment Pipeline** (`deploy.yml`):
+     - Triggers on release tags
+     - Builds artifacts
+     - Runs security scans
+     - Deploys to environments
+  
+  ### Configuration Steps
+  1. Set up GitHub secrets for API keys
+  2. Configure branch protection rules
+  3. Enable required status checks
+  4. Set up deployment environments
+  
+  ### Best Practices
+  - Use matrix builds for multiple versions
+  - Cache dependencies for faster builds
+  - Run tests in parallel when possible
+  - Keep workflows DRY with reusable actions

@@ -1,0 +1,64 @@
+name: add-memory
+version: 1.0.0
+description: Add memory system to existing Claude Code setup
+category: enhancement
+tags: [memory, upgrade, addon]
+
+variables:
+  session_type: "Memory Addition"
+  objectives: |
+    - Add memory system to existing setup
+    - Preserve current configuration
+    - Integrate with existing agents
+    - Update orchestration rules
+  preserve_existing: true
+  update_agents: true
+
+required:
+  - core/session-context
+  - core/memory-structure
+
+conditional:
+  - if: "update_agents"
+    then:
+      - templates/agent-memory-update
+  - if: "project.hasCommands"
+    then:
+      - templates/command-memory-update
+  - if: "project.hasOrchestration"
+    then:
+      - templates/orchestration-memory-update
+
+post_processing:
+  - validate_markdown
+  - check_required_sections
+  - preserve_custom_content
+  - merge_configurations
+
+metadata:
+  estimated_time: "5-7 minutes"
+  complexity: "medium"
+  requires_user_input: false
+  creates_files: true
+  modifies_files: true
+
+outputs:
+  - path: ".claude/memory/"
+    description: "New memory system"
+  - path: "CLAUDE.md"
+    description: "Updated with memory rules"
+  - path: ".claude/agents/*.md"
+    description: "Updated agents (if applicable)"
+
+validation:
+  required_sections:
+    - "Memory Management"
+    - "Pattern Documentation"
+    - "ADR System"
+  required_files:
+    - ".claude/memory/project.md"
+    - ".claude/memory/index.json"
+  preserve_files:
+    - ".claude/agents/*.md"
+    - ".claude/commands/*.md"
+    - "CLAUDE.md"

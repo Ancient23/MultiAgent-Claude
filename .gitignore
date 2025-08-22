@@ -156,6 +156,11 @@ $RECYCLE.BIN/
 .claude/commands/logs/
 .claude/commands/history/
 
+.cache/
+.claude/meta-dev/
+playwright-report/
+test-results/
+
 # Development databases (if added later)
 *.db
 *.sqlite

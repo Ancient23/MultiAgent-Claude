@@ -1,0 +1,61 @@
+name: init-memory
+version: 1.0.0
+description: Initialize only the memory system for an existing project
+category: initialization
+tags: [memory, minimal, addon]
+
+variables:
+  session_type: "Memory System Setup"
+  objectives: |
+    - Create memory system structure
+    - Initialize project context
+    - Set up pattern library
+    - Configure ADR system
+  project_name: "${project.name | default('Project')}"
+  skip_agents: true
+  skip_commands: true
+
+required:
+  - core/session-context
+  - core/file-conventions
+  - core/project-analysis
+  - core/memory-structure
+
+conditional:
+  - if: "project.hasExistingMemory"
+    then:
+      - templates/memory-migration
+  - if: "options.import_patterns"
+    then:
+      - templates/pattern-import
+
+post_processing:
+  - validate_markdown
+  - check_required_sections
+  - optimize_length
+
+metadata:
+  estimated_time: "3-5 minutes"
+  complexity: "low"
+  requires_user_input: false
+  creates_files: true
+  modifies_files: false
+
+outputs:
+  - path: ".claude/memory/"
+    description: "Memory system structure"
+  - path: ".claude/memory/project.md"
+    description: "Project context document"
+  - path: ".claude/memory/index.json"
+    description: "Memory index file"
+
+validation:
+  required_sections:
+    - "Phase 0: Initialize Session Context"
+    - "Phase 1: Project Analysis"
+    - "Create Memory System"
+  required_files:
+    - ".claude/memory/project.md"
+    - ".claude/memory/index.json"
+    - ".claude/memory/patterns/"
+    - ".claude/memory/decisions/"

@@ -101,20 +101,33 @@ program
 // MCP Setup
 program
   .command('mcp')
-  .description('Setup MCP servers')
+  .description('Manage MCP servers')
+  .argument('[action]', 'action to perform: add, serve, add-from-claude-desktop')
   .argument('[server]', 'specific server to add (playwright/filesystem/github)')
-  .action(async (server) => {
-    const { setupMCP } = require('./commands/mcp');
-    await setupMCP(server);
+  .action(async (action, server) => {
+    const mcpCommands = require('./commands/mcp');
+    
+    if (!action || action === 'add') {
+      // Default to add if no action specified
+      await mcpCommands.setupMCP(server || action);
+    } else if (action === 'serve') {
+      await mcpCommands.serveMCP();
+    } else if (action === 'add-from-claude-desktop') {
+      await mcpCommands.addFromClaudeDesktop();
+    } else {
+      // If action is actually a server name, add it
+      await mcpCommands.setupMCP(action);
+    }
   });
 
 // Orchestration
 program
   .command('orchestrate')
   .description('Start orchestrated multi-agent workflow')
-  .action(async () => {
+  .option('--mode <mode>', 'orchestration mode: auto, parallel, sequential, meta')
+  .action(async (options) => {
     const { orchestrate } = require('./commands/orchestrate');
-    await orchestrate();
+    await orchestrate(options);
   });
 
 // Parallel Execution
@@ -143,6 +156,57 @@ program
   .action(async (features) => {
     const { setupWorktrees } = require('./commands/worktree');
     await setupWorktrees(features);
+  });
+
+// Wave Execution Pattern
+program
+  .command('wave-execute')
+  .description('Execute tasks using the 7-wave systematic pattern')
+  .action(async () => {
+    const { executeWavePattern } = require('./commands/wave-execute');
+    await executeWavePattern();
+  });
+
+// Prompt System Management
+program
+  .command('prompt')
+  .description('Manage prompt system')
+  .argument('<action>', 'Action: list, show, validate, test, export, cache-stats, cache-clear')
+  .argument('[name]', 'Workflow name (for show, test, export)')
+  .option('--preview', 'Show preview of composed prompt (for test)')
+  .option('--output <path>', 'Output path (for test, export)')
+  .option('--cicd', 'Enable CI/CD in test context')
+  .option('--testing', 'Enable testing in test context')
+  .option('--docs', 'Enable docs in test context')
+  .action(async (action, name, options) => {
+    const promptCommands = require('./commands/prompt');
+    
+    switch (action) {
+      case 'list':
+        await promptCommands.list();
+        break;
+      case 'show':
+        await promptCommands.show(name);
+        break;
+      case 'validate':
+        await promptCommands.validate();
+        break;
+      case 'test':
+        await promptCommands.test(name, options);
+        break;
+      case 'export':
+        await promptCommands.export(name, options.output);
+        break;
+      case 'cache-stats':
+        await promptCommands.cacheStats();
+        break;
+      case 'cache-clear':
+        await promptCommands.cacheClear();
+        break;
+      default:
+        console.error(`Unknown action: ${action}`);
+        console.log('Available actions: list, show, validate, test, export, cache-stats, cache-clear');
+    }
   });
 
 program.parse();

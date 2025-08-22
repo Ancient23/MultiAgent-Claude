@@ -1,0 +1,75 @@
+name: init-full
+version: 1.0.0
+description: Complete MultiAgent-Claude initialization with all features
+category: initialization
+tags: [setup, complete, framework]
+
+variables:
+  session_type: "Framework Initialization"
+  objectives: |
+    - Initialize MultiAgent-Claude environment
+    - Create comprehensive memory system
+    - Generate specialized agents for project
+    - Set up orchestration rules and workflows
+    - Configure CI/CD and testing frameworks
+  project_name: "${project.name | default('Project')}"
+  enable_cicd: "${options.cicd | default(true)}"
+  enable_testing: "${options.testing | default(true)}"
+  enable_docs: "${options.docs | default(false)}"
+
+required:
+  - core/session-context
+  - core/file-conventions
+  - core/project-analysis
+  - core/memory-structure
+  - templates/agent-creation
+  - templates/command-creation
+  - core/quality-standards
+
+conditional:
+  - if: "enable_cicd"
+    then:
+      - templates/cicd-setup
+  - if: "enable_testing"
+    then:
+      - templates/testing-setup
+  - if: "enable_docs"
+    then:
+      - templates/documentation-import
+
+post_processing:
+  - validate_markdown
+  - check_required_sections
+  - optimize_length
+  - remove_duplicates
+  - format_code_blocks
+
+metadata:
+  estimated_time: "10-15 minutes"
+  complexity: "high"
+  requires_user_input: true
+  creates_files: true
+  modifies_files: true
+
+outputs:
+  - path: ".claude/"
+    description: "Complete Claude Code environment"
+  - path: "CLAUDE.md"
+    description: "Updated orchestration documentation"
+  - path: ".github/workflows/"
+    description: "CI/CD workflows (if enabled)"
+
+validation:
+  required_sections:
+    - "Phase 0: Initialize Session Context"
+    - "Phase 1: Project Analysis"
+    - "Phase 2: Memory System"
+    - "Phase 3: Agent Generation"
+    - "Phase 4: Command Generation"
+    - "Quality Standards"
+  required_files:
+    - ".claude/tasks/"
+    - ".claude/memory/project.md"
+    - ".claude/memory/index.json"
+    - ".claude/agents/"
+    - "CLAUDE.md"

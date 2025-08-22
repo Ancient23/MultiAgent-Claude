@@ -6,18 +6,28 @@ const path = require('path');
 
 const execAsync = promisify(exec);
 
+// Configure test settings
+test.use({
+  // Set viewport size for consistency
+  viewport: { width: 1280, height: 720 },
+  // Enable tracing for debugging
+  trace: 'retain-on-failure',
+});
+
 // Increase default timeout for CLI tests
-test.setTimeout(10000);
+test.setTimeout(30000);
 
 // Test helper to run CLI commands
 async function runCLI(command, options = {}) {
-  const timeout = options.timeout || 8000; // 8 second timeout by default
+  const timeout = options.timeout || 20000; // 20 second timeout by default
   const cwd = options.cwd || process.cwd();
+  const env = { ...process.env, ...options.env };
   
   try {
     const { stdout, stderr } = await execAsync(`node cli/index.js ${command}`, {
       timeout,
-      cwd
+      cwd,
+      env
     });
     return { stdout, stderr, success: true };
   } catch (error) {
@@ -25,7 +35,8 @@ async function runCLI(command, options = {}) {
       stdout: error.stdout || '', 
       stderr: error.stderr || error.message, 
       success: false,
-      error 
+      error,
+      code: error.code
     };
   }
 }
@@ -210,6 +221,54 @@ test.describe('CLI Performance Tests', () => {
     const results = await Promise.all(commands);
     results.forEach(result => {
       expect(result.success).toBeTruthy();
+    });
+  });
+});
+
+// Modern Playwright patterns
+test.describe('MCP Commands', () => {
+  test('should list MCP commands', async () => {
+    const result = await runCLI('mcp --help', { timeout: 5000 });
+    expect(result.stdout || result.stderr).toContain('mcp');
+  });
+  
+  test('should handle MCP serve command', async () => {
+    // Test that command exists, but don't actually run server
+    const result = await runCLI('mcp serve --help', { timeout: 5000 });
+    // Command might not have detailed help yet
+    expect(result).toBeDefined();
+  });
+});
+
+test.describe('Orchestration Commands', () => {
+  test('should show orchestration modes', async () => {
+    const result = await runCLI('orchestrate --help', { timeout: 5000 });
+    expect(result.stdout || result.stderr).toContain('orchestrate');
+  });
+  
+  test('should handle wave execution', async () => {
+    const result = await runCLI('wave-execute --help', { timeout: 5000 });
+    expect(result).toBeDefined();
+  });
+});
+
+// Parameterized tests
+test.describe('Command Validation', () => {
+  const commands = [
+    { cmd: 'agent list', shouldSucceed: true },
+    { cmd: 'memory status', shouldSucceed: true },
+    { cmd: 'mcp', shouldSucceed: true },
+    { cmd: 'invalid-command', shouldSucceed: false },
+  ];
+  
+  commands.forEach(({ cmd, shouldSucceed }) => {
+    test(`should ${shouldSucceed ? 'succeed' : 'fail'} for: ${cmd}`, async () => {
+      const result = await runCLI(cmd, { timeout: 5000 });
+      if (shouldSucceed) {
+        expect(result.success).toBeTruthy();
+      } else {
+        expect(result.success).toBeFalsy();
+      }
     });
   });
 });

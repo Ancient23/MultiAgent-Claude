@@ -1,0 +1,51 @@
+name: documentation-import
+version: 1.0.0
+description: Import and organize existing documentation
+category: templates
+tags: [documentation, import, migration]
+
+variables:
+  docs_dir: "${options.docs_dir | default('docs')}"
+  import_path: "${options.import_path | default('.')}"
+
+content: |
+  ## Documentation Import and Organization
+  
+  ### Scan Existing Documentation
+  Locate and analyze existing documentation:
+  - README files at all levels
+  - API documentation
+  - Architecture documents
+  - Contributing guidelines
+  - Code comments and JSDoc/TSDoc
+  
+  ### Import Strategy
+  1. **Preserve Structure**: Maintain existing doc organization
+  2. **Create Index**: Build comprehensive documentation index
+  3. **Update References**: Fix internal links and references
+  4. **Standardize Format**: Convert to consistent markdown style
+  
+  ### Documentation Structure
+  Organize imported docs into:
+  ```
+  ${docs_dir}/
+  ├── api/              # API documentation
+  ├── architecture/     # System design docs
+  ├── guides/           # User and developer guides
+  ├── reference/        # Technical reference
+  └── index.md         # Documentation hub
+  ```
+  
+  ### Integration with Memory System
+  Link documentation to memory:
+  - Reference docs in ADRs
+  - Link patterns to guides
+  - Connect decisions to architecture docs
+  - Update project.md with doc locations
+  
+  ### Automated Updates
+  Set up documentation sync:
+  - Auto-generate API docs from code
+  - Update README from templates
+  - Sync inline comments to reference docs
+  - Validate documentation links

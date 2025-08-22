@@ -1,0 +1,155 @@
+name: command-creation
+version: 1.0.0
+description: Generate custom commands for the project
+category: templates
+tags: [commands, automation, workflows]
+
+variables:
+  command_dir: ".claude/commands"
+
+dependencies:
+  - core/file-conventions
+
+content: |
+  ## Phase 4: Command Generation
+  
+  ### Command Template Structure
+  Create commands in `${command_dir}/` using this pattern:
+  
+  ```markdown
+  # Command: [command-name]
+  
+  ## Trigger
+  When user says: "[trigger phrase]" or "/[command]"
+  
+  ## Workflow Type
+  [sequential|parallel|orchestrated]
+  
+  ## Phases
+  
+  ### Phase 1: Research
+  **Agent**: [agent-name]
+  **Goal**: Analyze and understand requirements
+  **Output**: .claude/doc/[agent]-research-[timestamp].md
+  
+  ### Phase 2: Planning
+  **Agent**: [architect-agent]
+  **Goal**: Create implementation strategy
+  **Output**: .claude/doc/[agent]-plan-[timestamp].md
+  
+  ### Phase 3: Implementation
+  **Executor**: Main Claude Instance
+  **Input**: Read plans from Phase 1 & 2
+  **Actions**: 
+  1. Read plan files
+  2. Implement changes
+  3. Run tests
+  4. Update memory
+  
+  ## Success Criteria
+  - [ ] All tests pass
+  - [ ] Documentation updated
+  - [ ] Memory system updated
+  - [ ] No regression issues
+  
+  ## Error Handling
+  - If tests fail: Rollback and create error report
+  - If conflicts: Pause and request user input
+  - If incomplete: Save progress to session context
+  ```
+  
+  ### Standard Commands to Create
+  
+  1. **Development Commands**
+     ```markdown
+     /implement-feature
+     - Triggers: "implement", "add feature", "create feature"
+     - Workflow: orchestrated
+     - Agents: fullstack-orchestrator, frontend, backend
+     ```
+  
+  2. **Debugging Commands**
+     ```markdown
+     /debug-issue
+     - Triggers: "debug", "fix bug", "investigate issue"
+     - Workflow: sequential
+     - Agents: debugger-analyst, test-engineer
+     ```
+  
+  3. **Optimization Commands**
+     ```markdown
+     /optimize-performance
+     - Triggers: "optimize", "improve performance", "speed up"
+     - Workflow: sequential
+     - Agents: performance-analyst, architect
+     ```
+  
+  4. **Security Commands**
+     ```markdown
+     /security-audit
+     - Triggers: "audit security", "check vulnerabilities"
+     - Workflow: parallel
+     - Agents: security-auditor, backend-specialist
+     ```
+  
+  5. **Refactoring Commands**
+     ```markdown
+     /refactor-code
+     - Triggers: "refactor", "restructure", "clean up code"
+     - Workflow: orchestrated
+     - Agents: refactor-orchestrator, test-engineer
+     ```
+  
+  6. **Documentation Commands**
+     ```markdown
+     /update-docs
+     - Triggers: "document", "update documentation"
+     - Workflow: sequential
+     - Agents: documentation-specialist
+     ```
+  
+  ### Command Execution Pattern
+  
+  ```javascript
+  // Pseudo-code for command execution
+  async function executeCommand(command, context) {
+    // 1. Create session context
+    const sessionId = createSessionContext(command, context);
+    
+    // 2. Execute phases
+    for (const phase of command.phases) {
+      if (phase.type === 'agent') {
+        // Deploy agent for research
+        const planPath = await deployAgent(phase.agent, context);
+        context.plans.push(planPath);
+      } else if (phase.type === 'execute') {
+        // Main system executes
+        const plans = await readPlans(context.plans);
+        await executePlans(plans);
+      }
+      
+      // 3. Update session context
+      await updateSessionContext(sessionId, phase);
+    }
+    
+    // 4. Validate success criteria
+    return validateCriteria(command.criteria);
+  }
+  ```
+  
+  ### Command Registration
+  
+  Add to CLAUDE.md orchestration section:
+  
+  ```markdown
+  ## Available Commands
+  
+  | Command | Description | Workflow | Agents |
+  |---------|-------------|----------|--------|
+  | /implement-feature | Add new functionality | Orchestrated | fullstack, frontend, backend |
+  | /debug-issue | Find and fix bugs | Sequential | debugger, test-engineer |
+  | /optimize-performance | Improve speed | Sequential | performance, architect |
+  | /security-audit | Security review | Parallel | security, backend |
+  | /refactor-code | Restructure code | Orchestrated | refactor, test |
+  | /update-docs | Update documentation | Sequential | documentation |
+  ```

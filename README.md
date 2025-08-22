@@ -3,6 +3,7 @@
 **A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, intelligent task delegation, and visual development capabilities.**
 
 🚀 **Version 2.0 Features:**
+- **YAML-Based Prompt Architecture**: Component-based system with 78% less redundancy
 - **Orchestration Modes**: Auto, Plan-Only, Parallel, Sequential, Meta execution strategies
 - **Parallel Agent Deployment**: Run multiple agents simultaneously with conflict prevention
 - **Visual Development**: Playwright MCP integration for iterative UI refinement
@@ -57,11 +58,16 @@ mac worktree feature1  # Create git worktree for parallel development
 
 3. **Invoke specialized agents:**
    ```
-   "Use the frontend-ui-expert agent to design a dashboard component"
+   # For orchestration (complex tasks)
+   "Use the master-orchestrator to analyze this task and select strategy"
+   "Deploy the issue-triage-orchestrator to investigate this bug"
+   "Use the code-review-orchestrator to review PR #123"
+   "Launch the wave-execution-orchestrator for systematic fix"
+   
+   # For specialist tasks (focused work)
+   "Use the frontend-ui-expert to design a dashboard component"
    "Launch the aws-backend-architect to plan our API structure"
-   "Deploy the playwright-test-engineer to create E2E tests"
-   "Execute the parallel agents defined in .claude/parallel-execution.json"
-   "Use the master-orchestrator agent to analyze complexity and select strategy"
+   "Deploy the codebase-truth-analyzer to verify implementation"
    ```
 
 ## Why Multi-Agent Architecture?
@@ -139,27 +145,115 @@ This tiered approach ensures:
 - Gradual knowledge accumulation
 - Reduced repetition of solved problems
 
-## Available Agents
+## YAML-Based Prompt Architecture
 
-### Core Development Agents
+### Component System
+
+MultiAgent-Claude v2.0 uses a revolutionary YAML-based component system that eliminates 78% of prompt redundancy:
+
+```
+prompts/
+├── core/                 # Shared components (100% reuse)
+├── templates/            # Domain patterns (50-75% reuse)  
+├── workflows/            # Complete compositions
+└── manifest.json         # Component registry
+```
+
+**Key Benefits:**
+- **Composable**: Build prompts from reusable components
+- **Dynamic**: Variable substitution and conditional inclusion
+- **Cacheable**: Built-in performance optimization
+- **Maintainable**: Update once, apply everywhere
+
+### How It Works
+
+1. **Workflows** define which components to include:
+```yaml
+name: init-full
+required:
+  - core/session-context
+  - core/memory-structure
+conditional:
+  - if: "options.cicd"
+    then: templates/cicd-setup
+```
+
+2. **Components** contain the actual prompt content:
+```yaml
+name: session-context
+variables:
+  session_id: "${date}_${time}_${session_type}"
+content: |
+  Initialize session ${session_id}...
+```
+
+3. **Variables** enable dynamic customization:
+- Built-in: `${date}`, `${time}`, `${uuid}`
+- Context: `${project.name}`, `${options.testing}`
+- Transformations: `${name | upper}`, `${text | truncate(50)}`
+
+See [prompts/README.md](prompts/README.md) for complete documentation.
+
+## Agent Architecture
+
+### Meta-Framework Design
+
+MultiAgent-Claude is a **meta-framework** that uses itself to develop itself. This creates two distinct categories of agents:
+
+#### Meta-Agents (.claude/agents/)
+Agents used exclusively for developing the MultiAgent-Claude framework:
+- Never distributed to user projects
+- Access via `mac meta` commands (coming soon)
+- Examples: meta-development-orchestrator, cli-test-engineer
+
+#### Template Agents (Examples/agents/)
+Agents distributed to user projects via `mac init`:
+- Organized into `orchestrators/` (Opus) and `specialists/` (Sonnet)
+- Available through standard `mac agent` commands
+- Form the actual toolkit for end users
+
+### Two-Tier Hierarchy
+MultiAgent-Claude uses a two-tier hierarchy of orchestrators and specialists:
+
+#### Orchestrators (Opus Model)
+High-level coordinators that manage complex workflows and other agents:
+- **master-orchestrator**: Top-level task analysis and strategy selection
+- **fullstack-feature-orchestrator**: End-to-end feature coordination
+- **infrastructure-migration-architect**: Complete infrastructure transformations
+- **parallel-controller**: Concurrent agent execution management
+- **wave-execution-orchestrator**: 7-phase systematic task execution
+- **issue-triage-orchestrator**: Comprehensive issue analysis and resolution
+- **code-review-orchestrator**: Multi-aspect code review coordination
+- **meta-development-orchestrator**: Framework self-improvement orchestration
+- **implementation-verifier**: Verification and validation coordination
+
+#### Specialists (Sonnet Model)
+Domain experts that create plans and perform focused tasks:
+
+**Development Specialists:**
 - **ai-agent-architect**: AI systems, LangChain, MCP servers
 - **frontend-ui-expert**: React, Next.js, UI components
 - **aws-backend-architect**: AWS services, infrastructure design
-- **fullstack-feature-orchestrator**: End-to-end feature implementation
-- **playwright-test-engineer**: E2E testing, visual regression, test automation
+- **backend-api-frontend-integrator**: API integration planning
+- **cpp-plugin-api-expert**: Cross-platform C++ libraries
 
-### Specialized Agents
-- **documentation-architect**: API docs, tutorials, technical writing
-- **multimodal-ai-specialist**: Vision models, RAG systems
-- **infrastructure-migration-architect**: Re-platforming, migrations
-- **codebase-truth-analyzer**: Code-documentation alignment
+**Quality & Testing Specialists:**
+- **playwright-test-engineer**: E2E testing, visual regression
+- **codebase-truth-analyzer**: Code-documentation alignment verification
 - **ui-design-auditor**: UX/UI analysis, design improvements
+- **cli-test-engineer**: CLI testing and validation
 
-### v2.0 Orchestration Agents
-- **master-orchestrator**: Analyzes task complexity and selects execution strategy
-- **playwright-visual-developer**: Iterative UI refinement with Playwright MCP
-- **parallel-controller**: Manages parallel agent execution and prevents conflicts
-- **implementation-verifier**: Validates implementations against plans
+**Documentation & Meta Specialists:**
+- **documentation-architect**: API docs, tutorials, technical writing
+- **documentation-sync-guardian**: Documentation consistency maintenance
+- **prompt-engineer-specialist**: Agent prompt optimization
+- **template-evolution-tracker**: Template change analysis
+- **agent-factory**: New agent creation
+
+**Deployment Specialists:**
+- **aws-deployment-specialist**: AWS deployment orchestration
+- **vercel-deployment-troubleshooter**: Vercel deployment issues
+- **multimodal-ai-specialist**: Vision models, RAG systems
 
 See `Examples/agents/` for the complete library of agent templates.
 
@@ -282,6 +376,28 @@ multiagent-claude mcp [server]
 multiagent-claude worktree feature1 feature2
 ```
 
+#### Prompt System Commands
+```bash
+# List available workflows
+multiagent-claude prompt list
+
+# Show workflow details
+multiagent-claude prompt show init-full
+
+# Validate all workflows
+multiagent-claude prompt validate
+
+# Test workflow composition
+multiagent-claude prompt test init-full --preview
+
+# Export workflow with dependencies
+multiagent-claude prompt export init-full
+
+# Cache management
+multiagent-claude prompt cache-stats
+multiagent-claude prompt cache-clear
+```
+
 ## v2.0 Orchestration Modes
 
 ### Auto Mode
@@ -318,6 +434,61 @@ For complex architectural changes:
 - System-wide refactoring
 - Multi-phase execution
 - Comprehensive verification at each phase
+
+## Common Orchestration Workflows
+
+### Issue Triage and Resolution
+```bash
+# For bug investigation and fixing
+"Deploy the issue-triage-orchestrator to investigate login failures"
+
+# The orchestrator will:
+# 1. Analyze symptoms and determine severity
+# 2. Deploy specialists to find root cause
+# 3. Create fix plan
+# 4. Coordinate implementation
+# 5. Verify resolution
+```
+
+### Code Review
+```bash
+# For comprehensive code reviews
+"Use the code-review-orchestrator to review the authentication changes"
+
+# The orchestrator will:
+# 1. Analyze changes across all domains
+# 2. Check security, performance, quality
+# 3. Verify test coverage
+# 4. Provide actionable feedback
+```
+
+### Wave Execution (7-Phase)
+```bash
+# For complex, systematic task execution
+"Launch the wave-execution-orchestrator for the payment system implementation"
+
+# Executes through 7 waves:
+# Wave 1: Discovery & Validation
+# Wave 2: Implementation Planning
+# Wave 3: Deployment Strategy
+# Wave 4: Testing
+# Wave 5: Monitoring
+# Wave 6: Documentation
+# Wave 7: Retrospective
+```
+
+### Meta-Development
+```bash
+# For framework self-improvement
+"Use the meta-development-orchestrator to improve our agent templates"
+
+# The orchestrator will:
+# 1. Analyze current framework state
+# 2. Identify improvement opportunities
+# 3. Coordinate framework's own agents
+# 4. Implement improvements
+# 5. Update documentation
+```
 
 ## Visual Development with Playwright MCP
 

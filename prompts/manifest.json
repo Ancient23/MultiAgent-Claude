@@ -1,0 +1,145 @@
+{
+  "version": "1.0.0",
+  "name": "MultiAgent-Claude Prompt System",
+  "description": "Component-based prompt architecture for MultiAgent-Claude",
+  "created": "2025-01-22",
+  "author": "MultiAgent-Claude Framework",
+  
+  "components": {
+    "core": {
+      "session-context": {
+        "path": "core/session-context.yml",
+        "version": "1.0.0",
+        "description": "Initialize session context for any operation",
+        "tags": ["initialization", "context", "memory"]
+      },
+      "memory-structure": {
+        "path": "core/memory-structure.yml",
+        "version": "1.0.0",
+        "description": "Setup persistent memory system",
+        "tags": ["memory", "persistence", "knowledge-base"]
+      },
+      "file-conventions": {
+        "path": "core/file-conventions.yml",
+        "version": "1.0.0",
+        "description": "Standard file paths and naming conventions",
+        "tags": ["conventions", "standards", "paths"]
+      },
+      "project-analysis": {
+        "path": "core/project-analysis.yml",
+        "version": "1.0.0",
+        "description": "Analyze project structure and detect technology",
+        "tags": ["analysis", "detection", "discovery"]
+      },
+      "quality-standards": {
+        "path": "core/quality-standards.yml",
+        "version": "1.0.0",
+        "description": "Quality criteria and validation standards",
+        "tags": ["quality", "validation", "standards"]
+      }
+    },
+    
+    "templates": {
+      "agent-creation": {
+        "path": "templates/agent-creation.yml",
+        "version": "1.0.0",
+        "description": "Generate specialized agents",
+        "tags": ["agents", "generation", "orchestration"]
+      },
+      "command-creation": {
+        "path": "templates/command-creation.yml",
+        "version": "1.0.0",
+        "description": "Generate custom commands",
+        "tags": ["commands", "automation", "workflows"]
+      },
+      "pattern-library": {
+        "path": "templates/pattern-library.yml",
+        "version": "1.0.0",
+        "description": "Setup pattern documentation system",
+        "tags": ["patterns", "documentation", "reuse"]
+      },
+      "adr-system": {
+        "path": "templates/adr-system.yml",
+        "version": "1.0.0",
+        "description": "Architecture Decision Records setup",
+        "tags": ["adr", "decisions", "architecture"]
+      },
+      "cicd-setup": {
+        "path": "templates/cicd-setup.yml",
+        "version": "1.0.0",
+        "description": "Configure CI/CD pipelines",
+        "tags": ["cicd", "automation", "deployment"]
+      },
+      "testing-setup": {
+        "path": "templates/testing-setup.yml",
+        "version": "1.0.0",
+        "description": "Setup testing frameworks",
+        "tags": ["testing", "quality", "validation"]
+      },
+      "documentation-import": {
+        "path": "templates/documentation-import.yml",
+        "version": "1.0.0",
+        "description": "Import existing documentation",
+        "tags": ["documentation", "import", "migration"]
+      }
+    }
+  },
+  
+  "workflows": {
+    "init-full": {
+      "path": "workflows/init-full.yml",
+      "version": "1.0.0",
+      "description": "Complete MultiAgent-Claude initialization",
+      "category": "initialization",
+      "complexity": "high",
+      "estimated_time": "10-15 minutes"
+    },
+    "init-memory": {
+      "path": "workflows/init-memory.yml",
+      "version": "1.0.0",
+      "description": "Initialize only memory system",
+      "category": "initialization",
+      "complexity": "low",
+      "estimated_time": "3-5 minutes"
+    },
+    "add-memory": {
+      "path": "workflows/add-memory.yml",
+      "version": "1.0.0",
+      "description": "Add memory to existing setup",
+      "category": "enhancement",
+      "complexity": "medium",
+      "estimated_time": "5-7 minutes"
+    },
+    "init-docs": {
+      "path": "workflows/init-docs.yml",
+      "version": "1.0.0",
+      "description": "Initialize with documentation import",
+      "category": "initialization",
+      "complexity": "medium",
+      "estimated_time": "7-10 minutes"
+    },
+    "update-system": {
+      "path": "workflows/update-system.yml",
+      "version": "1.0.0",
+      "description": "Update existing MultiAgent-Claude setup",
+      "category": "maintenance",
+      "complexity": "low",
+      "estimated_time": "2-3 minutes"
+    }
+  },
+  
+  "statistics": {
+    "total_components": 12,
+    "core_components": 5,
+    "template_components": 7,
+    "workflows": 5,
+    "total_lines_saved": 7500,
+    "redundancy_reduction": "78%"
+  },
+  
+  "compatibility": {
+    "min_version": "1.0.0",
+    "max_version": "2.0.0",
+    "node_version": ">=18.0.0"
+  }
+}

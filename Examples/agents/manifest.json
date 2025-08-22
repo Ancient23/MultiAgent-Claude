@@ -1,0 +1,39 @@
+{
+  "type": "template",
+  "version": "2.0.0",
+  "description": "Agent templates for distribution to other projects",
+  "structure": {
+    "orchestrators": {
+      "description": "Coordination agents using Opus model for complex multi-agent workflows",
+      "model": "opus",
+      "path": "orchestrators/",
+      "purpose": "Coordinate multiple specialists, make architectural decisions, manage workflows"
+    },
+    "specialists": {
+      "description": "Domain expert agents using Sonnet model for focused tasks",
+      "model": "sonnet",
+      "path": "specialists/",
+      "purpose": "Provide domain expertise, research, planning, and specialized implementation"
+    }
+  },
+  "selection_rules": {
+    "use_orchestrator_when": [
+      "Task requires coordinating multiple agents",
+      "Complex workflow with multiple phases",
+      "Need architectural decisions or system-wide changes",
+      "Parallel execution of multiple tasks required",
+      "Quality gates and verification needed"
+    ],
+    "use_specialist_when": [
+      "Single domain expertise needed",
+      "Focused research or analysis required",
+      "Specific technical implementation",
+      "Documentation or testing tasks",
+      "Independent task execution possible"
+    ]
+  },
+  "naming_convention": {
+    "orchestrators": "[domain]-orchestrator or [pattern]-controller",
+    "specialists": "[domain]-[role] or [technology]-specialist"
+  }
+}

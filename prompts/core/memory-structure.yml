@@ -1,0 +1,97 @@
+name: memory-structure
+version: 1.0.0
+description: Setup persistent memory system for the project
+category: core
+tags: [memory, persistence, knowledge-base]
+
+variables:
+  memory_path: ".claude/memory"
+  project_name: "${workflow.project_name | default('Project')}"
+  tech_stack: "${workflow.tech_stack | default('Auto-detect')}"
+  architecture: "${workflow.architecture | default('Auto-detect')}"
+
+content: |
+  ## Create Memory System
+  
+  Establish memory hierarchy at ${memory_path}/:
+  
+  ```
+  ${memory_path}/
+  ├── project.md                    # Persistent project-wide context
+  ├── patterns/                     # Documented successful patterns
+  │   ├── authentication.md
+  │   ├── api-design.md
+  │   └── testing-strategies.md
+  ├── decisions/                    # Architectural Decision Records
+  │   ├── YYYY-MM-DD-decision-name.md
+  │   └── README.md
+  ├── sessions/                     # Archived session contexts
+  │   └── archive/
+  └── index.json                   # Quick lookup index for all memory
+  ```
+  
+  ### Create project.md with:
+  ```markdown
+  # ${project_name} Context
+  
+  ## Technology Stack
+  ${tech_stack}
+  
+  ## Architecture Patterns
+  ${architecture}
+  
+  ## Key Conventions
+  - Import style: [detected]
+  - File organization: [detected]
+  - Naming patterns: [detected]
+  - Testing approach: [detected]
+  
+  ## Integration Points
+  - External services: [list]
+  - Databases: [list]
+  - APIs: [list]
+  
+  ## Development Guidelines
+  - Code style: [detected]
+  - Documentation standards: [detected]
+  - Git workflow: [detected]
+  ```
+  
+  ### Create index.json with:
+  ```json
+  {
+    "lastUpdated": "${datetime}",
+    "project": {
+      "name": "${project_name}",
+      "initialized": "${date}",
+      "framework": "${tech_stack}"
+    },
+    "sessions": {
+      "active": "${session_id}",
+      "history": []
+    },
+    "patterns": {
+      "count": 0,
+      "categories": {}
+    },
+    "decisions": {
+      "count": 0,
+      "latest": null
+    },
+    "agents": {
+      "activations": {},
+      "performance": {}
+    },
+    "statistics": {
+      "totalSessions": 0,
+      "totalPatterns": 0,
+      "totalDecisions": 0
+    }
+  }
+  ```
+  
+  ### Memory Management Rules
+  - **Pattern Documentation**: After 2+ successful uses
+  - **ADR Creation**: For any architectural decision
+  - **Session Archival**: After completion or 7 days
+  - **Index Updates**: After any memory modification
