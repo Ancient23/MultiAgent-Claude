@@ -163,11 +163,88 @@ function detectSource(sessionId) {
   return 'unknown';
 }
 
+/**
+ * Get the current context session file path
+ * This is what agents should use to find their context
+ * @param {string} tasksDir - The tasks directory path (default: .claude/tasks)
+ * @returns {string|null} Path to the context session file or null if not found
+ */
+function getCurrentContextSession(tasksDir = '.claude/tasks') {
+  const fullPath = path.resolve(tasksDir);
+  
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+  
+  // First, try to get the current session ID
+  const currentSessionId = getSessionId();
+  
+  // Look for the specific session file
+  const specificFile = path.join(fullPath, `context_session_${currentSessionId}.md`);
+  if (fs.existsSync(specificFile)) {
+    return specificFile;
+  }
+  
+  // Fallback: Find the most recent context_session file
+  // This handles cases where the session was created by another process
+  try {
+    const files = fs.readdirSync(fullPath)
+      .filter(f => f.startsWith('context_session_') && f.endsWith('.md'))
+      .map(f => ({
+        name: f,
+        path: path.join(fullPath, f),
+        mtime: fs.statSync(path.join(fullPath, f)).mtime
+      }))
+      .sort((a, b) => b.mtime - a.mtime);
+    
+    return files.length > 0 ? files[0].path : null;
+  } catch (error) {
+    return null;
+  }
+}
+
+/**
+ * Read the current context session content
+ * @param {string} tasksDir - The tasks directory path
+ * @returns {object} Session content and metadata or null
+ */
+function readCurrentContext(tasksDir = '.claude/tasks') {
+  const contextPath = getCurrentContextSession(tasksDir);
+  
+  if (!contextPath) {
+    return null;
+  }
+  
+  try {
+    const content = fs.readFileSync(contextPath, 'utf8');
+    
+    // Extract session ID from content
+    const sessionIdMatch = content.match(/\*\*Session ID\*\*:\s*([^\n]+)/);
+    const sessionId = sessionIdMatch ? sessionIdMatch[1].trim() : null;
+    
+    // Extract status
+    const statusMatch = content.match(/\*\*Status\*\*:\s*([^\n]+)/);
+    const status = statusMatch ? statusMatch[1].trim() : 'Unknown';
+    
+    return {
+      path: contextPath,
+      sessionId: sessionId,
+      status: status,
+      content: content,
+      mtime: fs.statSync(contextPath).mtime
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
 module.exports = {
   getSessionId,
   formatSessionId,
   isValidSessionId,
   getSessionMetadata,
   detectFromClaudeContext,
-  detectFromActiveSession
+  detectFromActiveSession,
+  getCurrentContextSession,
+  readCurrentContext
 };
