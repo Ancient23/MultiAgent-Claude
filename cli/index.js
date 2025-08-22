@@ -167,4 +167,46 @@ program
     await executeWavePattern();
   });
 
+// Prompt System Management
+program
+  .command('prompt')
+  .description('Manage prompt system')
+  .argument('<action>', 'Action: list, show, validate, test, export, cache-stats, cache-clear')
+  .argument('[name]', 'Workflow name (for show, test, export)')
+  .option('--preview', 'Show preview of composed prompt (for test)')
+  .option('--output <path>', 'Output path (for test, export)')
+  .option('--cicd', 'Enable CI/CD in test context')
+  .option('--testing', 'Enable testing in test context')
+  .option('--docs', 'Enable docs in test context')
+  .action(async (action, name, options) => {
+    const promptCommands = require('./commands/prompt');
+    
+    switch (action) {
+      case 'list':
+        await promptCommands.list();
+        break;
+      case 'show':
+        await promptCommands.show(name);
+        break;
+      case 'validate':
+        await promptCommands.validate();
+        break;
+      case 'test':
+        await promptCommands.test(name, options);
+        break;
+      case 'export':
+        await promptCommands.export(name, options.output);
+        break;
+      case 'cache-stats':
+        await promptCommands.cacheStats();
+        break;
+      case 'cache-clear':
+        await promptCommands.cacheClear();
+        break;
+      default:
+        console.error(`Unknown action: ${action}`);
+        console.log('Available actions: list, show, validate, test, export, cache-stats, cache-clear');
+    }
+  });
+
 program.parse();

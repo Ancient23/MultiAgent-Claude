@@ -1,0 +1,97 @@
+name: project-analysis
+version: 1.0.0
+description: Analyze project structure and detect technology stack
+category: core
+tags: [analysis, detection, discovery]
+
+variables:
+  scan_depth: "${workflow.scan_depth | default(3)}"
+  ignore_patterns: "${workflow.ignore_patterns | default('node_modules,dist,build,.git')}"
+
+content: |
+  ## Phase 1: Project Analysis & Discovery
+  
+  ### 1.1 Read Existing Structure
+  First, check for existing Claude Code setup:
+  - Read `CLAUDE.md` for current configuration
+  - Check `.claude/tasks/` for any `context_session_*.md` files
+  - Scan `.claude/doc/` for previous agent plans
+  - Review `.claude/memory/` for existing knowledge base
+  
+  ### 1.2 Detect Technology Stack
+  Analyze project files to identify:
+  
+  **Package Managers & Dependencies:**
+  - `package.json` → Node.js/JavaScript project
+  - `requirements.txt` or `Pipfile` → Python project
+  - `Gemfile` → Ruby project
+  - `go.mod` → Go project
+  - `Cargo.toml` → Rust project
+  - `pom.xml` or `build.gradle` → Java project
+  - `composer.json` → PHP project
+  
+  **Frameworks & Libraries:**
+  - React: Check for `react` in dependencies
+  - Vue: Check for `vue` in dependencies
+  - Angular: Check for `@angular/core`
+  - Next.js: Check for `next` in dependencies
+  - Express: Check for `express` in dependencies
+  - Django: Check for `django` in requirements
+  - Rails: Check for `rails` in Gemfile
+  
+  **Build Tools & Configs:**
+  - Webpack: `webpack.config.js`
+  - Vite: `vite.config.js`
+  - TypeScript: `tsconfig.json`
+  - ESLint: `.eslintrc*`
+  - Prettier: `.prettierrc*`
+  - Jest: `jest.config.js`
+  - Playwright: `playwright.config.js`
+  
+  ### 1.3 Analyze Project Structure
+  Map the directory structure (up to ${scan_depth} levels):
+  ```
+  project-root/
+  ├── src/              # Source code
+  ├── tests/            # Test files
+  ├── docs/             # Documentation
+  ├── .github/          # GitHub Actions
+  ├── .claude/          # Claude Code config
+  └── [other directories]
+  ```
+  
+  ### 1.4 Identify Key Files
+  Locate and analyze:
+  - **Entry points**: `index.js`, `main.py`, `app.js`, etc.
+  - **Configuration**: `config/*`, `.env*`, `settings.py`
+  - **Documentation**: `README.md`, `CONTRIBUTING.md`, `docs/*`
+  - **CI/CD**: `.github/workflows/*`, `.gitlab-ci.yml`, `Jenkinsfile`
+  - **Testing**: `*.test.js`, `*.spec.ts`, `test_*.py`
+  
+  ### 1.5 Detect Conventions
+  Analyze code patterns to identify:
+  
+  **Code Style:**
+  - Indentation (spaces vs tabs, count)
+  - Quote style (single vs double)
+  - Semicolons (yes/no)
+  - Line length limits
+  
+  **File Organization:**
+  - Component structure (atomic, feature-based, MVC)
+  - Import patterns (absolute vs relative)
+  - File naming (camelCase, kebab-case, PascalCase)
+  
+  **Testing Approach:**
+  - Unit tests location and naming
+  - Integration tests structure
+  - E2E test framework
+  
+  ### 1.6 Document Findings
+  Update session context with discovered:
+  - Technology stack details
+  - Framework versions
+  - Project structure map
+  - Key conventions
+  - Integration points
+  - Existing Claude setup (if any)

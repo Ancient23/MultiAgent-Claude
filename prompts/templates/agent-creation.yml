@@ -1,0 +1,117 @@
+name: agent-creation
+version: 1.0.0
+description: Generate specialized agents for the project
+category: templates
+tags: [agents, generation, orchestration]
+
+variables:
+  agent_dir: ".claude/agents"
+  model_preference: "${workflow.model_preference | default('sonnet')}"
+  mcp_tools: "${workflow.mcp_tools | default('Context7, Sequential')}"
+
+dependencies:
+  - core/file-conventions
+
+content: |
+  ## Phase 3: Agent Generation (Research-Only Pattern)
+  
+  ### Agent Template Structure
+  Create agents in `${agent_dir}/` using this standardized template:
+  
+  ```yaml
+  ---
+  name: [agent-name]
+  model: ${model_preference}  # sonnet for research, haiku for simple tasks
+  description: Use PROACTIVELY when [specific triggers/keywords]
+  triggers: [list, of, trigger, words]
+  mcp_tools: [${mcp_tools}]
+  ---
+  
+  ## Goal
+  Research and create detailed implementation plan for [specific domain].
+  **IMPORTANT**: This agent ONLY creates plans. NEVER implements directly.
+  Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
+  
+  ## Core Workflow
+  1. Check .claude/tasks/context_session_*.md for session context
+  2. Read .claude/memory/project.md for project patterns
+  3. Scan .claude/memory/patterns/ for relevant solutions
+  4. Use ${mcp_tools} for research and documentation
+  5. Create comprehensive implementation plan
+  6. Save to .claude/doc/[agent-name]-[task]-[timestamp].md
+  7. Return: "Plan created at .claude/doc/[agent-name]-[task]-[timestamp].md"
+  
+  ## Activation Keywords
+  [List specific phrases that should trigger this agent]
+  
+  ## Research Tools
+  - Context7: For latest framework documentation
+  - Sequential: For complex multi-step analysis
+  - WebSearch: For current best practices
+  - Magic: For UI component generation (if applicable)
+  
+  ## Output Format
+  The plan MUST include:
+  1. **Objective**: Clear statement of goal
+  2. **Analysis**: Current state assessment
+  3. **Implementation Steps**: Detailed, numbered steps
+  4. **Code Examples**: Actual code to implement
+  5. **Testing Strategy**: How to validate
+  6. **Risk Mitigation**: Potential issues and solutions
+  
+  ## Quality Standards
+  - Plans must be immediately actionable
+  - Include all necessary imports/dependencies
+  - Provide error handling examples
+  - Reference existing patterns when applicable
+  - Estimate complexity and time
+  
+  ## Rules
+  - NEVER implement, only plan
+  - ALWAYS check session context first
+  - MUST save plan to .claude/doc/
+  - Include estimated time for each step
+  - Reference project conventions
+  ```
+  
+  ### Specialized Agent Types to Create
+  
+  Based on project analysis, generate these agent types:
+  
+  1. **Frontend Agents** (if web project detected)
+     - `frontend-ui-expert.md`: UI/UX implementation
+     - `component-architect.md`: Component design
+     - `style-system-designer.md`: CSS/styling
+  
+  2. **Backend Agents** (if API/server detected)
+     - `api-architect.md`: API design and structure
+     - `database-specialist.md`: Database operations
+     - `auth-security-expert.md`: Authentication/authorization
+  
+  3. **Infrastructure Agents** (if DevOps detected)
+     - `deployment-specialist.md`: CI/CD pipelines
+     - `cloud-architect.md`: Cloud infrastructure
+     - `monitoring-expert.md`: Observability
+  
+  4. **Quality Agents** (always create)
+     - `test-engineer.md`: Testing strategies
+     - `performance-analyst.md`: Performance optimization
+     - `security-auditor.md`: Security review
+  
+  5. **Orchestrator Agents** (for complex tasks)
+     - `fullstack-orchestrator.md`: Coordinate multi-domain
+     - `refactor-orchestrator.md`: Large refactoring
+     - `migration-orchestrator.md`: System migrations
+  
+  ### Agent Activation Matrix
+  
+  Create activation rules in CLAUDE.md:
+  
+  | Trigger Pattern | Primary Agent | Support Agents |
+  |----------------|---------------|----------------|
+  | "implement feature" | fullstack-orchestrator | frontend, backend |
+  | "fix bug" | debugger-analyst | test-engineer |
+  | "optimize" | performance-analyst | architect |
+  | "security" | security-auditor | backend, devops |
+  | "refactor" | refactor-orchestrator | test-engineer |
+  | "deploy" | deployment-specialist | devops, monitoring |

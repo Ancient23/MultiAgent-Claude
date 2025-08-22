@@ -3,19 +3,36 @@ const path = require('path');
 const { execSync } = require('child_process');
 const chalk = require('chalk');
 const readline = require('readline');
+const PromptComposer = require('../lib/prompt-composer');
 
-function getPromptFile(options) {
+async function getWorkflow(options) {
   if (options.memoryOnly) {
-    return 'claude-code-init-memory-prompt.md';
+    return 'init-memory';
   } else if (options.withDocs) {
-    return 'claude-code-init-with-docs-import.md';
+    return 'init-docs';
   }
-  return 'claude-code-init-prompts.md';
+  return 'init-full';
 }
 
-function readPrompt(promptFile) {
-  const promptPath = path.join(__dirname, '..', '..', promptFile);
-  return fs.readFileSync(promptPath, 'utf8');
+async function composePrompt(options) {
+  const composer = new PromptComposer({
+    baseDir: path.join(__dirname, '..', '..', 'prompts')
+  });
+  
+  const workflow = await getWorkflow(options);
+  const context = {
+    options: {
+      cicd: options.cicd || false,
+      testing: options.testing || false,
+      docs: options.withDocs || false
+    },
+    project: {
+      name: path.basename(process.cwd()),
+      path: process.cwd()
+    }
+  };
+  
+  return await composer.compose(workflow, context);
 }
 
 function question(query) {
@@ -54,18 +71,6 @@ function copyTestTemplate(filename) {
   console.log(chalk.green(`✓ Added ${filename}`));
 }
 
-function extractPromptContent(content) {
-  const match = content.match(/```markdown\n([\s\S]*?)\n```/);
-  if (match) {
-    return match[1];
-  }
-  const lines = content.split('\n');
-  const startIdx = lines.findIndex(line => line.includes('## Master Initialization Prompt'));
-  if (startIdx !== -1) {
-    return lines.slice(startIdx + 1).join('\n');
-  }
-  return content;
-}
 
 function executeWithClaude(prompt) {
   try {
@@ -96,14 +101,13 @@ function executeWithClaude(prompt) {
 }
 
 async function execute(options) {
-  const promptFile = getPromptFile(options);
+  const workflow = await getWorkflow(options);
   
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
-  console.log(chalk.gray(`Using prompt: ${promptFile}\n`));
+  console.log(chalk.gray(`Using workflow: ${workflow}\n`));
 
   try {
-    const fullContent = readPrompt(promptFile);
-    const prompt = extractPromptContent(fullContent);
+    const prompt = await composePrompt(options);
 
     if (options.promptOnly) {
       console.log(chalk.yellow('Prompt output mode - Copy the following into Claude:\n'));

@@ -1,0 +1,69 @@
+name: file-conventions
+version: 1.0.0
+description: Standard file paths and naming conventions
+category: core
+tags: [conventions, standards, paths]
+
+variables:
+  base_path: ".claude"
+
+content: |
+  ## CRITICAL FILE PATHS TO USE
+  
+  ### Session Memory (Transient)
+  - **Session context**: `${base_path}/tasks/context_session_*.md` (where * is session ID)
+  - Agents MUST check this file first for session context
+  - Main system maintains this file across agent calls
+  - Updated after each significant action
+  
+  ### Agent Output (Plans Only)
+  - **Agent plans**: `${base_path}/doc/[agent-name]-[task]-[timestamp].md`
+  - Agents create plans here and return the path to parent
+  - Parent agent/system reads from this location
+  - NEVER implement directly, only create plans
+  
+  ### Persistent Memory
+  - **Project context**: `${base_path}/memory/project.md`
+  - **Pattern library**: `${base_path}/memory/patterns/*.md`
+  - **ADRs**: `${base_path}/memory/decisions/YYYY-MM-DD-*.md`
+  - **Memory index**: `${base_path}/memory/index.json`
+  
+  ### Agent & Command Storage
+  - **Agents**: `${base_path}/agents/*.md`
+  - **Commands**: `${base_path}/commands/*.md`
+  - **Workflows**: `${base_path}/workflows/*.yml`
+  
+  ### Orchestration & Configuration
+  - **Orchestration config**: `${base_path}/orchestration/config.json`
+  - **Parallel execution**: `${base_path}/parallel-execution.json`
+  - **Wave execution**: `${base_path}/doc/wave-execution-plan-*.md`
+  
+  ### CI/CD & Testing
+  - **GitHub workflows**: `.github/workflows/*.yml`
+  - **Test specs**: `tests/*.spec.js`
+  - **Visual baselines**: `tests/visual/baselines/*.png`
+  
+  ## Naming Conventions
+  
+  ### Timestamps
+  - Format: `YYYYMMDD_HHMMSS`
+  - Example: `20250122_143000`
+  
+  ### Agent Output Files
+  - Pattern: `[agent]-[task]-[timestamp].md`
+  - Example: `frontend-ui-implementation-20250122_143000.md`
+  
+  ### Session Files
+  - Pattern: `context_session_[timestamp]_[type].md`
+  - Example: `context_session_20250122_143000_initialization.md`
+  
+  ### ADR Files
+  - Pattern: `YYYY-MM-DD-[decision-name].md`
+  - Example: `2025-01-22-switch-to-yaml-prompts.md`
+  
+  ## File Operation Rules
+  1. Always create directories before writing files
+  2. Check for existing files before overwriting
+  3. Use absolute paths in agents
+  4. Return file paths, not content, from agents
+  5. Validate file existence before reading

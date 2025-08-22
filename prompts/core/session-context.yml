@@ -1,0 +1,56 @@
+name: session-context
+version: 1.0.0
+description: Initialize session context for any operation
+category: core
+tags: [initialization, context, memory]
+
+variables:
+  session_id: "${date}_${time}_${session_type | snakeCase}"
+  session_type: "${workflow.session_type | default('general')}"
+  project_path: "${process.cwd()}"
+  objectives: "${workflow.objectives | default('Initialize environment')}"
+  date: "${date}"
+  time: "${time}"
+  status: "Active"
+
+content: |
+  ## Phase 0: Initialize Session Context
+
+  **CRITICAL: Before any other work, create the session context file:**
+  1. Generate session ID: `${session_id}`
+  2. Create directory: `mkdir -p .claude/tasks`
+  3. Create `.claude/tasks/context_session_${session_id}.md` with:
+  
+  ```markdown
+  # Session Context: ${objectives}
+  
+  **Session ID**: ${session_id}
+  **Date**: ${date}
+  **Type**: ${session_type}
+  **Status**: ${status}
+  
+  ## Objectives
+  ${objectives | indent(2)}
+  
+  ## Current State
+  - Starting ${session_type}
+  - Project path: ${project_path}
+  - Available MCP tools: [detect and list]
+  
+  ## Files Modified
+  [Will be updated as work progresses]
+  
+  ## Discoveries
+  [Will be updated with findings]
+  
+  ## Next Steps
+  [Will be updated with planned actions]
+  ```
+  
+  4. **Update this file after each significant action:**
+     - After reading/analyzing files
+     - After making architectural decisions
+     - Before deploying subagents
+     - After subagents complete
+     - After implementing changes
+     - When discovering issues/blockers

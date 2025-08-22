@@ -1,0 +1,55 @@
+name: testing-setup
+version: 1.0.0
+description: Setup testing frameworks and test structure
+category: templates
+tags: [testing, quality, validation]
+
+variables:
+  test_framework: "${options.test_framework | default('playwright')}"
+  test_dir: "tests"
+
+content: |
+  ## Testing Framework Setup
+  
+  ### Test Structure
+  Create test directories and files:
+  ```
+  ${test_dir}/
+  ├── unit/              # Unit tests
+  ├── integration/       # Integration tests
+  ├── e2e/              # End-to-end tests
+  └── fixtures/         # Test data and mocks
+  ```
+  
+  ### Playwright Configuration
+  Configure Playwright for comprehensive testing:
+  
+  1. **Test Projects**:
+     - CLI tests: `*.cli.spec.js`
+     - Integration tests: `*.integration.spec.js`
+     - Unit tests: `*.spec.js`
+  
+  2. **Test Settings**:
+     - Parallel execution enabled
+     - Retry failed tests on CI
+     - Capture traces on failure
+     - Screenshot on failure
+  
+  ### Test Implementation
+  Create tests for:
+  - Agent invocation and planning
+  - Memory system operations
+  - CLI command execution
+  - Workflow orchestration
+  - Error handling
+  
+  ### Coverage Targets
+  - Unit tests: > 80% coverage
+  - Integration tests: Critical paths
+  - E2E tests: User workflows
+  
+  ### CI Integration
+  - Run tests on every pull request
+  - Block merge on test failure
+  - Generate coverage reports
+  - Track performance metrics

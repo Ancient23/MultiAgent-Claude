@@ -48,13 +48,14 @@
   "license": "MIT",
   "dependencies": {
     "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
     "commander": "^12.1.0",
     "fs-extra": "^11.2.0",
     "inquirer": "^9.3.7",
+    "js-yaml": "^4.1.0",
     "ora": "^5.4.1"
   },
   "devDependencies": {
-    "@playwright/mcp": "^0.1.0",
     "@playwright/test": "^1.48.2"
   },
   "repository": {

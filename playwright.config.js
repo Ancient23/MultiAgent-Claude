@@ -47,6 +47,14 @@ module.exports = defineConfig({
         ...devices['Desktop Chrome'],
       },
     },
+    {
+      name: 'unit-tests',
+      testMatch: /.*\.spec\.js/,
+      testIgnore: /.*\.(cli|integration|visual)\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */

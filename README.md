@@ -3,6 +3,7 @@
 **A multi-agent orchestration framework for Claude Code that maximizes context efficiency through specialized agents, structured memory, intelligent task delegation, and visual development capabilities.**
 
 🚀 **Version 2.0 Features:**
+- **YAML-Based Prompt Architecture**: Component-based system with 78% less redundancy
 - **Orchestration Modes**: Auto, Plan-Only, Parallel, Sequential, Meta execution strategies
 - **Parallel Agent Deployment**: Run multiple agents simultaneously with conflict prevention
 - **Visual Development**: Playwright MCP integration for iterative UI refinement
@@ -143,6 +144,55 @@ This tiered approach ensures:
 - Preservation of successful patterns
 - Gradual knowledge accumulation
 - Reduced repetition of solved problems
+
+## YAML-Based Prompt Architecture
+
+### Component System
+
+MultiAgent-Claude v2.0 uses a revolutionary YAML-based component system that eliminates 78% of prompt redundancy:
+
+```
+prompts/
+├── core/                 # Shared components (100% reuse)
+├── templates/            # Domain patterns (50-75% reuse)  
+├── workflows/            # Complete compositions
+└── manifest.json         # Component registry
+```
+
+**Key Benefits:**
+- **Composable**: Build prompts from reusable components
+- **Dynamic**: Variable substitution and conditional inclusion
+- **Cacheable**: Built-in performance optimization
+- **Maintainable**: Update once, apply everywhere
+
+### How It Works
+
+1. **Workflows** define which components to include:
+```yaml
+name: init-full
+required:
+  - core/session-context
+  - core/memory-structure
+conditional:
+  - if: "options.cicd"
+    then: templates/cicd-setup
+```
+
+2. **Components** contain the actual prompt content:
+```yaml
+name: session-context
+variables:
+  session_id: "${date}_${time}_${session_type}"
+content: |
+  Initialize session ${session_id}...
+```
+
+3. **Variables** enable dynamic customization:
+- Built-in: `${date}`, `${time}`, `${uuid}`
+- Context: `${project.name}`, `${options.testing}`
+- Transformations: `${name | upper}`, `${text | truncate(50)}`
+
+See [prompts/README.md](prompts/README.md) for complete documentation.
 
 ## Agent Architecture
 
@@ -324,6 +374,28 @@ multiagent-claude mcp [server]
 
 # Create git worktrees for parallel development
 multiagent-claude worktree feature1 feature2
+```
+
+#### Prompt System Commands
+```bash
+# List available workflows
+multiagent-claude prompt list
+
+# Show workflow details
+multiagent-claude prompt show init-full
+
+# Validate all workflows
+multiagent-claude prompt validate
+
+# Test workflow composition
+multiagent-claude prompt test init-full --preview
+
+# Export workflow with dependencies
+multiagent-claude prompt export init-full
+
+# Cache management
+multiagent-claude prompt cache-stats
+multiagent-claude prompt cache-clear
 ```
 
 ## v2.0 Orchestration Modes
