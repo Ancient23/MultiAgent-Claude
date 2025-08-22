@@ -319,6 +319,7 @@ test.describe('PromptComposer Performance', () => {
     const duration2 = Date.now() - start2;
 
     expect(result1).toBe(result2); // Same result
-    expect(duration2).toBeLessThan(duration1 / 2); // Much faster with cache
+    // In fast CI environments, duration2 might be 0, so check that cache improves performance
+    expect(duration2).toBeLessThanOrEqual(Math.max(duration1 / 2, 1)); // Allow for timer resolution issues
   });
 });

@@ -298,7 +298,8 @@ class PromptComposer {
         // If still too long, truncate with warning
         if (content.length > maxLength) {
             console.warn(`Prompt truncated from ${content.length} to ${maxLength} characters`);
-            content = content.substring(0, maxLength) + '\n\n[... truncated ...]';
+            const truncationMsg = '\n\n[... truncated ...]';
+            content = content.substring(0, maxLength - truncationMsg.length) + truncationMsg;
         }
         
         return content;
@@ -372,7 +373,12 @@ class PromptComposer {
         }
         
         // Comparison operations
-        const [left, operator, right] = expression.match(/(.+?)\s*(==|!=|>|<|>=|<=)\s*(.+)/).slice(1);
+        const match = expression.match(/(.+?)\s*(==|!=|>|<|>=|<=)\s*(.+)/);
+        if (!match) {
+            console.warn(`Invalid comparison expression: ${expression}`);
+            return false;
+        }
+        const [, left, operator, right] = match;
         const leftValue = this.getNestedProperty(context, left.trim());
         const rightValue = this.parseValue(right.trim());
         

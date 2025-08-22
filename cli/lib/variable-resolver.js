@@ -170,11 +170,15 @@ class VariableResolver {
                     return undefined;
                 }
             } else {
-                // Check if it's a built-in resolver at this level
-                if (current === context && this.resolvers[part]) {
-                    return this.resolvers[part](context);
+                // Prioritize context over built-in resolvers for nested properties
+                if (current && current[part] !== undefined) {
+                    current = current[part];
+                } else if (current === context && this.resolvers[part]) {
+                    // Only use built-in resolver if property doesn't exist in context
+                    current = this.resolvers[part](context);
+                } else {
+                    current = current ? current[part] : undefined;
                 }
-                current = current ? current[part] : undefined;
             }
             
             if (current === undefined) break;
