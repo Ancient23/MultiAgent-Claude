@@ -9,13 +9,13 @@ Analyze this codebase, import all existing documentation into a persistent memor
 
 ### 1.0 Initialize Session Context
 **CRITICAL: Create the session context file before starting:**
-1. Generate session ID: `YYYYMMDD_HHMMSS_docs_import`
+1. Generate session_id: `[claude_session_id]_docs_import`
 2. Create directory: `mkdir -p .claude/tasks`
-3. Create `.claude/tasks/context_session_[id].md` with:
+3. Create `.claude/tasks/context_session_[session_id].md` with:
    ```markdown
    # Session Context: Documentation Import & Environment Setup
    
-   **Session ID**: [generated_id]
+   **Session ID**: [session_id]
    **Date**: [current_date]
    **Type**: Documentation Import & Initialization
    **Status**: Active
@@ -343,7 +343,7 @@ mkdir -p .ai/memory/knowledge
 ### Session Memory and working plans
 ```
 .claude/
-├── tasks/context_session_*.md      # Session working memory
+├── tasks/context_session_[session_id].md      # Session working memory
 ├── doc/[agent]-[task]-*.md         # Agent plans
 ```
 
@@ -364,7 +364,7 @@ When agents discover undocumented features:
 4. Update index.json with changes
 
 #### Knowledge Retrieval Priority
-1. Session context (tasks/context_session_*.md)
+1. Session context (tasks/context_session_[session_id].md)
 2. Imported documentation (memory/documentation/)
 3. Extracted patterns (memory/patterns/)
 4. Previous decisions (memory/decisions/)
@@ -408,7 +408,7 @@ description: Use PROACTIVELY when documentation needs review, gaps found, or kno
 Maintain and improve project documentation quality, identify gaps, and ensure knowledge base accuracy.
 
 ## Core Workflow
-1. Read .claude/tasks/context_session_*.md
+1. Read .claude/tasks/context_session_[session_id].md
 2. Scan .ai/memory/documentation/ for relevant docs
 3. Check .ai/memory/documentation/gaps.md
 4. Analyze documentation completeness and accuracy
@@ -575,7 +575,7 @@ Special features for documentation:
 ## Phase 6: Finalize Session Context
 
 **Complete the documentation import session:**
-1. Update `.claude/tasks/context_session_*.md` with:
+1. Update `.claude/tasks/context_session_[session_id].md` with:
    - All phases completed
    - Final status: "Documentation Import Complete"
    - Summary of documentation imported

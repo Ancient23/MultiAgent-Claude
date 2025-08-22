@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for translating workflows
 Save the implementation plan to .claude/doc/workflow-translator-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 2. Use mcp__sequential-thinking__sequentialthinking for workflow analysis and mapping
 3. Use mcp__context7__get-library-docs for workflow patterns and best practices
 4. Use WebSearch for process translation techniques and automation alternatives
@@ -49,7 +49,7 @@ Example: "I've created a detailed workflow translation plan at .claude/doc/workf
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Sequential thinking for process analysis
 - Map MCP tools to manual equivalents

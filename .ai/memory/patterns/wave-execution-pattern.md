@@ -15,8 +15,8 @@ The wave execution pattern provides systematic task execution through 7 distinct
 ### Implementation Details
 
 #### Wave 0: Session Initialization
-- Generate unique session ID: `YYYYMMDD_HHMMSS_wave`
-- Create `.claude/tasks/context_session_[id].md`
+- Get Claude Session ID and generate a unique session_id: `[claude_session_id]_wave`
+- Create `.claude/tasks/context_session_[session_id].md`
 - Initialize with objectives and wave list
 - Document agent assignments
 
@@ -35,7 +35,7 @@ The wave execution pattern provides systematic task execution through 7 distinct
 ```markdown
 # Session Context: [Task]
 
-**Session ID**: [id]
+**Session ID**: [session_id]
 **Date**: [ISO date]
 **Type**: wave-execution
 **Status**: Active|Completed

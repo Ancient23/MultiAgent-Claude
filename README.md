@@ -121,7 +121,7 @@ Having agents only create plans rather than directly modifying code provides sev
 │   └── index.json          # Quick lookup and statistics
 .claude/
 ├── tasks/
-│   └── context_session_*.md # Current session working memory
+│   └── context_session_[session_id].md # Current session working memory
 └── doc/
     └── [agent]-[task]-*.md  # Agent-generated plans
 ```

@@ -104,7 +104,7 @@ project-root/
 │   │   ├── aws-backend-api-gateway-20240817.md
 │   │   └── ...
 │   └── tasks/         # Context session files (if available)
-│       └── context_session_*.md
+│       └── context_session_[session_id].md
 ```
 
 ## Agent Configuration

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer').default;
 const chalk = require('chalk');
+const { getSessionId } = require('../lib/session-helper');
 
 async function deployParallel() {
   // List available agents
@@ -36,12 +37,49 @@ async function deployParallel() {
     }
   ]);
   
+  // Generate session ID for parallel execution
+  const sessionId = getSessionId('parallel');
+  
+  // Create context session file
+  const tasksDir = path.join(process.cwd(), '.claude/tasks');
+  fs.mkdirSync(tasksDir, { recursive: true });
+  
+  const contextPath = path.join(tasksDir, `context_session_${sessionId}.md`);
+  const contextContent = `# Session Context: ${answers.task}
+
+**Session ID**: ${sessionId}
+**Date**: ${new Date().toISOString()}
+**Mode**: parallel
+**Status**: Active
+
+## Objectives
+${answers.task}
+
+## Parallel Execution Configuration
+- Agents: ${answers.selectedAgents.join(', ')}
+- Coordination: orchestrator-worker
+- Output Path: .claude/doc/
+
+## Current State
+- Initialization complete
+- ${answers.selectedAgents.length} agents ready for parallel execution
+
+## Next Steps
+1. Each agent will read this context
+2. Agents will execute in parallel
+3. Results will be consolidated in .claude/doc/
+`;
+
+  fs.writeFileSync(contextPath, contextContent);
+  
   const parallelConfig = {
+    sessionId: sessionId,
     task: answers.task,
     agents: answers.selectedAgents,
     mode: 'parallel',
     coordination: 'orchestrator-worker',
     outputPath: '.claude/doc/',
+    contextPath: contextPath,
     timestamp: new Date().toISOString()
   };
   
@@ -49,6 +87,8 @@ async function deployParallel() {
   fs.writeFileSync(configPath, JSON.stringify(parallelConfig, null, 2));
   
   console.log(chalk.green('\n✅ Parallel execution plan created!'));
+  console.log(chalk.blue(`📝 Session ID: ${sessionId}`));
+  console.log(chalk.blue(`📄 Context: ${contextPath}`));
   console.log(chalk.blue(`\n📊 ${answers.selectedAgents.length} agents will run in parallel`));
   console.log(chalk.yellow('\n💡 Tell Claude:'));
   console.log(chalk.cyan('   "Execute the parallel agents defined in .claude/parallel-execution.json"'));

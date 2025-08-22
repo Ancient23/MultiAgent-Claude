@@ -51,7 +51,7 @@ We establish **Standardized File and Directory Conventions** with:
 ```
 .claude/
 ├── tasks/                     # Session working memory
-│   └── context_session_*.md  # Session context files
+│   └── context_session_[session_id].md  # Session context files (uses Claude session ID)
 ├── doc/                       # Agent implementation plans
 │   └── [agent]-[task]-*.md   # Agent-generated plans
 ├── agents/                    # Project-specific agents
@@ -81,9 +81,10 @@ We establish **Standardized File and Directory Conventions** with:
 - Location: `.claude/doc/`
 
 **Session Context**:
-- Format: `context_session_[timestamp].md`
-- Examples: `context_session_20240819_143022.md`
+- Format: `context_session_[session_id].md`
+- Examples: `context_session_abc123def456_wave.md`
 - Location: `.claude/tasks/`
+- Note: Uses Claude session ID, not timestamps
 
 **ADR Files**:
 - Format: `ADR-[number]-[kebab-case-title].md`

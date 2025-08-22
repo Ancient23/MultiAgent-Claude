@@ -55,7 +55,7 @@ MultiAgent-Claude/
 ### 2. Standard File Paths
 ```
 .claude/
-├── tasks/context_session_*.md    # Session working memory (includes memory from .ai/memory/)
+├── tasks/context_session_[session_id].md    # Session working memory (uses Claude session ID)
 ├── doc/[agent]-[task]-*.md       # Agent output plans
 ├── agents/                        # Project-specific agents
 │   ├── prompt-engineer-specialist.md
@@ -78,7 +78,7 @@ MultiAgent-Claude/
 ```
 
 ### 3. Agent Workflow
-1. Read session context from `.claude/tasks/context_session_*.md` (contains relevant memory)
+1. Read session context from `.claude/tasks/context_session_[session_id].md` (uses Claude session ID)
 2. Master agent loads memory from `.ai/memory/` and includes in context session
 3. Research using MCP tools (Context7, Sequential, etc.)
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
@@ -97,7 +97,7 @@ Examples:
 ### 4. Context Session Management
 
 #### Master Agent Responsibilities
-1. **Session Start**: Create `.claude/tasks/context_session_[timestamp].md` before any work
+1. **Session Start**: Create `.claude/tasks/context_session_[session_id].md` before any work
 2. **During Work**: Update context after each significant action
 3. **Agent Deployment**: Ensure context file exists before invoking agents
 4. **Session End**: Archive to `.ai/memory/sessions/archive/` if needed
@@ -120,7 +120,7 @@ Claude will:
 ```markdown
 # Session Context: [Task Description]
 
-**Session ID**: [YYYYMMDD_HHMMSS_tasktype]
+**Session ID**: [claude_session_id]_[tasktype]
 **Date**: [ISO Date]
 **Type**: [orchestration mode]
 **Status**: [Active|Completed|Failed]
@@ -159,7 +159,7 @@ Claude will:
 - Master consolidates results after all complete
 
 **Worktree Mode:**
-- Each worktree gets own `context_session_[branch].md`
+- Each worktree gets own `context_session_[session_id]_[branch].md`
 - Master maintains merge strategy document
 - Context reconciliation after feature completion
 
@@ -376,7 +376,7 @@ mac orchestrate
 mac wave-execute
 
 # The command will:
-# 1. Create context session file at .claude/tasks/context_session_[id].md
+# 1. Create context session file at .claude/tasks/context_session_[session_id].md
 # 2. Let you select which waves to execute
 # 3. Allow agent assignment to each wave (or use smart defaults)
 # 4. Generate execution plan at .claude/doc/wave-execution-plan-[id].md

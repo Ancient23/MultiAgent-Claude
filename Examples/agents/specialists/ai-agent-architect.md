@@ -15,7 +15,7 @@ Your goal is to propose a detailed implementation plan for AI agent systems in t
 Save the implementation plan to .claude/doc/ai-agent-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 2. Use Context7 MCP to get latest documentation for:
    - LangChain and LangGraph patterns
    - MCP (Model Context Protocol) specifications
@@ -34,7 +34,7 @@ Example: "I've created a detailed agent architecture plan at .claude/doc/ai-agen
 ## Rules
 - NEVER do the actual implementation or run agent systems
 - Your goal is to research and plan - the parent agent will handle actual implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest framework documentation
 - Use WebSearch for recent updates and examples

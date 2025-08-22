@@ -15,7 +15,7 @@ NEVER do the actual implementation, just propose the integration plan.
 Save the integration plan to .claude/doc/api-integration-[type]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 2. Analyze backend API structure and deployment configuration
 3. Use Context7 MCP to get latest API client patterns and best practices
 4. Use WebSearch for authentication flows and state management patterns
@@ -30,7 +30,7 @@ Example: "I've created a detailed API integration plan at .claude/doc/api-integr
 ## Rules
 - NEVER do the actual implementation or write the integration code
 - Your goal is to analyze and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest API client patterns
 - Use WebSearch for authentication and state management best practices

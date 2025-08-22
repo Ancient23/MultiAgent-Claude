@@ -8,7 +8,7 @@ Add a comprehensive memory system to this existing Claude Code setup. The agents
 ## Phase 0: Initialize Session Context
 
 **CRITICAL: Before any memory work, create session context:**
-1. Generate session ID: `YYYYMMDD_HHMMSS_memory_addon`
+1. Generate session ID: `[claude_session_id]_memory_addon`
 2. Create directory: `mkdir -p .claude/tasks`
 3. Create `.claude/tasks/context_session_[id].md` with:
    ```markdown
@@ -137,7 +137,7 @@ Need consistent approach for complex tasks that require research before implemen
 ## Example
 ```yaml
 # Agent workflow
-1. READ: .claude/tasks/context_session_*.md
+1. READ: .claude/tasks/context_session_[session_id].md
 2. RESEARCH: Use Context7, Sequential, etc.
 3. PLAN: Create detailed implementation steps
 4. OUTPUT: Save to .claude/doc/
@@ -301,7 +301,7 @@ Chose Option 3: Hybrid markdown + JSON index
 ## Quick Reference
 
 ### File Locations
-- **Session Context**: `.claude/tasks/context_session_*.md` (per-session)
+- **Session Context**: `.claude/tasks/context_session_[session_id].md` (per-session)
 - **Agent Plans**: `.claude/doc/[agent]-[task]-[timestamp].md` (per-task)
 - **Project Memory**: `.ai/memory/` (persistent)
 
@@ -313,7 +313,7 @@ Session (ephemeral) → Agent Plans (task-specific) → Project Memory (persiste
 ## For Main Claude Code System
 
 ### Starting a Session
-1. Check for existing `.claude/tasks/context_session_*.md`
+1. Check for existing `.claude/tasks/context_session_[session_id].md`
 2. Read `.ai/memory/project.md` for project context
 3. Check `.ai/memory/index.json` for statistics
 4. Update index.json with session start
@@ -343,7 +343,7 @@ Create an ADR when:
 ### Required Memory Check Sequence
 ```python
 # Every agent MUST follow this sequence:
-1. read(".claude/tasks/context_session_*.md")  # Current session
+1. read(".claude/tasks/context_session_[session_id].md")  # Current session
 2. read(".ai/memory/project.md")            # Project context  
 3. scan(".ai/memory/patterns/")            # Existing patterns
 4. check_relevant_decisions()                   # Related ADRs
@@ -412,7 +412,7 @@ The project now includes a persistent memory system that complements session con
 
 ```
 .claude/
-├── tasks/context_session_*.md    # Session working memory (existing)
+├── tasks/context_session_[session_id].md    # Session working memory (existing)
 ├── doc/[agent]-[task]-*.md       # Agent plans (existing)
 └── memory/                        # Persistent knowledge (NEW)
     ├── project.md                 # Project-wide context
@@ -424,7 +424,7 @@ The project now includes a persistent memory system that complements session con
 ### Memory Usage Rules
 
 #### All Agents MUST:
-1. **READ** `.claude/tasks/context_session_*.md` FIRST (existing behavior)
+1. **READ** `.claude/tasks/context_session_[session_id].md` FIRST (existing behavior)
 2. **CHECK** `.ai/memory/project.md` for conventions (NEW)
 3. **SCAN** `.ai/memory/patterns/` for solutions (NEW)
 4. **CREATE** plans at `.claude/doc/[agent]-[task]-[timestamp].md` (existing)
@@ -465,7 +465,7 @@ Create ADRs for:
 **FIND sections like:**
 ```markdown
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context
 2. Use Context7 MCP to get latest documentation
 3. [other steps]
 ```
@@ -473,7 +473,7 @@ Create ADRs for:
 **REPLACE with:**
 ```markdown
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context
 2. Read .ai/memory/project.md for project conventions and patterns
 3. Scan .ai/memory/patterns/ for relevant existing solutions
 4. Check .ai/memory/decisions/ for related architectural decisions
@@ -500,7 +500,7 @@ Create ADRs for:
 
 **In Phase 1 (Context Loading):**
 ```markdown
-1. Read .claude/tasks/context_session_*.md for current state
+1. Read .claude/tasks/context_session_[session_id].md for current state
 2. Load .ai/memory/index.json for quick lookups (NEW)
 3. Check .ai/memory/patterns/ for relevant patterns (NEW)
 4. Read .ai/memory/project.md for conventions (NEW)
@@ -548,7 +548,7 @@ Create ADRs for:
 ## IMPORTANT NOTES
 
 1. **Don't Break Existing Flow**: Memory system ADDS to existing workflow, doesn't replace it
-2. **Session Context Still Primary**: .claude/tasks/context_session_*.md remains the main working memory
+2. **Session Context Still Primary**: .claude/tasks/context_session_[session_id].md remains the main working memory
 3. **Agents Still Output to doc/**: Plans still go to .claude/doc/[agent]-[task]-[timestamp].md
 4. **Memory is Persistent**: Unlike session context, memory survives across sessions
 5. **Human-Readable**: All memory files are markdown for easy editing
@@ -561,7 +561,7 @@ After running this, you'll have a complete memory system integrated with your ex
 ## Phase 6: Finalize Session Context
 
 **Complete the memory addon session:**
-1. Update `.claude/tasks/context_session_*.md` with:
+1. Update `.claude/tasks/context_session_[session_id].md` with:
    - All phases completed
    - Final status: "Memory System Integrated"
    - Summary of memory components added

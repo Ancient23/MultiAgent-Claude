@@ -42,7 +42,7 @@ Your goal is to propose a detailed test plan and test implementation strategy fo
 Save the test plan to .claude/doc/playwright-tests-[area]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 2. Analyze application structure and identify testable areas
 3. Check .ai/memory/patterns/ for existing test patterns
 4. Use Context7 MCP to get latest Playwright documentation and patterns
@@ -57,7 +57,7 @@ Example: "I've created a comprehensive Playwright test plan at .claude/doc/playw
 ## Rules
 - NEVER execute tests or run test commands
 - Your goal is to plan and design tests - the parent agent handles execution
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest Playwright patterns
 - Always include page object models for maintainability

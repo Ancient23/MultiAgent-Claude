@@ -14,7 +14,7 @@ content: |
   ### 1.1 Read Existing Structure
   First, check for existing Claude Code setup:
   - Read `CLAUDE.md` for current configuration
-  - Check `.claude/tasks/` for any `context_session_*.md` files
+  - Check `.claude/tasks/` for any `context_session_[session_id].md` files
   - Scan `.claude/doc/` for previous agent plans
   - Review `.ai/memory/` for existing knowledge base
   

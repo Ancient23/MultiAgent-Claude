@@ -35,7 +35,7 @@ As an orchestrator using Opus, you manage the overall execution flow, coordinate
 ## Core Workflow
 
 ### Wave 0: Session Initialization
-1. Generate session ID: `YYYYMMDD_HHMMSS_wave`
+1. Generate session ID: `[claude_session_id]_wave`
 2. Create `.claude/tasks/context_session_[id].md`
 3. Load project context from `.ai/memory/project.md`
 4. Document objectives and initial state

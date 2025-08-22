@@ -169,7 +169,7 @@ Create step-by-step guides for common workflows:
 
 **Feature Development Workflow:**
 ```markdown
-1. Read context: .claude/tasks/context_session_*.md
+1. Read context: .claude/tasks/context_session_[session_id].md
 2. Check memory: .ai/memory/patterns/
 3. Research using web search
 4. Create plan: .claude/doc/feature-plan-[timestamp].md
