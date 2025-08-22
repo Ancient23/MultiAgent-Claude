@@ -361,12 +361,14 @@ class PromptComposer {
         // Simple property check
         if (expression.startsWith('!')) {
             const prop = expression.substring(1);
-            return !this.getNestedProperty(context, prop);
+            const value = this.getNestedProperty(context, prop);
+            return !this.evaluateTruthy(value);
         }
         
         // Property existence check
         if (!expression.includes('==') && !expression.includes('!=')) {
-            return !!this.getNestedProperty(context, expression);
+            const value = this.getNestedProperty(context, expression);
+            return this.evaluateTruthy(value);
         }
         
         // Comparison operations
@@ -392,6 +394,21 @@ class PromptComposer {
         return path.split('.').reduce((current, prop) => {
             return current ? current[prop] : undefined;
         }, obj);
+    }
+
+    /**
+     * Evaluate truthiness handling both boolean and string boolean values
+     */
+    evaluateTruthy(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+        if (typeof value === 'string') {
+            if (value.toLowerCase() === 'true') return true;
+            if (value.toLowerCase() === 'false') return false;
+            return value.length > 0; // Non-empty strings are truthy
+        }
+        return !!value; // Default JavaScript truthiness
     }
 
     /**

@@ -89,7 +89,14 @@ class VariableResolver {
             value = this.applyTransformation(value, parts[i], context);
         }
         
-        return value !== undefined ? String(value) : '';
+        // Preserve boolean and number types, convert others to string
+        if (value !== undefined) {
+            if (typeof value === 'boolean' || typeof value === 'number') {
+                return value;
+            }
+            return String(value);
+        }
+        return '';
     }
 
     /**
