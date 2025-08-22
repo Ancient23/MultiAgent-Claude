@@ -129,6 +129,13 @@ npm run visual:update  # Update baseline screenshots
 - **Patterns**: `.claude/memory/patterns/` - Proven solutions by domain
 - **Decisions**: `.claude/memory/decisions/` - Architectural Decision Records
 - **Session Context**: `.claude/tasks/context_session_*.md` - Current work state
+- **ChatGPT Memory**: `.chatgpt/memory/` - Task notes and ADRs for Codex sessions
+
+### OpenAI Memory Usage
+When working through Codex/ChatGPT:
+1. Load `.chatgpt/project-instructions.md` for repository guidelines.
+2. Search `.chatgpt/memory/` for files related to the current task or component.
+3. Incorporate relevant notes and decisions into planning and implementation.
 
 ### Pattern Documentation
 When discovering successful patterns:
