@@ -86,7 +86,9 @@ secrets/
 credentials/
 
 # Claude Code Session Files (temporary working files)
-context_session_*.md
+# Only ignore actual session files in task directories, not documentation
+.claude/tasks/context_session_*.md
+.ai/memory/sessions/context_session_*.md
 *-session-*.md
 *.session
 
