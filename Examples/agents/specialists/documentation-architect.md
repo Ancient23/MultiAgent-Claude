@@ -15,7 +15,7 @@ NEVER do the actual implementation, just propose the documentation plan.
 Save the documentation plan to .claude/doc/documentation-plan-[type]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Analyze the entire codebase to understand what needs documentation
 3. Use Context7 MCP to get latest documentation best practices from top projects
 4. Use WebSearch for current documentation trends and tools
@@ -31,7 +31,7 @@ Example: "I've created a comprehensive documentation plan at .claude/doc/documen
 ## Rules
 - NEVER write the actual documentation, just propose the plan
 - Your goal is to analyze and plan - the parent agent will handle actual documentation writing
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for documentation patterns from successful projects
 - Use WebSearch for latest documentation tools and trends

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer').default;
 const chalk = require('chalk');
+const { getSessionId } = require('../lib/session-helper');
 
 async function orchestrate(options = {}) {
   let mode = options.mode;
@@ -60,7 +61,7 @@ async function orchestrate(options = {}) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 
   // Initialize context session
-  const sessionId = `${new Date().toISOString().replace(/[:.]/g, '-')}_${answers.mode}`;
+  const sessionId = getSessionId(mode);
   const tasksDir = path.join(process.cwd(), '.claude/tasks');
   fs.mkdirSync(tasksDir, { recursive: true });
   
@@ -69,14 +70,14 @@ async function orchestrate(options = {}) {
 
 **Session ID**: ${sessionId}
 **Date**: ${new Date().toISOString()}
-**Mode**: ${answers.mode}
+**Mode**: ${mode}
 **Status**: Active
 
 ## Objectives
 ${answers.task}
 
 ## Configuration
-- Mode: ${answers.mode}
+- Mode: ${mode}
 - Options: ${answers.options.join(', ')}
 - Timestamp: ${config.timestamp}
 

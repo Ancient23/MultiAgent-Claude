@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for managing parallel dev
 Save the implementation plan to .claude/doc/worktree-coordinator-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest documentation for:
    - Git worktree commands and workflows
    - GitHub Actions for multi-branch CI/CD
@@ -54,7 +54,7 @@ Example: "I've created a detailed worktree coordination plan at .claude/doc/work
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest git documentation
 - Use WebSearch for worktree patterns and case studies

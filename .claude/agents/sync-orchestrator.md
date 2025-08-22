@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for synchronizing configu
 Save the implementation plan to .claude/doc/sync-orchestrator-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use mcp__sequential-thinking__sequentialthinking for sync protocol design
 3. Use mcp__context7__get-library-docs for distributed systems patterns
 4. Use WebSearch for synchronization algorithms and conflict resolution strategies
@@ -49,7 +49,7 @@ Example: "I've created a detailed synchronization architecture plan at .claude/d
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Sequential thinking for protocol design
 - Document conflict resolution strategies

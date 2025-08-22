@@ -33,7 +33,7 @@ content: |
   Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
   
   ## Core Workflow
-  1. Check .claude/tasks/context_session_*.md for session context
+  1. Check .claude/tasks/context_session_[session_id].md for session context
   2. Read .ai/memory/project.md for project patterns
   3. Scan .ai/memory/patterns/ for relevant solutions
   4. Use ${mcp_tools} for research and documentation

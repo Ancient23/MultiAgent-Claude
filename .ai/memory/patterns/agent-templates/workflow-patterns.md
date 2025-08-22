@@ -6,7 +6,7 @@ All agents follow this standard workflow pattern:
 
 ```markdown
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 2. Use Context7 MCP to get latest documentation for:
    - [Relevant framework/library 1]
    - [Relevant framework/library 2]
@@ -67,7 +67,7 @@ All agents include these core rules:
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest documentation
 - Use WebSearch for recent updates
@@ -133,7 +133,7 @@ Your implementation plans must include:
 
 ### Session Context Check
 ```markdown
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
 ```
 
 ### Memory Integration

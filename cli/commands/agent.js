@@ -73,7 +73,7 @@ async function createAgent() {
   const memoryIntegration = `
 ## Memory System Integration
 1. Check .ai/memory/project.md for project conventions
-2. Read .claude/tasks/context_session_*.md for current session context
+2. Read .claude/tasks/context_session_[session_id].md for current session context
 3. Review .ai/memory/patterns/ for existing successful solutions
 4. Consult .ai/memory/decisions/ for architectural decisions`;
 

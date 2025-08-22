@@ -11,7 +11,7 @@ content: |
   ## CRITICAL FILE PATHS TO USE
   
   ### Session Memory (Transient)
-  - **Session context**: `${base_path}/tasks/context_session_*.md` (where * is session ID)
+  - **Session context**: `${base_path}/tasks/context_session_[session_id].md` (where session_id is claude session id)
   - Agents MUST check this file first for session context
   - Main system maintains this file across agent calls
   - Updated after each significant action
@@ -54,8 +54,8 @@ content: |
   - Example: `frontend-ui-implementation-20250122_143000.md`
   
   ### Session Files
-  - Pattern: `context_session_[timestamp]_[type].md`
-  - Example: `context_session_20250122_143000_initialization.md`
+  - Pattern: `context_session_[session_id].md`
+  - Example: `context_session_abc123def456_initialization.md`
   
   ### ADR Files
   - Pattern: `YYYY-MM-DD-[decision-name].md`

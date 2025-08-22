@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const inquirer = require('inquirer').default;
 const chalk = require('chalk');
+const { getSessionId } = require('../lib/session-helper');
 
 async function executeWavePattern() {
   console.log(chalk.blue('🌊 Starting Wave Execution Pattern...'));
@@ -102,7 +103,7 @@ async function executeWavePattern() {
   }
   
   // Create Wave 0: Session initialization
-  const sessionId = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19) + '_wave';
+  const sessionId = getSessionId('wave');
   const contextDir = path.join(process.cwd(), '.claude', 'tasks');
   fs.mkdirSync(contextDir, { recursive: true });
   
@@ -221,7 +222,7 @@ The wave execution is complete when:
   console.log(chalk.magenta('\n🎯 Next steps:'));
   console.log(chalk.white('1. Tell Claude: "Execute the wave pattern from session ' + sessionId + '"'));
   console.log(chalk.white('2. Claude will read the context and follow the wave progression'));
-  console.log(chalk.white('3. Monitor progress in .claude/tasks/context_session_*.md'));
+  console.log(chalk.white('3. Monitor progress in .claude/tasks/context_session_[session_id].md'));
   console.log(chalk.white('4. Each wave will update the context with its findings'));
 }
 

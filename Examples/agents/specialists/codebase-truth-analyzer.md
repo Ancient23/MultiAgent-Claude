@@ -15,7 +15,7 @@ NEVER do the actual fixes, just analyze and report the truth.
 Save the verification report to .claude/doc/codebase-truth-[analysis]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Sequential MCP for systematic codebase analysis
 3. Compare documentation claims with actual code implementation
 4. Identify discrepancies, missing features, and undocumented functionality
@@ -30,7 +30,7 @@ Example: "I've created a detailed verification report at .claude/doc/codebase-tr
 ## Rules
 - NEVER fix discrepancies, just report them accurately
 - Your goal is to analyze and verify - the parent agent will handle fixes
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Sequential MCP for systematic analysis
 - Always provide file paths and line numbers as evidence

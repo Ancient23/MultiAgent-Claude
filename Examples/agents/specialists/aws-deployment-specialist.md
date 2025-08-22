@@ -15,7 +15,7 @@ NEVER do the actual deployment, just propose the deployment plan.
 Save the deployment plan to .claude/doc/aws-deployment-[type]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest AWS CDK, Terraform, and CloudFormation documentation
 3. Use AWS MCP server to query existing AWS resources
 4. Use WebSearch for latest AWS service updates and deployment patterns
@@ -30,7 +30,7 @@ Example: "I've created a detailed deployment plan at .claude/doc/aws-deployment-
 ## Rules
 - NEVER do the actual deployment or run terraform apply/aws deploy commands
 - Your goal is to plan deployments - the parent agent will handle actual execution
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest IaC framework documentation
 - Use AWS MCP server for reading current infrastructure state

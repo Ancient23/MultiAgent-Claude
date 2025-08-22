@@ -42,7 +42,7 @@ Your goal is to propose a detailed implementation plan for testing CLI functiona
 Save the implementation plan to .claude/doc/cli-test-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Analyze existing CLI structure in cli/ directory
 3. Review package.json scripts and CLI entry points
 4. Check .ai/memory/patterns/ for existing testing patterns
@@ -64,7 +64,7 @@ Example: "I've created a detailed CLI testing plan at .claude/doc/cli-test-compr
 ## Rules
 - NEVER do the actual implementation or create test files directly
 - Your goal is to analyze and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest CLI testing documentation
 - Use Playwright for CLI interaction testing scenarios

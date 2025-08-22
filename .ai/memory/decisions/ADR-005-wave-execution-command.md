@@ -38,8 +38,8 @@ Implement `mac wave-execute` as a CLI command that:
 ## Implementation Details
 
 ### Context Session Creation
-The command creates `.claude/tasks/context_session_[id].md` with:
-- Proper metadata (ID, date, type, status)
+The command creates `.claude/tasks/context_session_[session_id].md` with:
+- Proper metadata (claude session id, date, type, status)
 - Wave progress checklist
 - Agent assignments
 - Sections for discoveries and updates
@@ -55,14 +55,14 @@ The command creates `.claude/tasks/context_session_[id].md` with:
 2. Answers prompts for task and waves
 3. Optional: assigns specific agents
 4. Command creates context and plan files
-5. User tells Claude: "Execute wave pattern from session [id]"
+5. User tells Claude: "Execute wave pattern from session [session_id]"
 6. Claude reads context and follows waves
 
 ### File Structure
 ```
 .claude/
 ├── tasks/
-│   └── context_session_[id].md  # Main context file
+│   └── context_session_[session_id].md  # Main context file
 └── doc/
     └── wave-execution-plan-[id].md  # Execution instructions
 ```

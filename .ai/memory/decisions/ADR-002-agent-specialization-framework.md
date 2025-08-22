@@ -153,8 +153,8 @@ color: [domain-color]
 3. **Capability Updates**: Keep expertise current with technology changes
 4. **Cross-Reference Validation**: Ensure no domain overlap
 
-### For Framework Maintenance
-1. **Pattern Documentation**: Maintain patterns in `.claude/memory/patterns/`
+### For Framework Maintenanceß
+1. **Pattern Documentation**: Maintain patterns in `.ai/memory/patterns/`
 2. **Quality Validation**: Regular template validation
 3. **Usage Analytics**: Track agent usage patterns
 4. **Continuous Improvement**: Evolve specialization based on experience

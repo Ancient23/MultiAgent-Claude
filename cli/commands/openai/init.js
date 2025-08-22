@@ -240,7 +240,7 @@ You're working on MultiAgent-Claude, a sophisticated orchestration framework for
 - \`.chatgpt/\` - OpenAI-specific configs
 
 ## Development Workflow
-1. Check session context in \`.claude/tasks/context_session_*.md\`
+1. Check session context in \`.claude/tasks/context_session_[session_id].md\`
 2. Review relevant patterns in memory
 3. Plan implementation approach
 4. Execute with validation
@@ -333,7 +333,7 @@ function createFeatureWorkflow() {
   return `# Feature Development Workflow
 
 ## Phase 1: Research & Planning
-1. Check session context in \`.claude/tasks/context_session_*.md\`
+1. Check session context in \`.claude/tasks/context_session_[session_id].md\`
 2. Review memory for similar patterns
 3. Research requirements and constraints
 4. Create implementation plan

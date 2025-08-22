@@ -8,7 +8,7 @@ Analyze this codebase and create a comprehensive Claude Code development environ
 ## CRITICAL FILE PATHS TO USE
 
 ### Session Memory (Already Established)
-- Session context: .claude/tasks/context_session_*.md (where * is session ID)
+- Session context: .claude/tasks/context_session_[session_id].md (uses Claude session ID)
 - Agents MUST check this file first for session context
 - Main system maintains this file across agent calls
 
@@ -21,13 +21,13 @@ Analyze this codebase and create a comprehensive Claude Code development environ
 
 ### 1.0 Initialize Session Context
 **CRITICAL: Create the session context file before any other work:**
-1. Generate session ID: `YYYYMMDD_HHMMSS_memory_init`
+1. Get Claude session ID (from environment or generate unique ID)
 2. Create directory: `mkdir -p .claude/tasks`
-3. Create `.claude/tasks/context_session_[id].md` with:
+3. Create `.claude/tasks/context_session_[session_id].md` with:
    ```markdown
    # Session Context: Memory System Initialization
    
-   **Session ID**: [generated_id]
+   **Session ID**: [claude_session_id]_memory_init
    **Date**: [current_date]
    **Type**: Memory System Setup
    **Status**: Active
@@ -47,7 +47,7 @@ Analyze this codebase and create a comprehensive Claude Code development environ
 ### 1.1 Read Existing Structure
 First, check for existing Claude Code setup:
 - Read CLAUDE.md for current configuration
-- Check .claude/tasks/ for any context_session_*.md files
+- Check .claude/tasks/ for any context_session_[session_id].md files
 - Scan .claude/doc/ for previous agent plans
 - Analyze project structure and technology stack
 - **Update context_session with findings**
@@ -160,7 +160,7 @@ Each pattern should include:
 
 ## For Agents
 1. **Always Read First**:
-   - .claude/tasks/context_session_*.md (current session)
+   - .claude/tasks/context_session_[session_id].md (current session)
    - .ai/memory/project.md (project context)
    - Relevant patterns from .ai/memory/patterns/
 
@@ -189,7 +189,7 @@ Each pattern should include:
 ### Memory Hierarchy
 ```
 .claude/
-├── tasks/context_session_*.md    # Current session working memory
+├── tasks/context_session_[session_id].md    # Current session working memory
 ├── doc/[agent]-[task]-*.md       # Agent research & plans  
 └── memory/                        # Persistent knowledge base
     ├── project.md                 # Project-wide context
@@ -201,7 +201,7 @@ Each pattern should include:
 ### How to Use Memory System
 
 #### For Main System
-1. **Session Start**: Check .claude/tasks/context_session_*.md for current context
+1. **Session Start**: Check .claude/tasks/context_session_[session_id].md for current context
 2. **Before Implementation**: Read relevant patterns from .ai/memory/patterns/
 3. **Major Decisions**: Document in .ai/memory/decisions/ using ADR template
 4. **Pattern Success**: After successful implementation, save pattern to .ai/memory/patterns/
@@ -210,7 +210,7 @@ Each pattern should include:
 #### For Agents
 Agents MUST follow this memory access pattern:
 ```
-1. READ .claude/tasks/context_session_*.md     # Current session context
+1. READ .claude/tasks/context_session_[session_id].md     # Current session context
 2. READ .ai/memory/project.md               # Project conventions
 3. CHECK .ai/memory/patterns/               # Existing solutions
 4. RESEARCH using MCP tools                    # Latest documentation
@@ -258,7 +258,7 @@ Agents MUST follow this memory access pattern:
 ## 🎯 ORCHESTRATION RULES
 
 ### Memory Management Rules
-- **Session Context**: Agents MUST read .claude/tasks/context_session_*.md before any work
+- **Session Context**: Agents MUST read .claude/tasks/context_session_[session_id].md before any work
 - **Agent Plans**: All agents output to .claude/doc/[agent]-[task]-[timestamp].md
 - **Project Memory**: Consult .ai/memory/project.md for conventions
 - **Pattern Reuse**: Check .ai/memory/patterns/ before creating new solutions
@@ -274,7 +274,7 @@ Agents MUST follow this memory access pattern:
 
 ### Workflow Patterns
 1. **Agent Research Phase**
-   - Read: .claude/tasks/context_session_*.md
+   - Read: .claude/tasks/context_session_[session_id].md
    - Research: Use MCP tools (Context7, Sequential, etc.)
    - Plan: Create comprehensive implementation plan
    - Output: .claude/doc/[agent]-[task]-[timestamp].md
@@ -282,14 +282,14 @@ Agents MUST follow this memory access pattern:
 2. **Main System Execution Phase**
    - Read: Agent plan from .claude/doc/
    - Execute: Implement based on plan
-   - Update: .claude/tasks/context_session_*.md with progress
+   - Update: .claude/tasks/context_session_[session_id].md with progress
    - Validate: Run tests and checks
 
 ### Auto-Delegation Rules
 IF task.complexity > 0.7 AND files.count > 20:
   DELEGATE to specialized agents
   COORDINATE via .claude/doc/ plans
-  AGGREGATE in .claude/tasks/context_session_*.md
+  AGGREGATE in .claude/tasks/context_session_[session_id].md
 
 IF security_keywords IN request:
   REQUIRE security-analyst review
@@ -317,7 +317,7 @@ Research and create detailed implementation plan for [domain].
 Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
 
 ## Core Workflow
-1. Check .claude/tasks/context_session_*.md for session context
+1. Check .claude/tasks/context_session_[session_id].md for session context
 2. Read .ai/memory/project.md for project patterns
 3. Use Context7 MCP for latest documentation
 4. Research using Sequential MCP for complex analysis
@@ -374,7 +374,7 @@ description: "[Purpose]"
 ## Execution Flow
 
 ### Phase 1: Context Loading
-1. Read .claude/tasks/context_session_*.md for current state
+1. Read .claude/tasks/context_session_[session_id].md for current state
 2. Read .ai/memory/project.md for patterns
 3. Determine complexity and agent needs
 
@@ -382,7 +382,7 @@ description: "[Purpose]"
 ```
 invoke_agent(
   agent: "[specialist-agent]",
-  context: ".claude/tasks/context_session_*.md",
+  context: ".claude/tasks/context_session_[session_id].md",
   task: "[specific task]",
   expect_output: ".claude/doc/[agent]-*.md"
 )
@@ -396,7 +396,7 @@ plan_content = read_file(plan_path)
 
 ### Phase 4: Implementation
 - Execute plan steps from .claude/doc/
-- Update .claude/tasks/context_session_*.md with progress
+- Update .claude/tasks/context_session_[session_id].md with progress
 - Handle errors and rollbacks
 
 ### Phase 5: Documentation
@@ -487,12 +487,12 @@ Benefits:
 - [ ] HOW_TO_USE.md provides clear instructions
 
 ## Session Memory
-- [ ] Session context readable from .claude/tasks/context_session_*.md
+- [ ] Session context readable from .claude/tasks/context_session_[session_id].md
 - [ ] Agents checking session context before work
 - [ ] Session updates being saved correctly
 
 ## Agent Memory Flow
-- [ ] Agents reading from .claude/tasks/context_session_*.md first
+- [ ] Agents reading from .claude/tasks/context_session_[session_id].md first
 - [ ] Agents checking .ai/memory/project.md for conventions
 - [ ] Agents referencing .ai/memory/patterns/ for existing solutions
 - [ ] Plans being created in .claude/doc/[agent]-[task]-[timestamp].md
@@ -556,7 +556,7 @@ Update index.json with decision reference
 ```
 Trigger an agent with: "Create a user authentication system"
 Verify agent:
-1. Reads .claude/tasks/context_session_*.md
+1. Reads .claude/tasks/context_session_[session_id].md
 2. Checks .ai/memory/patterns/ for auth patterns
 3. Creates plan at .claude/doc/[agent]-auth-[timestamp].md
 4. Returns path to parent
@@ -571,7 +571,7 @@ Verify agent:
 
 ## IMPORTANT IMPLEMENTATION NOTES
 
-1. **Session Context is Sacred**: Every agent MUST read .claude/tasks/context_session_*.md first
+1. **Session Context is Sacred**: Every agent MUST read .claude/tasks/context_session_[session_id].md first
 2. **Plans Not Implementation**: Agents create plans in .claude/doc/, never implement directly
 3. **Path Communication**: Agents return the plan file path, not the plan content
 4. **Memory Hierarchy**: Session (tasks) → Agent Plans (doc) → Project Memory (memory)
@@ -588,7 +588,7 @@ Generate all files with working examples focused on immediate usability.
 Create Claude Code environment for this Next.js project.
 
 Use established memory patterns:
-- Session: .claude/tasks/context_session_*.md
+- Session: .claude/tasks/context_session_[session_id].md
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md
 - Memory: .ai/memory/ for patterns and decisions
 
@@ -607,7 +607,7 @@ Ensure all agents check session context first and output plans only.
 Setup Claude Code for this FastAPI project.
 
 Memory locations:
-- Session context: .claude/tasks/context_session_*.md
+- Session context: .claude/tasks/context_session_[session_id].md
 - Agent plans: .claude/doc/[agent]-[task]-[timestamp].md
 - Patterns: .ai/memory/patterns/
 
@@ -626,7 +626,7 @@ All agents must read session context and create plans, not implement.
 Initialize Claude Code for full-stack development.
 
 Critical paths:
-- Session: .claude/tasks/context_session_*.md (maintain across agents)
+- Session: .claude/tasks/context_session_[session_id].md (maintain across agents)
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md (agent outputs)
 - Memory: .ai/memory/ (persistent patterns)
 
@@ -652,7 +652,7 @@ Available MCP servers for this project:
 
 Assign these intelligently to agents based on their specialization.
 Maintain standard memory paths:
-- .claude/tasks/context_session_*.md
+- .claude/tasks/context_session_[session_id].md
 - .claude/doc/[agent]-[task]-[timestamp].md
 ```
 
@@ -660,7 +660,7 @@ Maintain standard memory paths:
 ```markdown
 Existing agents found in .claude/agents/.
 Enhance them to:
-1. Always check .claude/tasks/context_session_*.md first
+1. Always check .claude/tasks/context_session_[session_id].md first
 2. Output plans to .claude/doc/[agent]-[task]-[timestamp].md
 3. Never implement, only research and plan
 4. Return plan path to parent
@@ -673,7 +673,7 @@ Update CLAUDE.md with orchestration rules for these agents.
 Create multi-agent system for microservices.
 
 Memory strategy:
-- Global context: .claude/tasks/context_session_*.md
+- Global context: .claude/tasks/context_session_[session_id].md
 - Service plans: .claude/doc/[service]-[agent]-[task]-[timestamp].md
 - Shared patterns: .ai/memory/patterns/microservices/
 
@@ -687,7 +687,7 @@ Create service-specific agents that:
 ## Phase 6: Finalize Session Context
 
 **Complete the memory initialization session:**
-1. Update `.claude/tasks/context_session_*.md` with:
+1. Update `.claude/tasks/context_session_[session_id].md` with:
    - All phases completed
    - Final status: "Memory System Initialized"
    - Summary of memory structure created
@@ -700,7 +700,7 @@ Create service-specific agents that:
 After running this initialization, verify:
 
 ✅ **Memory System**
-- [ ] .claude/tasks/context_session_*.md created at initialization start
+- [ ] .claude/tasks/context_session_[session_id].md created at initialization start
 - [ ] Context session updated throughout all phases
 - [ ] Agents successfully reading context session
 - [ ] .claude/doc/ contains agent plans with proper naming

@@ -6,7 +6,7 @@ description: "Generate comprehensive Playwright tests for the application"
 ## Execution Flow
 
 ### Phase 1: Analysis
-1. Read .claude/tasks/context_session_*.md for current context
+1. Read .claude/tasks/ for the most recent context_session_*.md file for current context
 2. Analyze application structure and routes
 3. Identify critical user paths
 4. Check .ai/memory/patterns/ for existing test patterns
@@ -17,7 +17,7 @@ Invoke playwright-test-engineer agent to create test plan:
 ```
 invoke_agent(
   agent: "playwright-test-engineer",
-  context: ".claude/tasks/context_session_*.md",
+  context: contextFilePath, // The actual file found in Phase 1
   task: "Create comprehensive test suite for [features]",
   expect_output: ".claude/doc/playwright-tests-*.md"
 )

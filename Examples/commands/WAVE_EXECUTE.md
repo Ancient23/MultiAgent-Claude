@@ -24,7 +24,7 @@ memory-aware: true
 ```
 .claude/
 ├── tasks/               # Session-specific memory
-│   └── context_session_*.md
+│   └── context_session_[session_id].md
 └── doc/                        # Agent-created plans
     └── [agent]-[task]-[timestamp].md
 ```
@@ -48,12 +48,12 @@ memory-aware: true
 step: "Initialize session context"
 handler: main-system
 actions:
-  - Generate session ID (timestamp-based)
-  - Create .ai/memory/tasks/context_session_[timestamp].md
+  - Generate session_id using getSessionId('wave')
+  - Create .ai/memory/tasks/context_session_[session_id].md
   - Load .ai/memory/project.md into session context
   - Document initial task list and objectives
   - Set session metadata (start time, user, goals)
-output: .ai/memory/tasks/context_session_[timestamp].md
+output: .ai/memory/tasks/context_session_[session_id].md
 ```
 
 ## Command Execution Pattern
@@ -64,7 +64,7 @@ step: "Get analysis plan from specialists"
 agents: 
   - aws-backend-architect (for AWS analysis plan)
   - codebase-truth-analyzer (for verification plan)
-context_input: .ai/memory/tasks/context_session_*.md (latest)
+context_input: .ai/memory/tasks/context_session_[session_id].md (latest)
 purpose: "Create discovery and validation plan"
 actions:
   - Read session context if available
@@ -83,19 +83,19 @@ step: "Main system executes discovery"
 handler: main-system
 input: 
   - Plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_[session_id].md
 actions:
   - Execute AWS CLI commands per plan
   - Check Vercel logs as specified
   - Analyze code following plan
   - Create TodoWrite list
-  - UPDATE context_session_*.md with findings:
+  - UPDATE context_session_[session_id].md with findings:
     * Discovered issues
     * Root causes identified
     * Dependencies mapped
     * Blockers documented
 tools: [mcp__aws-api-mcp-server__call_aws, Bash, Read, Grep, TodoWrite, Write]
-output_update: .ai/memory/tasks/context_session_*.md (append findings)
+output_update: .ai/memory/tasks/context_session_[session_id].md (append findings)
 ```
 
 ### Wave 2: Implementation Planning
@@ -104,7 +104,7 @@ step: "Get implementation plan from specialists"
 agents:
   - fullstack-feature-orchestrator (for feature plan)
   - ai-agent-architect (for agent system plan)
-context_input: .ai/memory/tasks/context_session_*.md (with Wave 1 findings)
+context_input: .ai/memory/tasks/context_session_[session_id].md (with Wave 1 findings)
 purpose: "Create detailed implementation plan based on discoveries"
 actions:
   - Read updated session context with findings
@@ -124,19 +124,19 @@ step: "Main system implements per plans"
 handler: main-system
 input: 
   - Implementation plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_[session_id].md
 actions:
   - Implement fixes as specified in plans
   - Add error handling per specifications
   - Mark technical debt as documented
-  - UPDATE context_session_*.md with:
+  - UPDATE context_session_[session_id].md with:
     * Implemented changes
     * Files modified
     * Remaining issues
     * New discoveries
 tools: [Edit, MultiEdit, Write]
 confidence_threshold: 85%
-output_update: .ai/memory/tasks/context_session_*.md (append implementation notes)
+output_update: .ai/memory/tasks/context_session_[session_id].md (append implementation notes)
 ```
 
 ### Wave 3: Deployment Planning
@@ -145,7 +145,7 @@ step: "Get deployment plan from specialists"
 agents:
   - aws-deployment-specialist (for AWS deployment plan)
   - vercel-deployment-troubleshooter (for Vercel plan)
-context_input: .ai/memory/tasks/context_session_*.md (with implementation details)
+context_input: .ai/memory/tasks/context_session_[session_id].md (with implementation details)
 purpose: "Create deployment strategy based on implementations"
 actions:
   - Read session context with implementation details
@@ -165,20 +165,20 @@ step: "Main system deploys per plans"
 handler: main-system
 input: 
   - Deployment plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_[session_id].md
 actions:
   - Deploy Lambda functions as specified
   - Run terraform commands per plan
   - Commit and push following plan
   - Monitor logs as documented
   - Retry per specified strategy
-  - UPDATE context_session_*.md with:
+  - UPDATE context_session_[session_id].md with:
     * Deployment results
     * URLs/endpoints created
     * Errors encountered
     * Rollback actions taken
 tools: [Bash, mcp__aws-api-mcp-server__call_aws, Git commands, Write]
-output_update: .ai/memory/tasks/context_session_*.md (append deployment results)
+output_update: .ai/memory/tasks/context_session_[session_id].md (append deployment results)
 ```
 
 ### Wave 4: Testing Planning
@@ -187,7 +187,7 @@ step: "Get testing plan from specialists"
 agents:
   - codebase-truth-analyzer (for test strategy)
   - ui-design-auditor (for UI testing plan)
-context_input: .ai/memory/tasks/context_session_*.md (with deployment info)
+context_input: .ai/memory/tasks/context_session_[session_id].md (with deployment info)
 purpose: "Create comprehensive testing plan"
 actions:
   - Read session context with deployment endpoints
@@ -206,26 +206,26 @@ step: "Main system executes tests"
 handler: main-system
 input:
   - Testing plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_*.md
+  - Context from .ai/memory/tasks/context_session_[session_id].md
 actions:
   - Run API tests with authentication
   - Execute Playwright E2E tests
   - Capture screenshots
-  - UPDATE context_session_*.md with:
+  - UPDATE context_session_[session_id].md with:
     * Test results
     * Failed test details
     * Coverage metrics
     * Performance data
 tools: [Bash, mcp__playwright__browser_*, TodoWrite, Write]
 coverage_target: 90%
-output_update: .ai/memory/tasks/context_session_*.md (append test results)
+output_update: .ai/memory/tasks/context_session_[session_id].md (append test results)
 ```
 
 ### Wave 5: Documentation Planning
 ```yaml
 step: "Get documentation plan from specialist"
 agent: documentation-architect
-context_input: .ai/memory/tasks/context_session_*.md (complete session)
+context_input: .ai/memory/tasks/context_session_[session_id].md (complete session)
 purpose: "Create documentation strategy"
 actions:
   - Read entire session context
@@ -262,11 +262,11 @@ final_outputs:
 ## Context Session File Format
 
 ```markdown
-# Context Session: [timestamp]
+# Context Session: [session_id]
 
 ## Session Metadata
 - Started: [timestamp]
-- Session ID: [id]
+- Session ID: [session_id]
 - Initial Tasks: [count]
 - User: [user]
 
@@ -355,7 +355,7 @@ memory_updated: true
 
 ### Required Deliverables
 1. `WAVE_EXECUTION_SUMMARY.md` - Complete execution report
-2. `.ai/memory/tasks/context_session_*.md` - Full session context
+2. `.ai/memory/tasks/context_session_[session_id].md` - Full session context
 3. `.ai/memory/patterns/*.md` - Extracted patterns
 4. `.ai/memory/decisions/*.md` - Architectural decisions
 5. `NEXT_WAVE_TASKS.md` - Remaining tasks (if any)

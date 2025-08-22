@@ -133,7 +133,7 @@ npm run visual:update  # Update baseline screenshots
 - **Project Context**: `.ai/memory/project.md` - Conventions and standards
 - **Patterns**: `.ai/memory/patterns/` - Proven solutions by domain
 - **Decisions**: `.ai/memory/decisions/` - Architectural Decision Records
-- **Session Context**: `.claude/tasks/context_session_*.md` - Current work state (includes relevant memory)
+- **Session Context**: `.claude/tasks/context_session_[session_id].md` - Current work state (uses Claude/ChatGPT session ID)
 
 ### Unified Memory Usage
 When working through any platform:

@@ -173,7 +173,7 @@ We implement a **Hierarchical File-Based Memory System** with:
 ## Memory Access Patterns
 
 ### Agent Memory Integration
-1. **Check Session Context**: Read `.claude/tasks/context_session_*.md`
+1. **Check Session Context**: Read `.claude/tasks/context_session_[session_id].md`
 2. **Review Relevant Patterns**: Search `.ai/memory/patterns/`
 3. **Reference Decisions**: Check applicable ADRs
 4. **Create Implementation Plan**: Save to `.claude/doc/`

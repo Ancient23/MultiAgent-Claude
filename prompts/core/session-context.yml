@@ -5,7 +5,7 @@ category: core
 tags: [initialization, context, memory]
 
 variables:
-  session_id: "${date}_${time}_${session_type | snakeCase}"
+  session_id: "${claude_session_id | default(unique_id)}_${session_type | snakeCase}"
   session_type: "${workflow.session_type | default('general')}"
   project_path: "${project.path | default(process.cwd())}"
   objectives: "${workflow.objectives | default('Initialize environment')}"
@@ -17,7 +17,7 @@ content: |
   ## Phase 0: Initialize Session Context
 
   **CRITICAL: Before any other work, create the session context file:**
-  1. Generate session ID: `${session_id}`
+  1. Get Claude session ID: `${session_id}`
   2. Create directory: `mkdir -p .claude/tasks`
   3. Create `.claude/tasks/context_session_${session_id}.md` with:
   

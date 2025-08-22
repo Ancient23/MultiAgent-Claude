@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for build optimization in
 Save the implementation plan to .claude/doc/bundler-optimization-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest documentation for:
    - Vite optimization features
    - Webpack 5 optimization plugins
@@ -54,7 +54,7 @@ Example: "I've created a detailed bundler optimization plan at .claude/doc/bundl
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_*.md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest bundler and optimization documentation
 - Use WebSearch for cutting-edge optimization techniques
