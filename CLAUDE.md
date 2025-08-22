@@ -258,6 +258,16 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `agent-factory.md` - Specialize in creating new agents
 - `implementation-verifier.md` - Verify implementation matches requirements
 
+## Visual Menu Project Agents (New Specialists)
+- `electron-app-specialist.md` - Electron desktop app architecture and packaging
+- `react-ui-architect.md` - React component architecture and state management
+- `websocket-realtime-engineer.md` - Real-time WebSocket communication systems
+- `visual-regression-specialist.md` - Visual testing and screenshot comparison
+- `cli-web-bridge-architect.md` - CLI-Web integration and IPC patterns
+- `vue-hybrid-specialist.md` - Vue.js with terminal integration
+- `worktree-coordinator.md` - Git worktree parallel development management
+- `bundler-optimization-specialist.md` - Build tool and bundle optimization
+
 ## Command Templates
 
 - `TEMPLATE-COMMAND.md` - Base template for research-plan-execute pattern
