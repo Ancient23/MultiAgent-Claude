@@ -367,7 +367,7 @@ class PromptComposer {
         }
         
         // Property existence check
-        if (!expression.includes('==') && !expression.includes('!=')) {
+        if (!expression.includes('==') && !expression.includes('!=') && !expression.includes('>') && !expression.includes('<')) {
             const value = this.getNestedProperty(context, expression);
             return this.evaluateTruthy(value);
         }

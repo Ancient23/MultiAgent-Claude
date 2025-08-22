@@ -115,6 +115,25 @@ class VariableResolver {
             return Array.isArray(array) ? array[parseInt(index)] : undefined;
         }
         
+        // Check environment variables first (before property access)
+        if (expression.startsWith('env.')) {
+            const envVar = expression.substring(4);
+            return process.env[envVar];
+        }
+        
+        // Check process properties first (before property access)
+        if (expression.startsWith('process.')) {
+            const prop = expression.substring(8);
+            switch (prop) {
+                case 'cwd()': return process.cwd();
+                case 'pid': return process.pid;
+                case 'version': return process.version;
+                case 'platform': return process.platform;
+                case 'arch': return process.arch;
+                default: return undefined;
+            }
+        }
+        
         // Check for property access
         if (expression.includes('.')) {
             return this.getNestedValue(expression, context);
@@ -128,25 +147,6 @@ class VariableResolver {
         // Check context directly
         if (context[expression] !== undefined) {
             return context[expression];
-        }
-        
-        // Check environment variables
-        if (expression.startsWith('env.')) {
-            const envVar = expression.substring(4);
-            return process.env[envVar];
-        }
-        
-        // Check process properties
-        if (expression.startsWith('process.')) {
-            const prop = expression.substring(8);
-            switch (prop) {
-                case 'cwd()': return process.cwd();
-                case 'pid': return process.pid;
-                case 'version': return process.version;
-                case 'platform': return process.platform;
-                case 'arch': return process.arch;
-                default: return undefined;
-            }
         }
         
         return undefined;
@@ -170,7 +170,7 @@ class VariableResolver {
                     return undefined;
                 }
             } else {
-                // Prioritize context over built-in resolvers for nested properties
+                // Prioritize context properties over built-in resolvers for nested properties
                 if (current && current[part] !== undefined) {
                     current = current[part];
                 } else if (current === context && this.resolvers[part]) {
@@ -359,6 +359,7 @@ class VariableResolver {
                     .replace(/\n/g, '\\n')
                     .replace(/\r/g, '\\r')
                     .replace(/\t/g, '\\t');
+                break;
             case 'default':
                 // Handle default transformation (fallback value)
                 if (value !== undefined && value !== null && value !== '') {
