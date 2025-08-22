@@ -268,6 +268,18 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `worktree-coordinator.md` - Git worktree parallel development management
 - `bundler-optimization-specialist.md` - Build tool and bundle optimization
 
+## OpenAI Compatibility Specialists (Cross-Platform Integration)
+- `openai-bridge-architect.md` - Cross-platform AI assistant integration and compatibility layers
+- `prompt-compression-specialist.md` - Text compression and token optimization for platform limits
+- `role-instruction-engineer.md` - ChatGPT custom instructions and role-based prompting
+- `context-bundler-specialist.md` - File bundling and context optimization for uploads
+- `sync-orchestrator.md` - Bidirectional synchronization and conflict resolution
+- `workflow-translator.md` - Workflow conversion and pattern translation between platforms
+- `memory-unification-specialist.md` - Shared memory systems and cross-platform persistence
+- `testing-compatibility-engineer.md` - Cross-platform testing and validation frameworks
+- `documentation-bridge-specialist.md` - Multi-platform documentation and training materials
+- `codex-configuration-expert.md` - OpenAI Codex setup and AGENTS.md optimization
+
 ## Command Templates
 
 - `TEMPLATE-COMMAND.md` - Base template for research-plan-execute pattern
