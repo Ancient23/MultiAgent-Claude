@@ -40,12 +40,12 @@ Add a comprehensive memory system to this existing Claude Code setup. The agents
 
 **CREATE these directories:**
 ```bash
-mkdir -p .claude/memory/patterns
-mkdir -p .claude/memory/decisions
-mkdir -p .claude/memory/sessions/archive
+mkdir -p .ai/memory/patterns
+mkdir -p .ai/memory/decisions
+mkdir -p .ai/memory/sessions/archive
 ```
 
-**CREATE: .claude/memory/project.md**
+**CREATE: .ai/memory/project.md**
 ```markdown
 # Project Context
 
@@ -79,7 +79,7 @@ mkdir -p .claude/memory/sessions/archive
 - Type checking: [TypeScript, Python types, etc.]
 ```
 
-**CREATE: .claude/memory/patterns/README.md**
+**CREATE: .ai/memory/patterns/README.md**
 ```markdown
 # Pattern Library
 
@@ -116,7 +116,7 @@ Document successful implementation patterns that work well in this codebase.
 - [Link to other patterns]
 ```
 
-**CREATE: .claude/memory/patterns/example-pattern.md**
+**CREATE: .ai/memory/patterns/example-pattern.md**
 ```markdown
 # Pattern: Research-Plan-Execute
 
@@ -153,7 +153,7 @@ Need consistent approach for complex tasks that require research before implemen
 - See all agent files in .claude/agents/
 ```
 
-**CREATE: .claude/memory/decisions/README.md**
+**CREATE: .ai/memory/decisions/README.md**
 ```markdown
 # Architectural Decision Records (ADRs)
 
@@ -198,7 +198,7 @@ Document important technical decisions and their rationale.
 [When to revisit this decision]
 ```
 
-**CREATE: .claude/memory/decisions/ADR-001-memory-system.md**
+**CREATE: .ai/memory/decisions/ADR-001-memory-system.md**
 ```markdown
 # ADR-001: Implement Persistent Memory System
 
@@ -245,7 +245,7 @@ Chose Option 3: Hybrid markdown + JSON index
 - Patterns documented as discovered
 ```
 
-**CREATE: .claude/memory/index.json**
+**CREATE: .ai/memory/index.json**
 ```json
 {
   "version": "1.0.0",
@@ -294,7 +294,7 @@ Chose Option 3: Hybrid markdown + JSON index
 }
 ```
 
-**CREATE: .claude/memory/HOW_TO_USE.md**
+**CREATE: .ai/memory/HOW_TO_USE.md**
 ```markdown
 # Memory System Usage Guide
 
@@ -303,7 +303,7 @@ Chose Option 3: Hybrid markdown + JSON index
 ### File Locations
 - **Session Context**: `.claude/tasks/context_session_*.md` (per-session)
 - **Agent Plans**: `.claude/doc/[agent]-[task]-[timestamp].md` (per-task)
-- **Project Memory**: `.claude/memory/` (persistent)
+- **Project Memory**: `.ai/memory/` (persistent)
 
 ### Memory Hierarchy
 ```
@@ -314,13 +314,13 @@ Session (ephemeral) → Agent Plans (task-specific) → Project Memory (persiste
 
 ### Starting a Session
 1. Check for existing `.claude/tasks/context_session_*.md`
-2. Read `.claude/memory/project.md` for project context
-3. Check `.claude/memory/index.json` for statistics
+2. Read `.ai/memory/project.md` for project context
+3. Check `.ai/memory/index.json` for statistics
 4. Update index.json with session start
 
 ### During Development
-1. Before implementing: Check `.claude/memory/patterns/` for existing solutions
-2. For decisions: Check `.claude/memory/decisions/` for precedents
+1. Before implementing: Check `.ai/memory/patterns/` for existing solutions
+2. For decisions: Check `.ai/memory/decisions/` for precedents
 3. After success: Consider saving new pattern
 4. For major choices: Create new ADR
 
@@ -344,8 +344,8 @@ Create an ADR when:
 ```python
 # Every agent MUST follow this sequence:
 1. read(".claude/tasks/context_session_*.md")  # Current session
-2. read(".claude/memory/project.md")            # Project context  
-3. scan(".claude/memory/patterns/")            # Existing patterns
+2. read(".ai/memory/project.md")            # Project context  
+3. scan(".ai/memory/patterns/")            # Existing patterns
 4. check_relevant_decisions()                   # Related ADRs
 5. perform_research()                           # MCP tools
 6. create_plan()                               # Synthesis
@@ -371,14 +371,14 @@ Commands should:
 ### Example Command Memory Usage
 ```python
 # In a command implementation
-memory_index = read(".claude/memory/index.json")
+memory_index = read(".ai/memory/index.json")
 if "authentication" in memory_index["patterns"]:
     pattern = read(memory_index["patterns"]["authentication"])
     # Apply pattern to implementation
 
 # After successful operation
 memory_index["statistics"]["successfulPatterns"] += 1
-save(".claude/memory/index.json", memory_index)
+save(".ai/memory/index.json", memory_index)
 ```
 
 ## Maintenance
@@ -425,8 +425,8 @@ The project now includes a persistent memory system that complements session con
 
 #### All Agents MUST:
 1. **READ** `.claude/tasks/context_session_*.md` FIRST (existing behavior)
-2. **CHECK** `.claude/memory/project.md` for conventions (NEW)
-3. **SCAN** `.claude/memory/patterns/` for solutions (NEW)
+2. **CHECK** `.ai/memory/project.md` for conventions (NEW)
+3. **SCAN** `.ai/memory/patterns/` for solutions (NEW)
 4. **CREATE** plans at `.claude/doc/[agent]-[task]-[timestamp].md` (existing)
 5. **SUGGEST** memory updates, never write directly (NEW)
 
@@ -451,7 +451,7 @@ Create ADRs for:
 - Process modifications
 
 ### Memory Maintenance
-- Check `.claude/memory/HOW_TO_USE.md` for detailed instructions
+- Check `.ai/memory/HOW_TO_USE.md` for detailed instructions
 - Run memory health checks weekly
 - Archive old sessions monthly
 ```
@@ -474,9 +474,9 @@ Create ADRs for:
 ```markdown
 ## Core Workflow
 1. Check if .claude/tasks/context_session_*.md exists for full context
-2. Read .claude/memory/project.md for project conventions and patterns
-3. Scan .claude/memory/patterns/ for relevant existing solutions
-4. Check .claude/memory/decisions/ for related architectural decisions
+2. Read .ai/memory/project.md for project conventions and patterns
+3. Scan .ai/memory/patterns/ for relevant existing solutions
+4. Check .ai/memory/decisions/ for related architectural decisions
 5. Use Context7 MCP to get latest documentation
 6. [continue with other existing steps]
 7. Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
@@ -501,16 +501,16 @@ Create ADRs for:
 **In Phase 1 (Context Loading):**
 ```markdown
 1. Read .claude/tasks/context_session_*.md for current state
-2. Load .claude/memory/index.json for quick lookups (NEW)
-3. Check .claude/memory/patterns/ for relevant patterns (NEW)
-4. Read .claude/memory/project.md for conventions (NEW)
+2. Load .ai/memory/index.json for quick lookups (NEW)
+3. Check .ai/memory/patterns/ for relevant patterns (NEW)
+4. Read .ai/memory/project.md for conventions (NEW)
 ```
 
 **In Phase 5 (Documentation):**
 ```markdown
-- Update .claude/memory/patterns/ if pattern succeeded 2+ times (NEW)
-- Document major decisions in .claude/memory/decisions/ (NEW)
-- Update .claude/memory/index.json statistics (NEW)
+- Update .ai/memory/patterns/ if pattern succeeded 2+ times (NEW)
+- Document major decisions in .ai/memory/decisions/ (NEW)
+- Update .ai/memory/index.json statistics (NEW)
 - Update session context with completion status
 ```
 
@@ -534,14 +534,14 @@ Create ADRs for:
    ```
    Ask: "Implement user authentication"
    Verify agent:
-   - Checks .claude/memory/patterns/ for auth patterns
+   - Checks .ai/memory/patterns/ for auth patterns
    - References any found patterns in plan
    - Suggests saving new pattern if novel approach
    ```
 
 4. **Pattern Documentation Test**:
    - Implement something successfully
-   - Document it in .claude/memory/patterns/
+   - Document it in .ai/memory/patterns/
    - Update index.json
    - Verify next agent references it
 
@@ -567,7 +567,7 @@ After running this, you'll have a complete memory system integrated with your ex
    - Summary of memory components added
    - List of agents and commands updated
    - Verification results
-2. Archive session to `.claude/memory/sessions/archive/`
+2. Archive session to `.ai/memory/sessions/archive/`
 3. Document memory maintenance schedule
 
 After running the prompt above, verify with:
@@ -581,17 +581,17 @@ Check memory system installation:
    - [ ] Archived to memory/sessions/archive
 
 1. Directory structure exists:
-   - [ ] .claude/memory/
-   - [ ] .claude/memory/patterns/
-   - [ ] .claude/memory/decisions/
-   - [ ] .claude/memory/sessions/
+   - [ ] .ai/memory/
+   - [ ] .ai/memory/patterns/
+   - [ ] .ai/memory/decisions/
+   - [ ] .ai/memory/sessions/
 
 2. Core files created:
-   - [ ] .claude/memory/project.md
-   - [ ] .claude/memory/index.json
-   - [ ] .claude/memory/HOW_TO_USE.md
-   - [ ] .claude/memory/patterns/README.md
-   - [ ] .claude/memory/decisions/README.md
+   - [ ] .ai/memory/project.md
+   - [ ] .ai/memory/index.json
+   - [ ] .ai/memory/HOW_TO_USE.md
+   - [ ] .ai/memory/patterns/README.md
+   - [ ] .ai/memory/decisions/README.md
 
 3. CLAUDE.md updated:
    - [ ] Memory system section added

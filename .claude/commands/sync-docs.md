@@ -138,7 +138,7 @@ actions:
   - Update documentation index
   - Archive old documentation versions
   - Log synchronization completion
-  - Update .claude/memory/documentation/gaps.md
+  - Update .ai/memory/documentation/gaps.md
 ```
 
 ## Documentation Categories

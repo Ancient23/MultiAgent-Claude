@@ -1,6 +1,6 @@
 # ADR-003: Memory System Architecture
 
-**Date**: 2025-08-19  
+**Date**: 2025-08-22  
 **Status**: Accepted  
 **Source**: Memory system design analysis
 
@@ -53,13 +53,18 @@ We implement a **Hierarchical File-Based Memory System** with:
 
 ## Implementation Details
 
-### Directory Structure
+### Session Memory Directory Structure
 ```
 .claude/
 ├── tasks/
-│   └── context_session_*.md    # Current session working memory
-├── doc/
-│   └── [agent]-[task]-*.md     # Agent-generated implementation plans
+│   └── context_session_[session_id].md    # Current session working memory
+└── doc/
+    └── [agent]-[task]-*.md     # Agent-generated implementation plans
+```
+
+### Persistent Memory Directory Structure
+```
+.ai/
 └── memory/
     ├── project.md              # Project-wide context and conventions
     ├── patterns/               # Successful implementation patterns
@@ -91,19 +96,19 @@ We implement a **Hierarchical File-Based Memory System** with:
 - Success criteria and validation steps
 - Rollback procedures and error handling
 
-**Pattern Library** (`.claude/memory/patterns/`):
+**Pattern Library** (`.ai/memory/patterns/`):
 - Proven successful implementation approaches
 - Reusable code templates and structures
 - Best practice documentation
 - Anti-pattern identification and avoidance
 
-**Decision Records** (`.claude/memory/decisions/`):
+**Decision Records** (`.ai/memory/decisions/`):
 - Architectural Decision Records (ADRs)
 - Decision rationale and context
 - Consequences and trade-offs
 - Review schedules and outcomes
 
-**Project Knowledge** (`.claude/memory/project.md`):
+**Project Knowledge** (`.ai/memory/project.md`):
 - Project overview and context
 - Technology stack and conventions
 - Key architectural principles
@@ -148,7 +153,7 @@ We implement a **Hierarchical File-Based Memory System** with:
 
 ### Index Management
 
-**Index Structure** (`.claude/memory/index.json`):
+**Index Structure** (`.ai/memory/index.json`):
 ```json
 {
   "last_updated": "timestamp",
@@ -169,7 +174,7 @@ We implement a **Hierarchical File-Based Memory System** with:
 
 ### Agent Memory Integration
 1. **Check Session Context**: Read `.claude/tasks/context_session_*.md`
-2. **Review Relevant Patterns**: Search `.claude/memory/patterns/`
+2. **Review Relevant Patterns**: Search `.ai/memory/patterns/`
 3. **Reference Decisions**: Check applicable ADRs
 4. **Create Implementation Plan**: Save to `.claude/doc/`
 

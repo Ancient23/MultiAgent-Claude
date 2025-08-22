@@ -55,17 +55,17 @@ content: |
      # Verify required directories exist
      test -d .claude/tasks && echo "✓ Tasks directory"
      test -d .claude/doc && echo "✓ Doc directory"
-     test -d .claude/memory && echo "✓ Memory directory"
+     test -d .ai/memory && echo "✓ Memory directory"
      test -d .claude/agents && echo "✓ Agents directory"
      ```
   
   2. **Memory System Validation**
      ```bash
      # Check memory files
-     test -f .claude/memory/project.md && echo "✓ Project context"
-     test -f .claude/memory/index.json && echo "✓ Memory index"
-     test -d .claude/memory/patterns && echo "✓ Patterns directory"
-     test -d .claude/memory/decisions && echo "✓ Decisions directory"
+     test -f .ai/memory/project.md && echo "✓ Project context"
+     test -f .ai/memory/index.json && echo "✓ Memory index"
+     test -d .ai/memory/patterns && echo "✓ Patterns directory"
+     test -d .ai/memory/decisions && echo "✓ Decisions directory"
      ```
   
   3. **Agent Validation**
@@ -102,7 +102,7 @@ content: |
   
   ### Monitoring & Metrics
   
-  Track in `.claude/memory/index.json`:
+  Track in `.ai/memory/index.json`:
   - Agent activation frequency
   - Pattern usage statistics
   - Session duration metrics

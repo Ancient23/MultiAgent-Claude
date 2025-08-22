@@ -67,7 +67,7 @@ function execute(options) {
       console.log(chalk.cyan('multiagent-claude add-memory --prompt-only'));
     } else {
       console.log(chalk.green('\n✅ Memory system added successfully!'));
-      console.log(chalk.blue('\nMemory structure created at .claude/memory/'));
+      console.log(chalk.blue('\nMemory structure created at .ai/memory/'));
     }
   } catch (error) {
     console.error(chalk.red('Error:'), error.message);

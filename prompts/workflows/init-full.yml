@@ -69,7 +69,7 @@ validation:
     - "Quality Standards"
   required_files:
     - ".claude/tasks/"
-    - ".claude/memory/project.md"
-    - ".claude/memory/index.json"
+    - ".ai/memory/project.md"
+    - ".ai/memory/index.json"
     - ".claude/agents/"
     - "CLAUDE.md"

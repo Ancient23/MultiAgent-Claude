@@ -57,14 +57,14 @@ First, check for existing Claude Code setup:
 
 ```bash
 # Create directory structure
-mkdir -p .claude/memory/patterns
-mkdir -p .claude/memory/decisions
-mkdir -p .claude/memory/sessions/archive
+mkdir -p .ai/memory/patterns
+mkdir -p .ai/memory/decisions
+mkdir -p .ai/memory/sessions/archive
 
 # Create initial files with the content below
 ```
 
-**CREATE: .claude/memory/project.md**
+**CREATE: .ai/memory/project.md**
 ```markdown
 # Project Context
 
@@ -91,7 +91,7 @@ mkdir -p .claude/memory/sessions/archive
 - [Known issues and planned improvements]
 ```
 
-**CREATE: .claude/memory/patterns/README.md**
+**CREATE: .ai/memory/patterns/README.md**
 ```markdown
 # Pattern Library
 
@@ -104,7 +104,7 @@ Each pattern should include:
 - When to use/not use
 ```
 
-**CREATE: .claude/memory/decisions/README.md**
+**CREATE: .ai/memory/decisions/README.md**
 ```markdown
 # Architectural Decision Records
 
@@ -119,7 +119,7 @@ Each pattern should include:
 **Alternatives Considered**: What else was evaluated?
 ```
 
-**CREATE: .claude/memory/index.json**
+**CREATE: .ai/memory/index.json**
 ```json
 {
   "lastUpdated": "[current timestamp]",
@@ -147,7 +147,7 @@ Each pattern should include:
 }
 ```
 
-**CREATE: .claude/memory/HOW_TO_USE.md**
+**CREATE: .ai/memory/HOW_TO_USE.md**
 ```markdown
 # Memory System Usage Guide
 
@@ -161,8 +161,8 @@ Each pattern should include:
 ## For Agents
 1. **Always Read First**:
    - .claude/tasks/context_session_*.md (current session)
-   - .claude/memory/project.md (project context)
-   - Relevant patterns from .claude/memory/patterns/
+   - .ai/memory/project.md (project context)
+   - Relevant patterns from .ai/memory/patterns/
 
 2. **When Creating Plans**:
    - Reference successful patterns
@@ -202,17 +202,17 @@ Each pattern should include:
 
 #### For Main System
 1. **Session Start**: Check .claude/tasks/context_session_*.md for current context
-2. **Before Implementation**: Read relevant patterns from .claude/memory/patterns/
-3. **Major Decisions**: Document in .claude/memory/decisions/ using ADR template
-4. **Pattern Success**: After successful implementation, save pattern to .claude/memory/patterns/
-5. **Session End**: Update .claude/memory/index.json with session statistics
+2. **Before Implementation**: Read relevant patterns from .ai/memory/patterns/
+3. **Major Decisions**: Document in .ai/memory/decisions/ using ADR template
+4. **Pattern Success**: After successful implementation, save pattern to .ai/memory/patterns/
+5. **Session End**: Update .ai/memory/index.json with session statistics
 
 #### For Agents
 Agents MUST follow this memory access pattern:
 ```
 1. READ .claude/tasks/context_session_*.md     # Current session context
-2. READ .claude/memory/project.md               # Project conventions
-3. CHECK .claude/memory/patterns/               # Existing solutions
+2. READ .ai/memory/project.md               # Project conventions
+3. CHECK .ai/memory/patterns/               # Existing solutions
 4. RESEARCH using MCP tools                    # Latest documentation
 5. CREATE plan at .claude/doc/[agent]-[task]-[timestamp].md
 6. RETURN "Plan created at .claude/doc/..."    # Path only, not content
@@ -228,7 +228,7 @@ Agents MUST follow this memory access pattern:
 
 **Saving a Successful Pattern**:
 ```markdown
-# File: .claude/memory/patterns/jwt-authentication.md
+# File: .ai/memory/patterns/jwt-authentication.md
 ## Pattern: JWT with Refresh Tokens
 **First Used**: 2024-08-18
 **Success Rate**: 95% (19/20 implementations)
@@ -245,7 +245,7 @@ Agents MUST follow this memory access pattern:
 
 **Recording a Decision**:
 ```markdown
-# File: .claude/memory/decisions/2024-08-18-database-choice.md
+# File: .ai/memory/decisions/2024-08-18-database-choice.md
 ## ADR-001: Use PostgreSQL over MongoDB
 **Date**: 2024-08-18
 **Status**: Accepted
@@ -260,9 +260,9 @@ Agents MUST follow this memory access pattern:
 ### Memory Management Rules
 - **Session Context**: Agents MUST read .claude/tasks/context_session_*.md before any work
 - **Agent Plans**: All agents output to .claude/doc/[agent]-[task]-[timestamp].md
-- **Project Memory**: Consult .claude/memory/project.md for conventions
-- **Pattern Reuse**: Check .claude/memory/patterns/ before creating new solutions
-- **Decision History**: Major choices go in .claude/memory/decisions/
+- **Project Memory**: Consult .ai/memory/project.md for conventions
+- **Pattern Reuse**: Check .ai/memory/patterns/ before creating new solutions
+- **Decision History**: Major choices go in .ai/memory/decisions/
 
 ### Agent Activation Matrix
 | Trigger Pattern | Primary Agent | Support Agents | Output Location |
@@ -318,7 +318,7 @@ Save plan to .claude/doc/[agent-name]-[task]-[timestamp].md
 
 ## Core Workflow
 1. Check .claude/tasks/context_session_*.md for session context
-2. Read .claude/memory/project.md for project patterns
+2. Read .ai/memory/project.md for project patterns
 3. Use Context7 MCP for latest documentation
 4. Research using Sequential MCP for complex analysis
 5. Create detailed plan with all implementation steps
@@ -375,7 +375,7 @@ description: "[Purpose]"
 
 ### Phase 1: Context Loading
 1. Read .claude/tasks/context_session_*.md for current state
-2. Read .claude/memory/project.md for patterns
+2. Read .ai/memory/project.md for patterns
 3. Determine complexity and agent needs
 
 ### Phase 2: Agent Delegation (if complex)
@@ -400,8 +400,8 @@ plan_content = read_file(plan_path)
 - Handle errors and rollbacks
 
 ### Phase 5: Documentation
-- Update .claude/memory/patterns/ if successful
-- Document decisions in .claude/memory/decisions/
+- Update .ai/memory/patterns/ if successful
+- Document decisions in .ai/memory/decisions/
 - Update session context with completion status
 ```
 
@@ -479,7 +479,7 @@ Benefits:
 # Integration Test Checklist
 
 ## Memory System Verification
-- [ ] Created .claude/memory/ directory structure
+- [ ] Created .ai/memory/ directory structure
 - [ ] project.md contains detected project information
 - [ ] patterns/ directory has README.md
 - [ ] decisions/ directory has README.md template
@@ -493,8 +493,8 @@ Benefits:
 
 ## Agent Memory Flow
 - [ ] Agents reading from .claude/tasks/context_session_*.md first
-- [ ] Agents checking .claude/memory/project.md for conventions
-- [ ] Agents referencing .claude/memory/patterns/ for existing solutions
+- [ ] Agents checking .ai/memory/project.md for conventions
+- [ ] Agents referencing .ai/memory/patterns/ for existing solutions
 - [ ] Plans being created in .claude/doc/[agent]-[task]-[timestamp].md
 - [ ] Agents returning plan paths, not content
 
@@ -525,7 +525,7 @@ Benefits:
 ```
 
 ### Memory System Self-Test
-**ACTION: Create .claude/memory/self-test.md:**
+**ACTION: Create .ai/memory/self-test.md:**
 
 ```markdown
 # Memory System Self-Test
@@ -541,14 +541,14 @@ Verify agents can read and reference it
 ## Test 2: Pattern Creation
 ```
 Implement a simple feature successfully
-Document it in .claude/memory/patterns/test-pattern.md
+Document it in .ai/memory/patterns/test-pattern.md
 Verify it appears in index.json
 ```
 
 ## Test 3: Decision Recording
 ```
 Make an architectural choice
-Document in .claude/memory/decisions/YYYY-MM-DD-test-decision.md
+Document in .ai/memory/decisions/YYYY-MM-DD-test-decision.md
 Update index.json with decision reference
 ```
 
@@ -557,7 +557,7 @@ Update index.json with decision reference
 Trigger an agent with: "Create a user authentication system"
 Verify agent:
 1. Reads .claude/tasks/context_session_*.md
-2. Checks .claude/memory/patterns/ for auth patterns
+2. Checks .ai/memory/patterns/ for auth patterns
 3. Creates plan at .claude/doc/[agent]-auth-[timestamp].md
 4. Returns path to parent
 ```
@@ -590,7 +590,7 @@ Create Claude Code environment for this Next.js project.
 Use established memory patterns:
 - Session: .claude/tasks/context_session_*.md
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md
-- Memory: .claude/memory/ for patterns and decisions
+- Memory: .ai/memory/ for patterns and decisions
 
 Generate agents for:
 - React components (using Magic MCP if available)
@@ -609,7 +609,7 @@ Setup Claude Code for this FastAPI project.
 Memory locations:
 - Session context: .claude/tasks/context_session_*.md
 - Agent plans: .claude/doc/[agent]-[task]-[timestamp].md
-- Patterns: .claude/memory/patterns/
+- Patterns: .ai/memory/patterns/
 
 Create research-only agents for:
 - API endpoint design
@@ -628,7 +628,7 @@ Initialize Claude Code for full-stack development.
 Critical paths:
 - Session: .claude/tasks/context_session_*.md (maintain across agents)
 - Plans: .claude/doc/[agent]-[task]-[timestamp].md (agent outputs)
-- Memory: .claude/memory/ (persistent patterns)
+- Memory: .ai/memory/ (persistent patterns)
 
 Create orchestrator and specialized agents:
 - fullstack-orchestrator (coordinates frontend/backend)
@@ -675,7 +675,7 @@ Create multi-agent system for microservices.
 Memory strategy:
 - Global context: .claude/tasks/context_session_*.md
 - Service plans: .claude/doc/[service]-[agent]-[task]-[timestamp].md
-- Shared patterns: .claude/memory/patterns/microservices/
+- Shared patterns: .ai/memory/patterns/microservices/
 
 Create service-specific agents that:
 - Read global session context
@@ -692,7 +692,7 @@ Create service-specific agents that:
    - Final status: "Memory System Initialized"
    - Summary of memory structure created
    - List of patterns and ADRs established
-2. Archive initial session to `.claude/memory/sessions/archive/`
+2. Archive initial session to `.ai/memory/sessions/archive/`
 3. Document recommendations for ongoing memory maintenance
 
 ## Validation Checklist
@@ -704,7 +704,7 @@ After running this initialization, verify:
 - [ ] Context session updated throughout all phases
 - [ ] Agents successfully reading context session
 - [ ] .claude/doc/ contains agent plans with proper naming
-- [ ] .claude/memory/ has project.md and patterns/
+- [ ] .ai/memory/ has project.md and patterns/
 
 ✅ **Agent Behavior**
 - [ ] Agents read session context first

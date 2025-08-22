@@ -66,7 +66,7 @@ async function initPlaywright() {
     '.playwright/fixtures',
     '.playwright/page-objects',
     '.playwright/config',
-    '.claude/memory/test-results'
+    '.ai/memory/test-results'
   ];
 
   dirs.forEach(dir => {
@@ -162,7 +162,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html'],
-    ['json', { outputFile: '.claude/memory/test-results/latest.json' }],
+    ['json', { outputFile: '.ai/memory/test-results/latest.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }]
   ],
   use: {

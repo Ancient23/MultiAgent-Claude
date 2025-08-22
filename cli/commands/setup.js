@@ -126,7 +126,7 @@ async function execute() {
   console.log(chalk.blue('Next steps:'));
   console.log(chalk.gray('1. Run ') + chalk.cyan('multiagent-claude init') + chalk.gray(' to initialize'));
   console.log(chalk.gray('2. Use ') + chalk.cyan('multiagent-claude agent create') + chalk.gray(' to add custom agents'));
-  console.log(chalk.gray('3. Check ') + chalk.cyan('.claude/memory/') + chalk.gray(' for the memory system'));
+  console.log(chalk.gray('3. Check ') + chalk.cyan('.ai/memory/') + chalk.gray(' for the memory system'));
 }
 
 function detectProjectType() {
@@ -163,10 +163,10 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   
   console.log(chalk.green('✓ Configuration saved to .claude/config.json'));
   
-  if (!fs.existsSync('.claude/memory')) {
-    fs.mkdirSync('.claude/memory', { recursive: true });
-    fs.mkdirSync('.claude/memory/patterns', { recursive: true });
-    fs.mkdirSync('.claude/memory/decisions', { recursive: true });
+  if (!fs.existsSync('.ai/memory')) {
+    fs.mkdirSync('.ai/memory', { recursive: true });
+    fs.mkdirSync('.ai/memory/patterns', { recursive: true });
+    fs.mkdirSync('.ai/memory/decisions', { recursive: true });
     fs.mkdirSync('.claude/tasks', { recursive: true });
     fs.mkdirSync('.claude/doc', { recursive: true });
     fs.mkdirSync('.claude/agents', { recursive: true });
@@ -201,7 +201,7 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
       '.playwright/fixtures',
       '.playwright/page-objects',
       '.playwright/config',
-      '.claude/memory/test-results'
+      '.ai/memory/test-results'
     ];
     
     playwrightDirs.forEach(dir => {

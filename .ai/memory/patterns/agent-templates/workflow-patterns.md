@@ -139,8 +139,8 @@ Your implementation plans must include:
 ### Memory Integration
 Some agents include memory checks:
 ```markdown
-2. Check .claude/memory/patterns/ for existing solutions
-3. Reference .claude/memory/decisions/ for architectural context
+2. Check .ai/memory/patterns/ for existing solutions
+3. Reference .ai/memory/decisions/ for architectural context
 ```
 
 ## Successful Workflow Examples

@@ -171,5 +171,5 @@ mac parallel
 - [Full Documentation](../README.md)
 - [Agent Templates](../Examples/agents/)
 - [Command Templates](../Examples/commands/)
-- [Memory System](../.claude/memory/)
+- [Memory System](../.ai/memory/)
 - [Changelog](../CHANGELOG.md)

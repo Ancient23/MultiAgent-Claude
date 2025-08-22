@@ -53,7 +53,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [
     ['html'],
-    ['json', { outputFile: '.claude/memory/test-results/latest.json' }],
+    ['json', { outputFile: '.ai/memory/test-results/latest.json' }],
     ['junit', { outputFile: 'test-results/junit.xml' }]
   ],
   use: {
@@ -108,7 +108,7 @@ export default defineConfig({
   },
   reporter: [
     ['github'],
-    ['json', { outputFile: '.claude/memory/test-results/ci-results.json' }],
+    ['json', { outputFile: '.ai/memory/test-results/ci-results.json' }],
     ['html', { open: 'never' }]
   ],
 });
@@ -271,7 +271,7 @@ jobs:
         run: |
           node -e "
           const fs = require('fs');
-          const results = require('./.claude/memory/test-results/latest.json');
+          const results = require('./.ai/memory/test-results/latest.json');
           const date = new Date().toISOString();
           
           // Create test result memory
@@ -285,7 +285,7 @@ jobs:
           
           // Save to memory system
           fs.writeFileSync(
-            '.claude/memory/test-results/ci-run-${date}.json',
+            '.ai/memory/test-results/ci-run-${date}.json',
             JSON.stringify(memory, null, 2)
           );
           "
@@ -322,7 +322,7 @@ jobs:
           script: |
             const fs = require('fs');
             const results = JSON.parse(
-              fs.readFileSync('./.claude/memory/test-results/latest.json', 'utf8')
+              fs.readFileSync('./.ai/memory/test-results/latest.json', 'utf8')
             );
             
             const comment = `## 🎭 Playwright Test Results
@@ -346,7 +346,7 @@ jobs:
 
 ### 5.1 Test Results Memory
 
-**CREATE: .claude/memory/test-results/README.md**
+**CREATE: .ai/memory/test-results/README.md**
 ```markdown
 # Test Results Memory
 
@@ -369,7 +369,7 @@ This directory stores test execution results for pattern recognition and improve
 
 ### 5.2 Test Pattern Documentation
 
-**CREATE: .claude/memory/patterns/testing-patterns.md**
+**CREATE: .ai/memory/patterns/testing-patterns.md**
 ```markdown
 ---
 source: playwright-init

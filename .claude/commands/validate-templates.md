@@ -60,7 +60,7 @@ purpose: "Create comprehensive template validation plan"
 actions:
   - Analyze all agent templates in Examples/agents/ and .claude/agents/
   - Review command templates in Examples/commands/ and .claude/commands/
-  - Check against established patterns in .claude/memory/patterns/
+  - Check against established patterns in .ai/memory/patterns/
   - Identify inconsistencies and missing elements
   - Create detailed validation plan with specific checks
 output: ".claude/doc/template-validation-[timestamp].md"
@@ -193,7 +193,7 @@ actions:
 ## Integration with Framework
 
 ### Memory System Integration
-- Reference established patterns from .claude/memory/patterns/
+- Reference established patterns from .ai/memory/patterns/
 - Update validation patterns based on results
 - Log successful validation procedures
 

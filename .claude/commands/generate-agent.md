@@ -58,7 +58,7 @@ secondary_agent: "prompt-engineer-specialist"
 purpose: "Create comprehensive agent specification and template"
 actions:
   - Analyze agent requirements and domain
-  - Review existing patterns in .claude/memory/patterns/agent-templates/
+  - Review existing patterns in .ai/memory/patterns/agent-templates/
   - Apply established YAML header conventions
   - Design specialized capabilities and workflows
   - Create complete agent template specification

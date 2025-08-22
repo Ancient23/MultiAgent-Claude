@@ -37,7 +37,7 @@ As an orchestrator using Opus, you manage the overall execution flow, coordinate
 ### Wave 0: Session Initialization
 1. Generate session ID: `YYYYMMDD_HHMMSS_wave`
 2. Create `.claude/tasks/context_session_[id].md`
-3. Load project context from `.claude/memory/project.md`
+3. Load project context from `.ai/memory/project.md`
 4. Document objectives and initial state
 5. Initialize TodoWrite list with all waves
 
@@ -80,7 +80,7 @@ As an orchestrator using Opus, you manage the overall execution flow, coordinate
 ### Wave 7: Retrospective
 - Analyze execution metrics
 - Document lessons learned
-- Update patterns in `.claude/memory/patterns/`
+- Update patterns in `.ai/memory/patterns/`
 - Create ADRs for architectural decisions
 
 ## Context Management Protocol

@@ -55,13 +55,8 @@ MultiAgent-Claude/
 ### 2. Standard File Paths
 ```
 .claude/
-├── tasks/context_session_*.md    # Session working memory
+├── tasks/context_session_*.md    # Session working memory (includes memory from .ai/memory/)
 ├── doc/[agent]-[task]-*.md       # Agent output plans
-├── memory/                        # Persistent knowledge base
-│   ├── project.md                 # Project-wide context
-│   ├── patterns/                  # Successful implementation patterns
-│   ├── decisions/                 # Architectural Decision Records (ADRs)
-│   └── index.json                 # Quick lookup index
 ├── agents/                        # Project-specific agents
 │   ├── prompt-engineer-specialist.md
 │   ├── template-evolution-tracker.md
@@ -73,11 +68,18 @@ MultiAgent-Claude/
     ├── generate-agent.md
     ├── test-cli.md
     └── sync-docs.md
+
+.ai/
+└── memory/                        # Unified persistent knowledge base (all platforms)
+    ├── project.md                 # Project-wide context
+    ├── patterns/                  # Successful implementation patterns
+    ├── decisions/                 # Architectural Decision Records (ADRs)
+    └── index.json                 # Quick lookup index
 ```
 
 ### 3. Agent Workflow
-1. Read session context from `.claude/tasks/context_session_*.md`
-2. Check memory system in `.claude/memory/`
+1. Read session context from `.claude/tasks/context_session_*.md` (contains relevant memory)
+2. Master agent loads memory from `.ai/memory/` and includes in context session
 3. Research using MCP tools (Context7, Sequential, etc.)
 4. Create detailed plan at `.claude/doc/[agent]-[task]-[timestamp].md`
 5. Return path to parent: "Plan created at .claude/doc/..."
@@ -98,7 +100,7 @@ Examples:
 1. **Session Start**: Create `.claude/tasks/context_session_[timestamp].md` before any work
 2. **During Work**: Update context after each significant action
 3. **Agent Deployment**: Ensure context file exists before invoking agents
-4. **Session End**: Archive to `.claude/memory/sessions/archive/` if needed
+4. **Session End**: Archive to `.ai/memory/sessions/archive/` if needed
 
 #### Wave Execution Context Management
 When using `mac wave-execute`, the CLI automatically:
@@ -175,8 +177,6 @@ High-level coordinators that manage complex workflows and other agents:
 - **wave-execution-orchestrator** - 7-phase systematic execution
 - **issue-triage-orchestrator** - Issue analysis and resolution
 - **code-review-orchestrator** - Comprehensive code reviews
-- **meta-development-orchestrator** - Framework self-improvement
-- **implementation-verifier** - Verification coordination
 
 #### **Specialists (Sonnet Model)**
 Domain experts that create plans and perform focused tasks:
@@ -238,8 +238,8 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `wave-execution-orchestrator.md` - 7-phase systematic execution
 - `issue-triage-orchestrator.md` - Issue analysis and resolution
 - `code-review-orchestrator.md` - Comprehensive code reviews
-- `meta-development-orchestrator.md` - Framework self-improvement
-- `implementation-verifier.md` - Verification coordination
+- `fullstack-feature-orchestrator.md` - End-to-end feature coordination
+- `infrastructure-migration-architect.md` - Infrastructure transformation
 
 ### Specialized Agents
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
@@ -251,6 +251,8 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `playwright-visual-developer.md` - Visual regression testing
 
 ## MultiAgent-Claude Project-Specific Agents (Meta-Implementation)
+Located in `.claude/agents/` - these are project-specific agents for framework development:
+- `meta-development-orchestrator.md` - Framework self-improvement orchestration
 - `prompt-engineer-specialist.md` - Expert in creating effective agent prompts
 - `template-evolution-tracker.md` - Track and improve template changes
 - `cli-test-engineer.md` - Create comprehensive tests for CLI
@@ -267,6 +269,18 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `vue-hybrid-specialist.md` - Vue.js with terminal integration
 - `worktree-coordinator.md` - Git worktree parallel development management
 - `bundler-optimization-specialist.md` - Build tool and bundle optimization
+
+## OpenAI Compatibility Specialists (Cross-Platform Integration)
+- `openai-bridge-architect.md` - Cross-platform AI assistant integration and compatibility layers
+- `prompt-compression-specialist.md` - Text compression and token optimization for platform limits
+- `role-instruction-engineer.md` - ChatGPT custom instructions and role-based prompting
+- `context-bundler-specialist.md` - File bundling and context optimization for uploads
+- `sync-orchestrator.md` - Bidirectional synchronization and conflict resolution
+- `workflow-translator.md` - Workflow conversion and pattern translation between platforms
+- `memory-unification-specialist.md` - Shared memory systems and cross-platform persistence
+- `testing-compatibility-engineer.md` - Cross-platform testing and validation frameworks
+- `documentation-bridge-specialist.md` - Multi-platform documentation and training materials
+- `codex-configuration-expert.md` - OpenAI Codex setup and AGENTS.md optimization
 
 ## Command Templates
 
@@ -290,9 +304,9 @@ User Request → Specialist Agent (Sonnet) → User Response
 5. Return file path to parent, not plan content
 
 ### Memory System Usage
-1. Check `.claude/memory/project.md` for project conventions
-2. Scan `.claude/memory/patterns/` for existing solutions
-3. Reference ADRs in `.claude/memory/decisions/`
+1. Master agent checks `.ai/memory/project.md` for project conventions
+2. Scans `.ai/memory/patterns/` for existing solutions
+3. References ADRs in `.ai/memory/decisions/`
 4. Suggest (don't write) memory updates
 5. Document successful patterns after 2+ uses
 
@@ -338,7 +352,7 @@ mac init
 2. Paste into Claude Code conversation
 3. System will:
    - Analyze project structure
-   - Create memory system at .claude/memory/
+   - Create memory system at .ai/memory/
    - Generate specialized agents in .claude/agents/
    - Create commands in .claude/commands/
    - Update CLAUDE.md with orchestration rules

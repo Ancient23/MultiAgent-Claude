@@ -34,6 +34,16 @@ program
   });
 
 program
+  .command('openai')
+  .description('OpenAI/ChatGPT compatibility features')
+  .argument('[subcommand]', 'Subcommand: init, bundle, sync, convert-agent')
+  .argument('[args...]', 'Additional arguments for subcommand')
+  .action(async (subcommand, args = [], options) => {
+    const { default: openaiCommand } = await import('./commands/openai/index.js');
+    await openaiCommand([subcommand, ...args]);
+  });
+
+program
   .command('agent')
   .description('Manage agents')
   .argument('<action>', 'Action to perform: create, list, add, edit, deploy, test, diff, sync')

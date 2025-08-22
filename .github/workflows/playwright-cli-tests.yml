@@ -33,9 +33,9 @@ jobs:
       - name: Initialize Memory System for Tests
         run: |
           # Create memory system for testing
-          mkdir -p .claude/memory/{patterns,decisions,reports}
-          echo "# Test Project Context" > .claude/memory/project.md
-          echo "{}" > .claude/memory/index.json
+          mkdir -p .ai/memory/{patterns,decisions,reports}
+          echo "# Test Project Context" > .ai/memory/project.md
+          echo "{}" > .ai/memory/index.json
           
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }} --reporter=blob
@@ -130,10 +130,10 @@ jobs:
         
       - name: Initialize Memory System
         run: |
-          if [ ! -d ".claude/memory" ]; then
-            mkdir -p .claude/memory/{patterns,decisions,reports}
-            echo "# Project Context" > .claude/memory/project.md
-            echo "{}" > .claude/memory/index.json
+          if [ ! -d ".ai/memory" ]; then
+            mkdir -p .ai/memory/{patterns,decisions,reports}
+            echo "# Project Context" > .ai/memory/project.md
+            echo "{}" > .ai/memory/index.json
           fi
           
       - name: Document Test Patterns
@@ -141,9 +141,9 @@ jobs:
         run: |
           # Extract successful test patterns
           DATE=$(date +%Y-%m-%d)
-          PATTERN_FILE=".claude/memory/patterns/cli-patterns/test-patterns-${DATE}.md"
+          PATTERN_FILE=".ai/memory/patterns/cli-patterns/test-patterns-${DATE}.md"
           
-          mkdir -p .claude/memory/patterns/cli-patterns
+          mkdir -p .ai/memory/patterns/cli-patterns
           
           # Check if pattern already documented today
           if [ -f "${PATTERN_FILE}" ]; then
@@ -197,8 +197,8 @@ jobs:
           git config --local user.name "GitHub Action"
           
           # Only commit if there are actual new patterns
-          if [ -n "$(git status --porcelain .claude/memory/patterns/)" ]; then
-            git add .claude/memory/patterns/
+          if [ -n "$(git status --porcelain .ai/memory/patterns/)" ]; then
+            git add .ai/memory/patterns/
             git commit -m "🎭 Document new test patterns
             
             - Test run: ${{ github.run_id }}

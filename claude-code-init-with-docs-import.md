@@ -102,19 +102,19 @@ documentation_sources = [
 
 ```bash
 # Create directory structure
-mkdir -p .claude/memory/patterns
-mkdir -p .claude/memory/decisions
-mkdir -p .claude/memory/documentation/api
-mkdir -p .claude/memory/documentation/guides
-mkdir -p .claude/memory/documentation/architecture
-mkdir -p .claude/memory/documentation/troubleshooting
-mkdir -p .claude/memory/sessions/archive
-mkdir -p .claude/memory/knowledge
+mkdir -p .ai/memory/patterns
+mkdir -p .ai/memory/decisions
+mkdir -p .ai/memory/documentation/api
+mkdir -p .ai/memory/documentation/guides
+mkdir -p .ai/memory/documentation/architecture
+mkdir -p .ai/memory/documentation/troubleshooting
+mkdir -p .ai/memory/sessions/archive
+mkdir -p .ai/memory/knowledge
 ```
 
 ### 2.2 Import Documentation to Memory
 
-**CREATE: .claude/memory/project.md**
+**CREATE: .ai/memory/project.md**
 ```markdown
 # Project Context
 
@@ -159,12 +159,12 @@ mkdir -p .claude/memory/knowledge
 
 ## Documentation Index
 - Original docs location: [paths]
-- Imported to: .claude/memory/documentation/
+- Imported to: .ai/memory/documentation/
 - Last import: [timestamp]
 - Coverage: [percentage of codebase documented]
 ```
 
-**CREATE: .claude/memory/documentation/README.md**
+**CREATE: .ai/memory/documentation/README.md**
 ```markdown
 # Imported Documentation Index
 
@@ -191,7 +191,7 @@ mkdir -p .claude/memory/knowledge
 
 **MIGRATE Architecture Documentation:**
 ```markdown
-# File: .claude/memory/documentation/architecture/system.md
+# File: .ai/memory/documentation/architecture/system.md
 [Clean, consolidated architecture documentation from all sources]
 
 ## System Overview
@@ -209,7 +209,7 @@ mkdir -p .claude/memory/knowledge
 
 **MIGRATE API Documentation:**
 ```markdown
-# File: .claude/memory/documentation/api/endpoints.md
+# File: .ai/memory/documentation/api/endpoints.md
 [Consolidated from OpenAPI, Swagger, code comments]
 
 ## API Overview
@@ -227,7 +227,7 @@ mkdir -p .claude/memory/knowledge
 
 **EXTRACT Patterns from Code:**
 ```markdown
-# File: .claude/memory/patterns/[pattern-name].md
+# File: .ai/memory/patterns/[pattern-name].md
 [For each identified pattern in code]
 
 ## Pattern: [Detected Pattern Name]
@@ -244,7 +244,7 @@ mkdir -p .claude/memory/knowledge
 
 **CONVERT to ADRs:**
 ```markdown
-# File: .claude/memory/decisions/ADR-[number]-[title].md
+# File: .ai/memory/decisions/ADR-[number]-[title].md
 [For each major decision found in docs]
 
 ## ADR-[number]: [Decision Title]
@@ -263,7 +263,7 @@ mkdir -p .claude/memory/knowledge
 ```
 
 ### 2.3 Create Knowledge Base
-**CREATE: .claude/memory/knowledge/domain.md**
+**CREATE: .ai/memory/knowledge/domain.md**
 ```markdown
 # Domain Knowledge Base
 
@@ -284,7 +284,7 @@ mkdir -p .claude/memory/knowledge
 ```
 
 ### 2.4 Documentation Gap Analysis
-**CREATE: .claude/memory/documentation/gaps.md**
+**CREATE: .ai/memory/documentation/gaps.md**
 ```markdown
 # Documentation Gap Analysis
 
@@ -326,9 +326,7 @@ mkdir -p .claude/memory/knowledge
 
 ### Memory Architecture with Documentation
 ```
-.claude/
-├── tasks/context_session_*.md      # Session working memory
-├── doc/[agent]-[task]-*.md         # Agent plans
+.ai/
 └── memory/                          # Persistent knowledge base
     ├── project.md                   # Project overview (from docs)
     ├── documentation/               # Imported & cleaned docs
@@ -342,18 +340,25 @@ mkdir -p .claude/memory/knowledge
     └── index.json                   # Complete knowledge index
 ```
 
+### Session Memory and working plans
+```
+.claude/
+├── tasks/context_session_*.md      # Session working memory
+├── doc/[agent]-[task]-*.md         # Agent plans
+```
+
 ### Documentation-Aware Orchestration Rules
 
 #### Agent Documentation Access
 Agents MUST utilize imported documentation:
-1. **CHECK** .claude/memory/documentation/ for existing docs
+1. **CHECK** .ai/memory/documentation/ for existing docs
 2. **REFERENCE** documentation in plans with citations
 3. **IDENTIFY** documentation gaps during research
 4. **UPDATE** gaps.md when finding undocumented features
 
 #### Documentation Maintenance Workflow
 When agents discover undocumented features:
-1. Note in .claude/memory/documentation/gaps.md
+1. Note in .ai/memory/documentation/gaps.md
 2. Create minimal documentation in appropriate location
 3. Mark for human review
 4. Update index.json with changes
@@ -404,8 +409,8 @@ Maintain and improve project documentation quality, identify gaps, and ensure kn
 
 ## Core Workflow
 1. Read .claude/tasks/context_session_*.md
-2. Scan .claude/memory/documentation/ for relevant docs
-3. Check .claude/memory/documentation/gaps.md
+2. Scan .ai/memory/documentation/ for relevant docs
+3. Check .ai/memory/documentation/gaps.md
 4. Analyze documentation completeness and accuracy
 5. Create improvement plan at .claude/doc/documentation-curator-[task]-[timestamp].md
 
@@ -430,8 +435,8 @@ Maintain and improve project documentation quality, identify gaps, and ensure kn
 ```markdown
 ## Documentation Integration
 Before creating plans, this agent will:
-1. Check .claude/memory/documentation/ for relevant guides
-2. Reference existing patterns from .claude/memory/patterns/
+1. Check .ai/memory/documentation/ for relevant guides
+2. Reference existing patterns from .ai/memory/patterns/
 3. Cite documentation sources in plans
 4. Note any documentation gaps discovered
 
@@ -446,7 +451,7 @@ This agent commonly uses:
 
 **Update context_session with Phase 4 agent creation**
 
-**CREATE: .claude/memory/IMPORT_REPORT.md**
+**CREATE: .ai/memory/IMPORT_REPORT.md**
 
 ```markdown
 # Documentation Import Report
@@ -524,7 +529,7 @@ description: "Audit documentation completeness and quality"
 ---
 
 ## Execution Flow
-1. Scan all documentation in .claude/memory/documentation/
+1. Scan all documentation in .ai/memory/documentation/
 2. Compare with actual codebase
 3. Identify gaps and outdated content
 4. Generate audit report
@@ -565,7 +570,7 @@ Special features for documentation:
 
 ## Phase 8: Final Integration Checklist
 
-**CREATE: .claude/memory/INTEGRATION_CHECKLIST.md**
+**CREATE: .ai/memory/INTEGRATION_CHECKLIST.md**
 
 ## Phase 6: Finalize Session Context
 
@@ -576,7 +581,7 @@ Special features for documentation:
    - Summary of documentation imported
    - List of patterns and ADRs created
    - Documentation gaps identified
-2. Archive session to `.claude/memory/sessions/archive/`
+2. Archive session to `.ai/memory/sessions/archive/`
 3. Document ongoing documentation maintenance needs
 
 ```markdown

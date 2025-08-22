@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "description": "Essential files for ChatGPT Projects upload",
+  "bundles": {
+    "core": {
+      "description": "Core configuration and documentation",
+      "files": [
+        "AGENTS.md",
+        ".chatgpt/project-instructions.md",
+        "package.json",
+        "README.md"
+      ],
+      "maxSize": "5MB"
+    },
+    "cli-development": {
+      "description": "CLI development bundle",
+      "files": [
+        "AGENTS.md",
+        ".chatgpt/project-instructions.md",
+        "cli/index.js",
+        "cli/commands/*.js",
+        "package.json",
+        ".chatgpt/roles/cli-developer-role.md"
+      ],
+      "maxSize": "10MB"
+    },
+    "agent-development": {
+      "description": "Agent development bundle",
+      "files": [
+        "AGENTS.md",
+        ".chatgpt/project-instructions.md",
+        "Examples/agents/specialists/TEMPLATE-agent.md",
+        "Examples/agents/manifest.json",
+        ".ai/memory/patterns/agent-creation-pattern.md",
+        ".chatgpt/roles/agent-developer-role.md"
+      ],
+      "maxSize": "8MB"
+    },
+    "testing": {
+      "description": "Testing bundle",
+      "files": [
+        "AGENTS.md",
+        ".chatgpt/project-instructions.md",
+        "tests/*.js",
+        "package.json",
+        ".chatgpt/roles/test-engineer-role.md",
+        ".chatgpt/workflows/testing-workflow.md"
+      ],
+      "maxSize": "10MB"
+    },
+    "memory-management": {
+      "description": "Memory system bundle",
+      "files": [
+        "AGENTS.md",
+        ".chatgpt/project-instructions.md",
+        ".ai/memory/project.md",
+        ".ai/memory/patterns/index.json",
+        ".ai/memory/decisions/index.json",
+        ".chatgpt/roles/memory-curator-role.md"
+      ],
+      "maxSize": "5MB"
+    }
+  },
+  "uploadLimits": {
+    "chatgptPlus": {
+      "maxFiles": 20,
+      "maxTotalSize": "500MB"
+    },
+    "chatgptPro": {
+      "maxFiles": 40,
+      "maxTotalSize": "500MB"
+    },
+    "chatgptTeam": {
+      "maxFiles": 40,
+      "maxTotalSize": "500MB"
+    }
+  },
+  "compressionStrategies": [
+    "Remove comments from code files",
+    "Minify JSON files",
+    "Compress markdown to essential content",
+    "Bundle related small files",
+    "Use zip compression for archives"
+  ]
+}

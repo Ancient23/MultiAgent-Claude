@@ -45,7 +45,7 @@ Save the implementation plan to .claude/doc/cli-test-[task]-[timestamp].md in th
 1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
 2. Analyze existing CLI structure in cli/ directory
 3. Review package.json scripts and CLI entry points
-4. Check .claude/memory/patterns/ for existing testing patterns
+4. Check .ai/memory/patterns/ for existing testing patterns
 5. Use Context7 MCP to get latest documentation for:
    - Node.js CLI testing frameworks (Jest, Vitest, Mocha)
    - Commander.js testing best practices

@@ -44,8 +44,8 @@ Save the implementation plan to .claude/doc/template-evolution-[task]-[timestamp
 ## Core Workflow
 1. Check if .claude/tasks/context_session_*.md exists for full context (if available)
 2. Analyze git history for template changes in Examples/ directory
-3. Review existing ADRs in .claude/memory/decisions/ for template-related decisions
-4. Check .claude/memory/patterns/ for documented successful template patterns
+3. Review existing ADRs in .ai/memory/decisions/ for template-related decisions
+4. Check .ai/memory/patterns/ for documented successful template patterns
 5. Use Context7 MCP to get latest documentation for:
    - Version control best practices
    - Template management patterns
