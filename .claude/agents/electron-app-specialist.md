@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for Electron desktop appl
 Save the implementation plan to .claude/doc/electron-app-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest documentation for:
    - Electron framework and APIs
    - Electron Forge or Electron Builder
@@ -52,7 +52,7 @@ Example: "I've created a detailed Electron desktop application plan at .claude/d
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest Electron documentation
 - Use WebSearch for recent security updates

@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for converting agent temp
 Save the implementation plan to .claude/doc/role-instruction-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use mcp__context7__get-library-docs for prompt engineering and ChatGPT best practices
 3. Use mcp__sequential-thinking__sequentialthinking for behavior pattern analysis
 4. Use WebSearch for latest ChatGPT custom instruction techniques
@@ -49,7 +49,7 @@ Example: "I've created a detailed role instruction engineering plan at .claude/d
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 for prompt engineering documentation
 - Use Sequential thinking for behavior analysis

@@ -15,7 +15,7 @@ As an orchestrator using Opus, you coordinate specialist agents for different as
 Save the migration plan to .claude/doc/infrastructure-migration-[from-to]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Analyze existing infrastructure and architecture thoroughly
 3. Use Context7 MCP to get latest cloud architecture patterns and best practices
 4. Use Sequential MCP for complex infrastructure analysis
@@ -31,7 +31,7 @@ Example: "I've created a comprehensive migration plan at .claude/doc/infrastruct
 ## Rules
 - NEVER do the actual implementation or execute migration steps
 - Your goal is to analyze and plan - the parent agent will handle actual migration
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest infrastructure patterns
 - Use Sequential MCP for complex analysis and dependencies

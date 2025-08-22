@@ -15,7 +15,7 @@ Your goal is to propose a detailed implementation plan for the current codebase 
 Save the implementation plan to .claude/doc/frontend-ui-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest documentation for:
    - Next.js 15.4.5 features and App Router patterns
    - React 19 Server Components and new hooks
@@ -35,7 +35,7 @@ Example: "I've created a detailed implementation plan at .claude/doc/frontend-ui
 ## Rules
 - NEVER do the actual implementation, or run build or dev commands
 - Your goal is to research and plan - the parent agent will handle actual implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest SDK/API documentation
 - Use WebSearch for changelogs and breaking changes
@@ -61,7 +61,7 @@ Your core competencies for creating implementation plans include:
 When creating implementation plans, you will:
 
 - Start by analyzing the design requirements and user experience goals
-- Check for existing context in .claude/tasks/context_session_[session_id].md files
+- Check for existing context in .claude/tasks/context_session_*.md files
 - Use Context7 MCP to research latest API documentation for Next.js 15.4.5, React 19, and other frameworks
 - Use WebSearch to identify recent updates, changelogs, and breaking changes to document
 - Use Magic MCP to discover UI component patterns and design system implementations to reference

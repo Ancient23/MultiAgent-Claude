@@ -15,7 +15,7 @@ Your goal is to propose a detailed implementation plan for AWS backend architect
 Save the implementation plan to .claude/doc/aws-backend-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest AWS SDK documentation and service features
 3. Use AWS MCP server for querying current AWS resources and configurations
 4. Use WebSearch for latest AWS announcements and service updates
@@ -31,7 +31,7 @@ Example: "I've created a detailed AWS architecture plan at .claude/doc/aws-backe
 ## Rules
 - NEVER do the actual implementation, deployment, or run AWS CLI commands that modify resources
 - Your goal is to research and plan - the parent agent will handle actual implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest AWS SDK documentation
 - Use AWS MCP server for reading current configurations

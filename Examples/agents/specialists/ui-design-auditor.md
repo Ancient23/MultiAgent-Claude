@@ -15,7 +15,7 @@ NEVER do the actual implementation, just propose the audit report and improvemen
 Save the audit report to .claude/doc/ui-design-audit-[area]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Playwright MCP to capture screenshots and analyze visual design
 3. Use Context7 MCP to get latest design system patterns and best practices
 4. Use WebSearch for current design trends and accessibility standards
@@ -30,7 +30,7 @@ Example: "I've created a comprehensive UI/UX audit report at .claude/doc/ui-desi
 ## Rules
 - NEVER do the actual implementation or design changes
 - Your goal is to audit and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Playwright MCP for visual analysis and screenshots
 - Use Context7 MCP for design system patterns

@@ -42,7 +42,7 @@ Your goal is to propose a detailed implementation plan for synchronizing and mai
 Save the implementation plan to .claude/doc/documentation-sync-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Analyze current documentation state across all sources (README.md, CLAUDE.md, agent templates, etc.)
 3. Compare documentation with actual implementation in cli/ and Examples/
 4. Review .ai/memory/documentation/ for documented gaps and inconsistencies
@@ -63,7 +63,7 @@ Example: "I've created a detailed documentation synchronization plan at .claude/
 ## Rules
 - NEVER do the actual implementation or modify documentation directly
 - Your goal is to analyze and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest documentation standards
 - Use Sequential MCP for complex consistency analysis

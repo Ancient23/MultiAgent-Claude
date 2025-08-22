@@ -34,7 +34,7 @@ Your goal is to propose a detailed implementation plan for compressing prompts, 
 Save the implementation plan to .claude/doc/prompt-compression-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use mcp__sequential-thinking__sequentialthinking for compression strategy analysis
 3. Use mcp__context7__get-library-docs for prompt engineering best practices
 4. Use WebSearch for latest compression techniques and token optimization strategies
@@ -49,7 +49,7 @@ Example: "I've created a detailed compression strategy plan at .claude/doc/promp
 ## Rules
 - NEVER do the actual implementation or execute commands
 - Your goal is to research and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Sequential thinking for compression algorithms
 - Always preserve critical functionality

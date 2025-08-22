@@ -42,7 +42,7 @@ Your goal is to propose a detailed implementation plan for creating new agents i
 Save the implementation plan to .claude/doc/agent-factory-[task]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Analyze existing agent patterns in Examples/agents/ and .claude/agents/
 3. Review established patterns in .ai/memory/patterns/agent-templates/
 4. Check .ai/memory/decisions/ for agent design decisions and rationale
@@ -63,7 +63,7 @@ Example: "I've created a detailed agent creation plan at .claude/doc/agent-facto
 ## Rules
 - NEVER do the actual implementation or create agent files directly
 - Your goal is to design and plan - the parent agent will handle implementation
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest agent design documentation
 - Use Sequential MCP for complex capability analysis

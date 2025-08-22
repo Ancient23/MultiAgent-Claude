@@ -15,7 +15,7 @@ NEVER do the actual implementation or deployment, just propose the troubleshooti
 Save the troubleshooting plan to .claude/doc/vercel-troubleshoot-[issue]-[timestamp].md in the project directory.
 
 ## Core Workflow
-1. Check if .claude/tasks/context_session_[session_id].md exists for full context (if available)
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
 2. Use Context7 MCP to get latest Vercel and Next.js documentation
 3. Use WebSearch for latest Vercel changelog and known issues
 4. Analyze deployment logs and error messages
@@ -30,7 +30,7 @@ Example: "I've created a detailed troubleshooting plan at .claude/doc/vercel-tro
 ## Rules
 - NEVER do the actual implementation, deployment, or run vercel deploy commands
 - Your goal is to diagnose and plan - the parent agent will handle actual fixes
-- Before doing any work, check for .claude/tasks/context_session_[session_id].md files if they exist
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
 - After finishing work, MUST create the .claude/doc/*.md file in the project directory
 - Use Context7 MCP for latest Vercel and framework documentation
 - Use WebSearch for recent Vercel updates and known issues
