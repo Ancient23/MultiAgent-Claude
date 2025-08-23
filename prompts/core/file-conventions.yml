@@ -23,10 +23,10 @@ content: |
   - NEVER implement directly, only create plans
   
   ### Persistent Memory
-  - **Project context**: `${base_path}/memory/project.md`
-  - **Pattern library**: `${base_path}/memory/patterns/*.md`
-  - **ADRs**: `${base_path}/memory/decisions/YYYY-MM-DD-*.md`
-  - **Memory index**: `${base_path}/memory/index.json`
+  - **Project context**: `.ai/memory/project.md`
+  - **Pattern library**: `.ai/memory/patterns/*.md`
+  - **ADRs**: `.ai/memory/decisions/YYYY-MM-DD-*.md`
+  - **Memory index**: `.ai/memory/index.json`
   
   ### Agent & Command Storage
   - **Agents**: `${base_path}/agents/*.md`
