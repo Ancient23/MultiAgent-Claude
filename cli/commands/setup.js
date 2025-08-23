@@ -598,462 +598,26 @@ function detectProjectType() {
   return projectTypeStr || 'Unknown';
 }
 
-function createCodexRole(agentName, projectAnalysis) {
-  const rolePath = path.join('.chatgpt', 'roles', `${agentName}.md`);
-  
-  if (!fs.existsSync(path.dirname(rolePath))) {
-    fs.mkdirSync(path.dirname(rolePath), { recursive: true });
-  }
-  
-  // Parse agent name to extract domain and expertise
-  const parts = agentName.split('-');
-  const domain = parts.slice(0, -1).join(' ');
-  const role = parts[parts.length - 1];
-  
-  // Create a compressed, Codex-optimized role definition
-  let roleContent = `# ${agentName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-
-`;
-  roleContent += `You are a ${domain} ${role} expert. `;
-  
-  // Add specific expertise based on agent type
-  if (agentName.includes('frontend') || agentName.includes('ui')) {
-    roleContent += `Expert in React, Vue, Angular, component architecture, state management, CSS-in-JS, accessibility, and modern UI patterns. `;
-  }
-  
-  if (agentName.includes('backend') || agentName.includes('api')) {
-    roleContent += `Expert in REST/GraphQL APIs, microservices, database design, authentication, caching, message queues, and scalability. `;
-  }
-  
-  if (agentName.includes('aws')) {
-    roleContent += `Expert in AWS services (EC2, Lambda, S3, RDS, DynamoDB, CloudFormation, CDK), serverless architecture, and cloud best practices. `;
-  }
-  
-  if (agentName.includes('web3') || agentName.includes('blockchain')) {
-    roleContent += `Expert in Web3, smart contracts, DeFi, NFTs, Ethereum, Solana, wallet integration, and blockchain security. `;
-  }
-  
-  if (agentName.includes('playwright') || agentName.includes('test')) {
-    roleContent += `Expert in E2E testing, visual regression, accessibility testing, test automation, CI/CD integration, and testing best practices. `;
-  }
-  
-  if (agentName.includes('docker')) {
-    roleContent += `Expert in Docker, container orchestration, multi-stage builds, security scanning, registry management, and container best practices. `;
-  }
-  
-  if (agentName.includes('kubernetes') || agentName.includes('k8s')) {
-    roleContent += `Expert in Kubernetes, Helm charts, operators, service mesh, GitOps, cluster management, and cloud-native patterns. `;
-  }
-  
-  if (agentName.includes('graphql')) {
-    roleContent += `Expert in GraphQL schema design, resolvers, subscriptions, federation, caching, error handling, and GraphQL best practices. `;
-  }
-  
-  if (agentName.includes('python')) {
-    roleContent += `Expert in Python, Django/FastAPI, async programming, data science libraries, type hints, testing, and Pythonic patterns. `;
-  }
-  
-  if (agentName.includes('rust')) {
-    roleContent += `Expert in Rust, memory safety, ownership, async/await, WebAssembly, embedded systems, and performance optimization. `;
-  }
-  
-  // Add workflow instructions
-  roleContent += `\n\n## Workflow\n`;
-  roleContent += `1. Analyze requirements thoroughly\n`;
-  roleContent += `2. Research latest best practices\n`;
-  roleContent += `3. Create detailed implementation plan\n`;
-  roleContent += `4. Consider edge cases and error handling\n`;
-  roleContent += `5. Provide production-ready code\n`;
-  
-  // Add key principles
-  roleContent += `\n## Principles\n`;
-  roleContent += `- Use latest stable versions and patterns\n`;
-  roleContent += `- Prioritize security and performance\n`;
-  roleContent += `- Write maintainable, documented code\n`;
-  roleContent += `- Follow framework conventions\n`;
-  roleContent += `- Include error handling and validation\n`;
-  
-  // Add output format
-  roleContent += `\n## Output Format\n`;
-  roleContent += `- Provide complete, working code\n`;
-  roleContent += `- Include setup instructions\n`;
-  roleContent += `- Document key decisions\n`;
-  roleContent += `- Explain complex parts\n`;
-  roleContent += `- List dependencies needed\n`;
-  
-  fs.writeFileSync(rolePath, roleContent);
-  return rolePath;
-}
-
-function createCustomAgent(agentName, projectAnalysis) {
-  const templatePath = path.join(__dirname, '..', '..', 'Examples', 'agents', 'specialists', 'TEMPLATE-agent.md');
-  const outputPath = path.join('.claude', 'agents', `${agentName}.md`);
-  
-  if (!fs.existsSync(path.dirname(outputPath))) {
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  }
-  
-  // Read template
-  let template = fs.readFileSync(templatePath, 'utf8');
-  
-  // Parse agent name to extract domain and role
-  const parts = agentName.split('-');
-  const domain = parts.slice(0, -1).join(' ');
-  const role = parts[parts.length - 1];
-  
-  // Determine relevant technologies and tools
-  const mcpTools = [];
-  const frameworks = [];
-  
-  if (agentName.includes('web3') || agentName.includes('blockchain')) {
-    mcpTools.push('WebSearch for latest blockchain updates');
-    frameworks.push('web3.js or ethers.js', 'Smart contract ABIs', 'Blockchain best practices');
-  }
-  
-  if (agentName.includes('graphql')) {
-    mcpTools.push('Context7 for GraphQL documentation');
-    frameworks.push('GraphQL', 'Apollo Server', 'GraphQL schema design');
-  }
-  
-  if (agentName.includes('docker')) {
-    mcpTools.push('Context7 for Docker documentation');
-    frameworks.push('Docker', 'Docker Compose', 'Container best practices');
-  }
-  
-  if (agentName.includes('kubernetes') || agentName.includes('k8s')) {
-    mcpTools.push('Context7 for Kubernetes documentation');
-    frameworks.push('Kubernetes', 'Helm', 'K8s deployment strategies');
-  }
-  
-  if (agentName.includes('python')) {
-    mcpTools.push('Context7 for Python documentation');
-    frameworks.push('Python', 'pip/poetry', 'Python best practices');
-  }
-  
-  if (agentName.includes('rust')) {
-    mcpTools.push('Context7 for Rust documentation');
-    frameworks.push('Rust', 'Cargo', 'Rust patterns');
-  }
-  
-  if (agentName.includes('solana')) {
-    mcpTools.push('WebSearch for Solana updates', 'Context7 for Solana documentation');
-    frameworks.push('Solana Web3.js', 'Anchor framework', 'Solana programs');
-  }
-  
-  // Replace placeholders
-  template = template.replace(/template-agent-name/g, agentName);
-  template = template.replace(/\[agent-name\]/g, agentName);
-  template = template.replace(/\[domain\]/g, domain);
-  template = template.replace(/\[specific areas\]/g, `${domain} development and architecture`);
-  template = template.replace(/\[breadth of expertise\]/g, `${domain} ecosystem, best practices, and modern patterns`);
-  template = template.replace(/\[agent-type\]/g, agentName);
-  template = template.replace(/\[type\]/g, domain);
-  
-  // Update trigger keywords
-  const keywords = agentName.split('-').join(', ');
-  template = template.replace(/\[keywords, technologies, or concepts\]/g, keywords);
-  template = template.replace(/\[core competency\]/g, `${domain} development`);
-  template = template.replace(/\[specific domains\]/g, `${domain} architecture and implementation`);
-  
-  // Update workflow section with relevant tools
-  if (frameworks.length > 0) {
-    template = template.replace(/- \[Relevant framework\/library 1\]/g, `- ${frameworks[0]}`);
-    template = template.replace(/- \[Relevant framework\/library 2\]/g, frameworks[1] ? `- ${frameworks[1]}` : '');
-    template = template.replace(/- \[Best practices documentation\]/g, frameworks[2] ? `- ${frameworks[2]}` : '- Industry best practices');
-  }
-  
-  // Add specific MCP tools
-  if (mcpTools.length > 0) {
-    template = template.replace(
-      /4\. \[Additional MCP tools as needed - Sequential, Magic, Playwright, AWS\]/g,
-      `4. ${mcpTools.join('\n   ')}`
-    );
-  }
-  
-  // Write the custom agent
-  fs.writeFileSync(outputPath, template);
-  
-  return outputPath;
-}
-
-function parseAGENTSmd(content) {
-  const sections = {};
-  const lines = content.split('\n');
-  let currentSection = null;
-  let sectionContent = [];
-  let inCodeBlock = false;
-  
-  for (const line of lines) {
-    // Track code blocks
-    if (line.startsWith('```')) {
-      inCodeBlock = !inCodeBlock;
-    }
-    
-    // Detect section headers (##)
-    if (!inCodeBlock && line.startsWith('## ')) {
-      if (currentSection) {
-        sections[currentSection] = sectionContent.join('\n').trim();
-      }
-      currentSection = line.replace(/^##\s+/, '').trim();
-      sectionContent = [];
-    } else if (currentSection) {
-      sectionContent.push(line);
-    }
-  }
-  
-  // Save last section
-  if (currentSection) {
-    sections[currentSection] = sectionContent.join('\n').trim();
-  }
-  
-  return sections;
-}
-
-function mergeAGENTSmdSections(existing, newContent) {
-  const merged = { ...existing };
-  
-  // Sections to always update/merge
-  const alwaysUpdate = ['Project Overview', 'Directory Structure', 'Available Resources'];
-  
-  // Sections to append to if they exist
-  const appendSections = ['Role Guidelines', 'Anti-Patterns to Avoid', 'Tips for Success'];
-  
-  // Critical section that must be added if missing
-  const criticalSections = ['Memory System Navigation'];
-  
-  for (const [section, content] of Object.entries(newContent)) {
-    if (alwaysUpdate.includes(section)) {
-      // Intelligently merge these sections
-      if (merged[section]) {
-        // Preserve custom content but add our critical parts
-        if (section === 'Project Overview') {
-          // Add technology info if not present
-          if (!merged[section].includes('Key Technologies:') && content.includes('Key Technologies:')) {
-            merged[section] += '\n\n' + content.split('\n').filter(line => 
-              line.includes('Technologies:') || 
-              line.includes('Frameworks:') || 
-              line.includes('Features:')
-            ).join('\n');
-          }
-        } else if (section === 'Directory Structure') {
-          // Ensure .ai/memory is documented
-          if (!merged[section].includes('.ai/memory')) {
-            merged[section] += '\n' + content.split('\n').filter(line => 
-              line.includes('.ai/') || 
-              line.includes('memory')
-            ).join('\n');
-          }
-        }
-      } else {
-        merged[section] = content;
-      }
-    } else if (criticalSections.includes(section)) {
-      // Always ensure critical sections exist
-      if (!merged[section]) {
-        merged[section] = content;
-      } else {
-        // Enhance existing with our memory navigation if not present
-        if (!merged[section].includes('.ai/memory')) {
-          merged[section] = content + '\n\n' + merged[section];
-        }
-      }
-    } else if (appendSections.includes(section)) {
-      // Append new content to existing
-      if (merged[section]) {
-        // Check if content is not already there
-        const newItems = content.split('\n').filter(line => 
-          !merged[section].includes(line.replace(/^[#\-*\s]+/, '').trim())
-        );
-        if (newItems.length > 0) {
-          merged[section] += '\n\n' + newItems.join('\n');
-        }
-      } else {
-        merged[section] = content;
-      }
-    } else if (!merged[section]) {
-      // Add new sections that don't exist
-      merged[section] = content;
-    }
-  }
-  
-  return merged;
-}
-
-function rebuildAGENTSmd(sections) {
-  // Preferred section order
-  const sectionOrder = [
-    'Project Overview',
-    'Directory Structure',
-    'Memory System Navigation',
-    'Role Guidelines',
-    'Workflow Patterns',
-    'Testing Procedures',
-    'Available Resources',
-    'Cross-Platform Considerations',
-    'Anti-Patterns to Avoid',
-    'Tips for Success'
-  ];
-  
-  let content = '# AGENTS.md - Repository Guidelines\n\n';
-  
-  // Add sections in preferred order
-  for (const sectionName of sectionOrder) {
-    if (sections[sectionName]) {
-      content += `## ${sectionName}\n\n`;
-      content += sections[sectionName];
-      content += '\n\n';
-    }
-  }
-  
-  // Add any remaining sections not in our order
-  for (const [sectionName, sectionContent] of Object.entries(sections)) {
-    if (!sectionOrder.includes(sectionName)) {
-      content += `## ${sectionName}\n\n`;
-      content += sectionContent;
-      content += '\n\n';
-    }
-  }
-  
-  return content.trim() + '\n';
-}
-
-function createAGENTSmd(projectType, projectAnalysis, agents, mcpServers) {
-  const agentsPath = 'AGENTS.md';
-  
-  // Build AGENTS.md content
-  let content = `# AGENTS.md - Repository Guidelines\n\n`;
-  content += `## Project Overview\n\n`;
-  content += `${projectType || 'Unknown project type'}\n\n`;
-  
-  // Add key technologies and frameworks
-  if (projectAnalysis) {
-    if (projectAnalysis.technologies.length > 0) {
-      content += `**Key Technologies**: ${projectAnalysis.technologies.join(', ')}\n`;
-    }
-    if (projectAnalysis.frameworks.length > 0) {
-      content += `**Frameworks**: ${projectAnalysis.frameworks.join(', ')}\n`;
-    }
-    if (projectAnalysis.features.length > 0) {
-      content += `**Features**: ${projectAnalysis.features.slice(0, 5).join(', ')}\n`;
-    }
-    if (projectAnalysis.monorepo) {
-      content += `**Architecture**: Monorepo with ${projectAnalysis.packageCount} packages\n`;
-    }
-    content += `\n`;
-  }
-  
-  // Directory structure
-  content += `## Directory Structure\n\n`;
-  content += `\`\`\`\n`;
-  content += `.claude/              # Claude-specific configuration\n`;
-  content += `├── agents/          # Project agents\n`;
-  content += `├── tasks/           # Session contexts\n`;
-  content += `└── doc/             # Agent plans\n`;
-  content += `.chatgpt/            # OpenAI-specific configuration\n`;
-  content += `├── roles/           # Agent role instructions\n`;
-  content += `└── bundles/         # Optimized file bundles\n`;
-  content += `.ai/\n`;
-  content += `└── memory/          # Unified persistent knowledge base\n`;
-  content += `    ├── project.md   # Project-wide context\n`;
-  content += `    ├── patterns/    # Successful implementation patterns\n`;
-  content += `    └── decisions/   # Architectural Decision Records\n`;
-  content += `\`\`\`\n\n`;
-  
-  // Memory System Navigation
-  content += `## Memory System Navigation\n\n`;
-  content += `**IMPORTANT**: Always check the memory system before implementing new features:\n\n`;
-  content += `1. **Project Context**: Review \`.ai/memory/project.md\` for conventions\n`;
-  content += `2. **Patterns**: Check \`.ai/memory/patterns/\` for existing solutions\n`;
-  content += `3. **Decisions**: Reference \`.ai/memory/decisions/\` for architectural choices\n`;
-  content += `4. **Session Context**: Check \`.claude/tasks/context_session_*.md\` for current work\n\n`;
-  
-  // Role Guidelines based on agents
-  content += `## Role Guidelines\n\n`;
-  
-  if (agents && agents.length > 0) {
-    agents.forEach(agent => {
-      const roleName = agent.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-      const triggers = agent.split('-').join(', ');
-      
-      content += `### ${roleName}\n`;
-      content += `**Triggers**: ${triggers}\n\n`;
-      content += `**Approach**:\n`;
-      content += `1. Check memory system for patterns\n`;
-      content += `2. Review existing implementations\n`;
-      content += `3. Plan implementation approach\n`;
-      content += `4. Validate with tests\n`;
-      content += `5. Document successful patterns\n\n`;
-    });
-  }
-  
-  // Workflow Patterns
-  content += `## Workflow Patterns\n\n`;
-  content += `### Research-Plan-Execute\n`;
-  content += `1. **Research**: Analyze codebase, check memory, review patterns\n`;
-  content += `2. **Plan**: Create detailed implementation plan\n`;
-  content += `3. **Execute**: Implement with validation\n`;
-  content += `4. **Document**: Update memory with successful patterns\n\n`;
-  
-  // Testing Procedures
-  content += `## Testing Procedures\n\n`;
-  content += `Always run before commits:\n`;
-  content += `\`\`\`bash\n`;
-  content += `npm test        # Run all tests\n`;
-  content += `npm run lint    # Check code style\n`;
-  content += `npm run typecheck # Type validation\n`;
-  content += `\`\`\`\n\n`;
-  
-  // MCP Server Integration
-  if (mcpServers && mcpServers.length > 0) {
-    content += `## Available Resources\n\n`;
-    content += `The following resources are available:\n`;
-    mcpServers.forEach(server => {
-      content += `- **${server}**: `;;
-      if (server === 'Context7') content += 'Latest documentation lookup\n';
-      else if (server === 'Sequential') content += 'Complex reasoning and analysis\n';
-      else if (server === 'Magic') content += 'UI component generation\n';
-      else if (server === 'Playwright') content += 'Browser automation and testing\n';
-      else if (server === 'AWS') content += 'AWS service integration\n';
-      else if (server === 'WebSearch') content += 'Web search capabilities\n';
-      else content += 'Specialized capabilities\n';
-    });
-    content += `\n`;
-  }
-  
-  // Cross-Platform Considerations
-  content += `## Cross-Platform Considerations\n\n`;
-  content += `- Ensure compatibility between Claude and ChatGPT\n`;
-  content += `- Keep memory system platform-agnostic\n`;
-  content += `- Document patterns that work across platforms\n`;
-  content += `- Use \`.chatgpt/roles/\` for ChatGPT-specific instructions\n\n`;
-  
-  // Anti-Patterns
-  content += `## Anti-Patterns to Avoid\n\n`;
-  content += `- ❌ Implementing without checking memory first\n`;
-  content += `- ❌ Creating platform-specific silos\n`;
-  content += `- ❌ Skipping test validation\n`;
-  content += `- ❌ Forgetting to document patterns\n`;
-  content += `- ❌ Ignoring session context\n\n`;
-  
-  // Tips for Success
-  content += `## Tips for Success\n\n`;
-  content += `- ✅ Memory first: Always check existing patterns\n`;
-  content += `- ✅ Test everything: Validate before committing\n`;
-  content += `- ✅ Document wins: Save successful patterns\n`;
-  content += `- ✅ Stay synchronized: Keep configs in sync\n`;
-  content += `- ✅ Think cross-platform: Solutions should work everywhere\n`;
-  
-  fs.writeFileSync(agentsPath, content);
-  return agentsPath;
-}
+// File creation functions removed - all intelligent creation now happens in init.js
+// The framework uses its own agents (agent-factory, codex-configuration-expert, role-instruction-engineer)
+// to create context-aware, project-specific agents and configurations
 
 function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
-  const configPath = path.join('.claude', 'config.json');
   
-  if (!fs.existsSync(path.dirname(configPath))) {
-    fs.mkdirSync(path.dirname(configPath), { recursive: true });
-  }
+  // Create minimal directory structure only
+  const dirs = [
+    '.claude', '.claude/agents', '.claude/commands', '.claude/tasks', '.claude/doc',
+    '.ai/memory', '.ai/memory/patterns', '.ai/memory/decisions',
+    '.chatgpt', '.chatgpt/roles'
+  ];
   
+  dirs.forEach(dir => {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  });
+
+  // Save complete configuration for init to process
   const config = {
     variant,
     agents,
@@ -1069,109 +633,37 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
       frameworks: Array.from(projectAnalysis.frameworks),
       features: Array.from(projectAnalysis.features)
     } : null,
-    // Queue items for Claude to handle during init
     queuedForCreation: {
       customAgents: customAgentsToCreate || [],
       codexRoles: codexRolesToCreate || [],
       agentsMd: agentsMdAction || 'skip',
-      needsProcessing: (customAgentsToCreate && customAgentsToCreate.length > 0) || 
-                       (codexRolesToCreate && codexRolesToCreate.length > 0) ||
+      needsProcessing: (customAgentsToCreate?.length > 0) || 
+                       (codexRolesToCreate?.length > 0) ||
                        (agentsMdAction && agentsMdAction !== 'skip')
     },
     createdAt: new Date().toISOString()
   };
   
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  fs.writeFileSync('.claude/config.json', JSON.stringify(config, null, 2));
   
   console.log(chalk.green('✓ Configuration saved to .claude/config.json'));
   
-  // Display AGENTS.md queue status
-  if (config.queuedForCreation.agentsMd && config.queuedForCreation.agentsMd !== 'skip') {
-    console.log(chalk.yellow('\n📄 AGENTS.md Handling:'));
-    if (config.queuedForCreation.agentsMd === 'update') {
-      console.log(chalk.gray('  Claude will intelligently update existing AGENTS.md during init'));
-      console.log(chalk.gray('  - Preserve custom sections'));
-      console.log(chalk.gray('  - Add memory system navigation'));
-      console.log(chalk.gray('  - Update with detected technologies'));
-    } else if (config.queuedForCreation.agentsMd === 'create') {
-      console.log(chalk.gray('  Claude will create AGENTS.md during init'));
-      console.log(chalk.gray('  - Include memory system instructions'));
-      console.log(chalk.gray('  - Add role guidelines'));
-      console.log(chalk.gray('  - Configure for ChatGPT/Codex'));
+  // Display what will be created during init
+  if (config.queuedForCreation.needsProcessing) {
+    console.log(chalk.yellow('\n📋 Queued for intelligent creation during init:'));
+    if (customAgentsToCreate.length > 0) {
+      console.log(chalk.gray(`  • ${customAgentsToCreate.length} custom agents (using agent-factory patterns)`));
+      customAgentsToCreate.forEach(agent => 
+        console.log(chalk.gray(`    - ${agent}`))
+      );
     }
-  }
-  
-  // Create custom agents if requested
-  if (customAgentsToCreate && customAgentsToCreate.length > 0) {
-    console.log(chalk.yellow('\n🤖 Creating custom agents...'));
-    customAgentsToCreate.forEach(agentName => {
-      const agentPath = createCustomAgent(agentName, projectAnalysis);
-      console.log(chalk.green(`✓ Created custom agent: ${agentPath}`));
-      agents.push(agentName); // Add to agents list
-    });
-    
-    // Update config with new agents
-    config.agents = agents;
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  }
-  
-  // Create Codex roles if requested
-  if (codexRolesToCreate && codexRolesToCreate.length > 0) {
-    console.log(chalk.yellow('\n📄 Creating ChatGPT/Codex roles...'));
-    
-    // Create manifest for Codex roles
-    const manifestPath = path.join('.chatgpt', 'roles', 'manifest.json');
-    const manifest = {
-      version: '1.0.0',
-      description: 'Codex-optimized roles matching Claude agents',
-      roles: [],
-      created: new Date().toISOString()
-    };
-    
-    codexRolesToCreate.forEach(agentName => {
-      const rolePath = createCodexRole(agentName, projectAnalysis);
-      console.log(chalk.green(`✓ Created Codex role: ${rolePath}`));
-      manifest.roles.push({
-        name: agentName,
-        file: `${agentName}.md`,
-        description: `${agentName.replace(/-/g, ' ')} specialist role`
-      });
-    });
-    
-    // Write manifest
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-    console.log(chalk.green(`✓ Created roles manifest: ${manifestPath}`));
-    
-    // Create a combined AGENTS.md file for Codex
-    const agentsmdPath = path.join('.chatgpt', 'AGENTS.md');
-    let agentsContent = '# Agent Roles for ChatGPT/Codex\n\n';
-    agentsContent += 'This file contains all agent role definitions for use with ChatGPT and Codex.\n\n';
-    agentsContent += '## Usage\n';
-    agentsContent += '1. Copy the role definition you need\n';
-    agentsContent += '2. Use as custom instructions in ChatGPT\n';
-    agentsContent += '3. Or include in your Codex configuration\n\n';
-    agentsContent += '---\n\n';
-    
-    codexRolesToCreate.forEach(agentName => {
-      const roleContent = fs.readFileSync(path.join('.chatgpt', 'roles', `${agentName}.md`), 'utf8');
-      agentsContent += roleContent;
-      agentsContent += '\n---\n\n';
-    });
-    
-    fs.writeFileSync(agentsmdPath, agentsContent);
-    console.log(chalk.green(`✓ Created combined AGENTS.md: ${agentsmdPath}`));
-  }
-  
-  if (!fs.existsSync('.ai/memory')) {
-    fs.mkdirSync('.ai/memory', { recursive: true });
-    fs.mkdirSync('.ai/memory/patterns', { recursive: true });
-    fs.mkdirSync('.ai/memory/decisions', { recursive: true });
-    fs.mkdirSync('.claude/tasks', { recursive: true });
-    fs.mkdirSync('.claude/doc', { recursive: true });
-    fs.mkdirSync('.claude/agents', { recursive: true });
-    fs.mkdirSync('.claude/commands', { recursive: true });
-    
-    console.log(chalk.green('✓ Created directory structure'));
+    if (codexRolesToCreate.length > 0) {
+      console.log(chalk.gray(`  • ${codexRolesToCreate.length} ChatGPT/Codex roles (using role-instruction-engineer)`));
+    }
+    if (agentsMdAction !== 'skip') {
+      console.log(chalk.gray(`  • AGENTS.md (${agentsMdAction} using codex-configuration-expert)`));
+    }
+    console.log(chalk.blue('\nThese will be created intelligently by Claude during init'));
   }
   
   if (ciOptions.enabled) {

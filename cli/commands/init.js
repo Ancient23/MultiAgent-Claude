@@ -72,7 +72,7 @@ function copyTestTemplate(filename) {
 }
 
 
-function executeWithClaude(prompt) {
+function executeWithClaude(prompt, config = null) {
   try {
     const claudeExists = execSync('which claude', { encoding: 'utf8' }).trim();
     if (!claudeExists) {
@@ -96,15 +96,15 @@ function executeWithClaude(prompt) {
       console.log(chalk.yellow('\n  Additionally, Claude will:'));
       let stepNum = 6;
       if (queuedAgents.length > 0) {
-        console.log(chalk.gray(`  ${stepNum}. Create ${queuedAgents.length} custom agent(s) with proper implementations`));
+        console.log(chalk.gray(`  ${stepNum}. Create ${queuedAgents.length} custom agent(s) using agent-factory patterns`));
         stepNum++;
       }
       if (queuedRoles.length > 0) {
-        console.log(chalk.gray(`  ${stepNum}. Create ${queuedRoles.length} ChatGPT/Codex role(s) in .chatgpt/roles/`));
+        console.log(chalk.gray(`  ${stepNum}. Create ${queuedRoles.length} ChatGPT/Codex role(s) using role-instruction-engineer`));
         stepNum++;
       }
       if (agentsMdAction !== 'skip') {
-        console.log(chalk.gray(`  ${stepNum}. ${agentsMdAction === 'update' ? 'Intelligently update' : 'Create'} AGENTS.md for ChatGPT/Codex`));
+        console.log(chalk.gray(`  ${stepNum}. ${agentsMdAction === 'update' ? 'Intelligently update' : 'Create'} AGENTS.md using codex-configuration-expert`));
       }
     }
     
@@ -116,53 +116,77 @@ function executeWithClaude(prompt) {
     // Enhanced prompt with queued items
     let enhancedPrompt = prompt;
     if (hasQueuedItems) {
-      enhancedPrompt += `\n\n## 📋 Queued Items from Setup\n\n`;
+      enhancedPrompt += `\n\n## 🤖 Intelligent Creation Phase\n\n`;
+      enhancedPrompt += `**IMPORTANT**: Use the framework's own specialized agent patterns for intelligent creation.\n\n`;
       
-      // AGENTS.md handling
+      // Include full project analysis
+      if (projectAnalysis) {
+        enhancedPrompt += `### Project Analysis\n`;
+        enhancedPrompt += `\`\`\`json\n${JSON.stringify(projectAnalysis, null, 2)}\n\`\`\`\n\n`;
+      }
+      
+      // Custom agents using agent-factory
+      if (queuedAgents.length > 0) {
+        enhancedPrompt += `### Custom Agents to Create\n`;
+        enhancedPrompt += `Use the **agent-factory** patterns (from .claude/agents/agent-factory.md) to create:\n\n`;
+        
+        queuedAgents.forEach(agent => {
+          enhancedPrompt += `#### ${agent}\n`;
+          enhancedPrompt += `1. Analyze the domain: "${agent.replace(/-/g, ' ')}"\n`;
+          enhancedPrompt += `2. Identify appropriate MCP tools for this domain\n`;
+          enhancedPrompt += `3. Create specialized workflows based on project structure\n`;
+          enhancedPrompt += `4. Apply agent-factory quality standards\n`;
+          enhancedPrompt += `5. Save to .claude/agents/${agent}.md\n\n`;
+        });
+      }
+      
+      // AGENTS.md using codex-configuration-expert
       if (agentsMdAction !== 'skip') {
-        enhancedPrompt += `### AGENTS.md for ChatGPT/Codex\n`;
+        enhancedPrompt += `### AGENTS.md Configuration\n`;
+        enhancedPrompt += `Use **codex-configuration-expert** patterns (from .claude/agents/codex-configuration-expert.md):\n\n`;
+        
         if (agentsMdAction === 'update' && fs.existsSync('AGENTS.md')) {
-          enhancedPrompt += `**Intelligently update the existing AGENTS.md file:**\n`;
-          enhancedPrompt += `- Read and analyze the current AGENTS.md\n`;
-          enhancedPrompt += `- Preserve all custom sections and user additions\n`;
-          enhancedPrompt += `- Add or update the "Memory System Navigation" section if missing or incomplete\n`;
-          enhancedPrompt += `- Ensure .ai/memory/ paths are documented\n`;
-          enhancedPrompt += `- Update project overview with detected technologies: ${JSON.stringify(projectType)}\n`;
-          enhancedPrompt += `- Add role guidelines for configured agents\n`;
-          enhancedPrompt += `- Create a backup before modifying (AGENTS.md.backup.[timestamp])\n`;
-          enhancedPrompt += `- Maintain existing formatting and structure where possible\n\n`;
-        } else if (agentsMdAction === 'create') {
-          enhancedPrompt += `**Create a new AGENTS.md file with:**\n`;
-          enhancedPrompt += `- Project overview with technologies: ${JSON.stringify(projectType)}\n`;
-          enhancedPrompt += `- Directory structure including .ai/memory/, .claude/, and .chatgpt/\n`;
-          enhancedPrompt += `- **Critical**: Memory System Navigation section explaining how to use .ai/memory/\n`;
-          enhancedPrompt += `- Role guidelines for each configured agent\n`;
-          enhancedPrompt += `- Testing procedures and workflow patterns\n`;
-          enhancedPrompt += `- Cross-platform considerations for Claude/ChatGPT compatibility\n\n`;
+          enhancedPrompt += `**Action: Intelligent Update**\n`;
+          enhancedPrompt += `1. Read and parse existing AGENTS.md\n`;
+          enhancedPrompt += `2. Preserve all custom sections and user content\n`;
+          enhancedPrompt += `3. Add/update Memory System Navigation section\n`;
+          enhancedPrompt += `4. Update project overview with detected technologies\n`;
+          enhancedPrompt += `5. Add role guidelines for configured agents\n`;
+          enhancedPrompt += `6. Optimize for Codex 192k context window\n\n`;
+        } else {
+          enhancedPrompt += `**Action: Create New**\n`;
+          enhancedPrompt += `1. Create comprehensive AGENTS.md following codex-configuration-expert template\n`;
+          enhancedPrompt += `2. Include all detected technologies and frameworks\n`;
+          enhancedPrompt += `3. Add complete Memory System Navigation section\n`;
+          enhancedPrompt += `4. Create role guidelines for each agent\n`;
+          enhancedPrompt += `5. Include testing procedures from package.json\n`;
+          enhancedPrompt += `6. Optimize structure for Codex comprehension\n\n`;
         }
       }
       
-      // Custom agents
-      if (queuedAgents.length > 0) {
-        enhancedPrompt += `### Custom Agents to Create\n`;
-        enhancedPrompt += `Please create the following custom agents using the /generate-agent command pattern:\n\n`;
-        queuedAgents.forEach(agent => {
-          enhancedPrompt += `- **${agent}**: Create a specialized agent for ${agent.replace(/-/g, ' ')} with appropriate domain expertise, MCP tools, and workflow patterns\n`;
-        });
-        enhancedPrompt += `\n`;
-      }
-      
-      // Codex roles
+      // ChatGPT roles using role-instruction-engineer
       if (queuedRoles.length > 0) {
-        enhancedPrompt += `### ChatGPT/Codex Roles to Create\n`;
-        enhancedPrompt += `Please create compressed, token-efficient roles in .chatgpt/roles/ for:\n\n`;
+        enhancedPrompt += `### ChatGPT/Codex Roles\n`;
+        enhancedPrompt += `Use **role-instruction-engineer** patterns (from .claude/agents/role-instruction-engineer.md):\n\n`;
+        
         queuedRoles.forEach(role => {
-          enhancedPrompt += `- **${role}**: Codex-optimized role matching the agent capabilities\n`;
+          enhancedPrompt += `#### .chatgpt/roles/${role}.md\n`;
+          enhancedPrompt += `1. Extract essential capabilities from agent\n`;
+          enhancedPrompt += `2. Compress to <1500 characters\n`;
+          enhancedPrompt += `3. Include workflow, principles, output format\n`;
+          enhancedPrompt += `4. Optimize for ChatGPT Projects feature\n\n`;
         });
-        enhancedPrompt += `\nEach role should be <1500 characters and include workflow, principles, and output format.\n`;
+        
+        enhancedPrompt += `Also create:\n`;
+        enhancedPrompt += `- .chatgpt/roles/manifest.json with all roles\n`;
+        enhancedPrompt += `- .chatgpt/AGENTS.md combining all roles\n\n`;
       }
       
-      enhancedPrompt += `\n**Important**: Use your expertise to create proper, high-quality implementations - not boilerplate templates.\n`;
+      enhancedPrompt += `### Quality Standards\n`;
+      enhancedPrompt += `- NO BOILERPLATE: Each agent must be context-aware and project-specific\n`;
+      enhancedPrompt += `- Use actual project structure and dependencies to inform creation\n`;
+      enhancedPrompt += `- Apply framework's own patterns (meta-development principle)\n`;
+      enhancedPrompt += `- Ensure all created files are immediately usable\n`;
     }
     
     fs.writeFileSync(tempFile, enhancedPrompt);
@@ -186,14 +210,16 @@ async function execute(options) {
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
   console.log(chalk.gray(`Using workflow: ${workflow}\n`));
   
-  // Check for setup config with queued items
-  const configPath = path.join(process.cwd(), '.claude', 'config.json');
+  // FIXED: Declare variables before use
   let hasQueuedItems = false;
   let queuedAgents = [];
   let queuedRoles = [];
   let agentsMdAction = 'skip';
   let projectType = 'Unknown';
   let projectAnalysis = null;
+  
+  // Check for setup config with queued items
+  const configPath = path.join(process.cwd(), '.claude', 'config.json');
   
   if (fs.existsSync(configPath)) {
     try {
@@ -239,7 +265,9 @@ async function execute(options) {
       return;
     }
 
-    const success = executeWithClaude(prompt);
+    // Pass config to executeWithClaude for intelligent creation
+    const config = fs.existsSync(configPath) ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : null;
+    const success = executeWithClaude(prompt, config);
     
     if (!success) {
       console.log(chalk.yellow('\nAlternative: Copy the prompt manually'));

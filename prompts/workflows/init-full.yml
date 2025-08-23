@@ -27,6 +27,9 @@ required:
   - core/quality-standards
 
 conditional:
+  - if: "config.queuedForCreation.needsProcessing"
+    then:
+      - templates/intelligent-agent-creation
   - if: "enable_cicd"
     then:
       - templates/cicd-setup
