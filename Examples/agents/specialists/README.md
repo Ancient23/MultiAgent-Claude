@@ -41,6 +41,7 @@ Main System Executes Plan
 - **aws-deployment-specialist**: IaC, deployment strategies, CI/CD
 - **backend-api-frontend-integrator**: API integration patterns
 - **infrastructure-migration-architect**: Infrastructure transformation plans
+- **sql-specialist**: Relational design, migrations, and query optimization (Postgres, MySQL)
 - **terraform-specialist**: Terraform plan/apply workflows and state management
 
 ### AI & ML
