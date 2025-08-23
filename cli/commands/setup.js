@@ -666,63 +666,19 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
     console.log(chalk.blue('\nThese will be created intelligently by Claude during init'));
   }
   
-  if (ciOptions.enabled) {
-    const workflowPath = path.join('.github', 'workflows');
-    if (!fs.existsSync(workflowPath)) {
-      fs.mkdirSync(workflowPath, { recursive: true });
-    }
-    
-    const workflowSource = path.join(__dirname, '..', '..', '.github', 'workflows', 'claude-memory-update.yml');
-    const workflowDest = path.join(workflowPath, 'claude-memory-update.yml');
-    
-    if (fs.existsSync(workflowSource)) {
-      fs.copyFileSync(workflowSource, workflowDest);
-      console.log(chalk.green('✓ GitHub Actions memory workflow created'));
-    }
-  }
+  // CI/CD workflow creation moved to init.js for intelligent generation
+  // The framework now uses its own patterns to create context-aware workflows
   
+  // Playwright setup moved to init.js for intelligent generation
+  // Directory creation and workflow files will be created by Claude during init
+  // using context-aware patterns from the framework's own agents
   if (playwrightOptions.enabled) {
-    // Create Playwright directories
-    const playwrightDirs = [
-      '.playwright/tests/e2e',
-      '.playwright/tests/visual',
-      '.playwright/tests/interaction',
-      '.playwright/tests/accessibility',
-      '.playwright/baseline',
-      '.playwright/fixtures',
-      '.playwright/page-objects',
-      '.playwright/config',
-      '.ai/memory/test-results'
-    ];
-    
-    playwrightDirs.forEach(dir => {
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-    });
-    console.log(chalk.green('✓ Playwright directory structure created'));
-    
-    // Copy Playwright workflow if CI integration is enabled
-    if (playwrightOptions.ciIntegration) {
-      const workflowPath = path.join('.github', 'workflows');
-      if (!fs.existsSync(workflowPath)) {
-        fs.mkdirSync(workflowPath, { recursive: true });
-      }
-      
-      const playwrightWorkflowSource = path.join(__dirname, '..', '..', '.github', 'workflows', 'playwright-tests.yml');
-      const playwrightWorkflowDest = path.join(workflowPath, 'playwright-tests.yml');
-      
-      if (fs.existsSync(playwrightWorkflowSource)) {
-        fs.copyFileSync(playwrightWorkflowSource, playwrightWorkflowDest);
-        console.log(chalk.green('✓ Playwright CI/CD workflow created'));
-      }
-    }
-    
-    // Add playwright-test-engineer agent if not already selected
+    // Only add the agent to the config, actual setup happens in init
     if (!agents.includes('playwright-test-engineer')) {
       agents.push('playwright-test-engineer');
-      console.log(chalk.green('✓ Added playwright-test-engineer agent'));
+      console.log(chalk.green('✓ playwright-test-engineer agent will be configured during init'));
     }
+    console.log(chalk.yellow('📋 Playwright setup queued for intelligent creation during init'));
   }
 }
 

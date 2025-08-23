@@ -20,6 +20,18 @@ async function composePrompt(options) {
   });
   
   const workflow = await getWorkflow(options);
+  
+  // Load config if it exists to pass to context for conditional evaluation
+  const configPath = path.join(process.cwd(), '.claude', 'config.json');
+  let config = null;
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch (e) {
+      console.warn('Config file exists but could not be parsed:', e.message);
+    }
+  }
+  
   const context = {
     options: {
       cicd: options.cicd || false,
@@ -29,7 +41,8 @@ async function composePrompt(options) {
     project: {
       name: path.basename(process.cwd()),
       path: process.cwd()
-    }
+    },
+    config: config  // CRITICAL: Pass config to context for conditional evaluation
   };
   
   return await composer.compose(workflow, context);
