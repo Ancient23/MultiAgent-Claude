@@ -72,7 +72,16 @@ function copyTestTemplate(filename) {
 }
 
 
-function executeWithClaude(prompt, config = null) {
+function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
+  // Destructure the queued items data
+  const {
+    hasQueuedItems = false,
+    queuedAgents = [],
+    queuedRoles = [],
+    agentsMdAction = 'skip',
+    projectAnalysis = null
+  } = queuedItemsData;
+
   try {
     const claudeExists = execSync('which claude', { encoding: 'utf8' }).trim();
     if (!claudeExists) {
@@ -265,9 +274,16 @@ async function execute(options) {
       return;
     }
 
-    // Pass config to executeWithClaude for intelligent creation
+    // Pass config and queued items data to executeWithClaude for intelligent creation
     const config = fs.existsSync(configPath) ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : null;
-    const success = executeWithClaude(prompt, config);
+    const queuedItemsData = {
+      hasQueuedItems,
+      queuedAgents,
+      queuedRoles,
+      agentsMdAction,
+      projectAnalysis
+    };
+    const success = executeWithClaude(prompt, config, queuedItemsData);
     
     if (!success) {
       console.log(chalk.yellow('\nAlternative: Copy the prompt manually'));
