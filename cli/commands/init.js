@@ -5,6 +5,45 @@ const chalk = require('chalk');
 const readline = require('readline');
 const PromptComposer = require('../lib/prompt-composer');
 
+function copyTemplateAgents(agents) {
+  const baseDir = path.join(__dirname, '..', '..', 'Examples', 'agents');
+  const targetDir = path.join(process.cwd(), '.claude', 'agents');
+  
+  // Ensure target directory exists
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  
+  let copiedCount = 0;
+  agents.forEach(agentName => {
+    // Check in orchestrators and specialists subdirectories
+    const orchestratorPath = path.join(baseDir, 'orchestrators', `${agentName}.md`);
+    const specialistPath = path.join(baseDir, 'specialists', `${agentName}.md`);
+    const targetPath = path.join(targetDir, `${agentName}.md`);
+    
+    let sourcePath = null;
+    if (fs.existsSync(orchestratorPath)) {
+      sourcePath = orchestratorPath;
+    } else if (fs.existsSync(specialistPath)) {
+      sourcePath = specialistPath;
+    }
+    
+    if (sourcePath) {
+      try {
+        fs.copyFileSync(sourcePath, targetPath);
+        copiedCount++;
+        console.log(chalk.green(`  ✓ Copied ${agentName}.md`));
+      } catch (error) {
+        console.log(chalk.red(`  ✗ Failed to copy ${agentName}.md: ${error.message}`));
+      }
+    } else {
+      console.log(chalk.yellow(`  ⚠️  Template not found: ${agentName}.md`));
+    }
+  });
+  
+  return copiedCount;
+}
+
 async function getWorkflow(options) {
   if (options.memoryOnly) {
     return 'init-memory';
@@ -272,6 +311,22 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
       let successCount = 0;
       let expectedCount = 0;
       
+      // Check template agents (should already be copied)
+      if (config && config.agents && config.agents.length > 0) {
+        let templateAgentsFound = 0;
+        config.agents.forEach(agent => {
+          const agentFile = path.join('.claude', 'agents', `${agent}.md`);
+          if (fs.existsSync(agentFile)) {
+            templateAgentsFound++;
+          }
+        });
+        if (templateAgentsFound > 0) {
+          console.log(chalk.green(`✓ Template agents present: ${templateAgentsFound}/${config.agents.length}`));
+        } else {
+          console.log(chalk.red(`✗ Template agents missing (expected ${config.agents.length})`));
+        }
+      }
+      
       // Check custom agents
       if (queuedAgents.length > 0) {
         expectedCount += queuedAgents.length;
@@ -376,13 +431,22 @@ async function execute(options) {
       projectType = config.projectType || 'Unknown';
       projectAnalysis = config.projectAnalysis || null;
       
+      // Handle template agents that need to be copied
+      let templateAgentsToCopy = [];
+      if (config.agents && config.agents.length > 0) {
+        templateAgentsToCopy = config.agents;
+        console.log(chalk.yellow('📋 Template agents to copy from Examples:'));
+        console.log(chalk.gray(`  Template agents: ${templateAgentsToCopy.length}`));
+        templateAgentsToCopy.forEach(agent => console.log(chalk.gray(`    • ${agent}`)));
+      }
+      
       if (config.queuedForCreation && config.queuedForCreation.needsProcessing) {
         hasQueuedItems = true;
         queuedAgents = config.queuedForCreation.customAgents || [];
         queuedRoles = config.queuedForCreation.codexRoles || [];
         agentsMdAction = config.queuedForCreation.agentsMd || 'skip';
         
-        console.log(chalk.yellow('📋 Detected queued items from setup:'));
+        console.log(chalk.yellow('\n📋 Custom items to create intelligently:'));
         if (queuedAgents.length > 0) {
           console.log(chalk.gray(`  Custom agents to create: ${queuedAgents.length}`));
           queuedAgents.forEach(agent => console.log(chalk.gray(`    • ${agent}`)));
@@ -414,6 +478,17 @@ async function execute(options) {
 
     // Pass config and queued items data to executeWithClaude for intelligent creation
     const config = fs.existsSync(configPath) ? JSON.parse(fs.readFileSync(configPath, 'utf8')) : null;
+    
+    // Copy template agents BEFORE executing with Claude
+    if (config && config.agents && config.agents.length > 0) {
+      console.log(chalk.blue('\n📂 Copying template agents from Examples...'));
+      const copiedCount = copyTemplateAgents(config.agents);
+      if (copiedCount > 0) {
+        console.log(chalk.green(`✓ Successfully copied ${copiedCount}/${config.agents.length} template agents\n`));
+      } else {
+        console.log(chalk.yellow(`⚠️  No template agents were copied\n`));
+      }
+    }
     const queuedItemsData = {
       hasQueuedItems,
       queuedAgents,
