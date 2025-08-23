@@ -31,6 +31,14 @@ const MCP_SERVERS = {
         GITHUB_TOKEN: process.env.GITHUB_TOKEN || ""
       }
     }
+  },
+  catalog: {
+    package: 'mcp-catalog',
+    config: {
+      command: "npx",
+      args: ["mcp-catalog"],
+      env: {}
+    }
   }
 };
 
@@ -45,7 +53,8 @@ async function setupMCP(serverName) {
         choices: [
           { name: 'Playwright - Browser automation & visual development', value: 'playwright', checked: true },
           { name: 'Filesystem - Enhanced file operations', value: 'filesystem' },
-          { name: 'GitHub - GitHub API integration', value: 'github' }
+          { name: 'GitHub - GitHub API integration', value: 'github' },
+          { name: 'Catalog - Discover available MCP tools', value: 'catalog' }
         ]
       }
     ]);
