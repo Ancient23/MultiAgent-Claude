@@ -131,12 +131,19 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
     }
     
     console.log(chalk.blue('\n🎭 Claude is working...'));
-    console.log(chalk.gray('This may take a few moments as Claude analyzes your project\n'));
+    console.log(chalk.gray('This may take a few moments as Claude analyzes your project'));
+    console.log(chalk.gray('You will see Claude\'s output below:\n'));
+    console.log(chalk.gray('─'.repeat(80)));
     
     const tempFile = path.join('/tmp', `claude-init-${Date.now()}.md`);
     
     // Enhanced prompt with queued items
     let enhancedPrompt = prompt;
+    
+    // Debug: Show what we're about to send
+    if (hasQueuedItems) {
+      console.log(chalk.blue('📝 Building enhanced prompt with queued items...'));
+    }
     if (hasQueuedItems) {
       enhancedPrompt += `\n\n## 🤖 Intelligent Creation Phase\n\n`;
       enhancedPrompt += `**IMPORTANT**: Use the framework's own specialized agent patterns for intelligent creation.\n\n`;
@@ -213,13 +220,102 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
     
     fs.writeFileSync(tempFile, enhancedPrompt);
     
-    execSync(`claude --print < ${tempFile}`, { 
-      stdio: 'inherit',
-      encoding: 'utf8' 
-    });
+    // Execute with Claude without --print flag to actually perform the tasks
+    // Use stdio: 'inherit' to show Claude's output in real-time
+    console.log(chalk.gray('Claude is now creating the files and configurations...\n'));
     
-    fs.unlinkSync(tempFile);
-    return true;
+    try {
+      execSync(`claude < ${tempFile}`, { 
+        stdio: 'inherit',
+        encoding: 'utf8' 
+      });
+      console.log(chalk.gray('\n' + '─'.repeat(80)));
+      console.log(chalk.green('✓ Claude execution completed successfully'));
+    } catch (execError) {
+      // Claude might exit with non-zero code even on success, so check if files were created
+      console.log(chalk.gray('\n' + '─'.repeat(80)));
+      console.log(chalk.yellow('Claude execution completed. Verifying results...'));
+    }
+    
+    // Clean up temp file
+    try {
+      fs.unlinkSync(tempFile);
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+    
+    // Verify that files were actually created
+    const verifyCreation = () => {
+      console.log(chalk.blue('\n📁 Verifying created files...'));
+      let successCount = 0;
+      let expectedCount = 0;
+      
+      // Check custom agents
+      if (queuedAgents.length > 0) {
+        expectedCount += queuedAgents.length;
+        let agentsCreated = 0;
+        queuedAgents.forEach(agent => {
+          const agentFile = path.join('.claude', 'agents', `${agent}.md`);
+          if (fs.existsSync(agentFile)) {
+            agentsCreated++;
+          }
+        });
+        if (agentsCreated > 0) {
+          successCount += agentsCreated;
+          console.log(chalk.green(`✓ Created ${agentsCreated}/${queuedAgents.length} custom agents in .claude/agents/`));
+        } else {
+          console.log(chalk.red(`✗ No custom agents created (expected ${queuedAgents.length})`));
+        }
+      }
+      
+      // Check ChatGPT roles
+      if (queuedRoles.length > 0) {
+        expectedCount += queuedRoles.length;
+        let rolesCreated = 0;
+        queuedRoles.forEach(role => {
+          const roleFile = path.join('.chatgpt', 'roles', `${role}.md`);
+          if (fs.existsSync(roleFile)) {
+            rolesCreated++;
+          }
+        });
+        if (rolesCreated > 0) {
+          successCount += rolesCreated;
+          console.log(chalk.green(`✓ Created ${rolesCreated}/${queuedRoles.length} ChatGPT roles in .chatgpt/roles/`));
+        } else {
+          console.log(chalk.red(`✗ No ChatGPT roles created (expected ${queuedRoles.length})`));
+        }
+      }
+      
+      // Check AGENTS.md
+      if (agentsMdAction !== 'skip') {
+        expectedCount++;
+        if (fs.existsSync('AGENTS.md')) {
+          successCount++;
+          console.log(chalk.green(`✓ AGENTS.md ${agentsMdAction === 'update' ? 'updated' : 'created'}`));
+        } else {
+          console.log(chalk.red(`✗ AGENTS.md not ${agentsMdAction === 'update' ? 'updated' : 'created'}`));
+        }
+      }
+      
+      // Summary
+      if (expectedCount > 0) {
+        if (successCount === 0) {
+          console.log(chalk.red(`\n⚠️  Warning: No queued files were created (0/${expectedCount})`));
+          console.log(chalk.yellow('This may indicate Claude needs explicit permission to write files.'));
+          console.log(chalk.yellow('Try running with --prompt-only and manually paste into Claude.'));
+          return false;
+        } else if (successCount < expectedCount) {
+          console.log(chalk.yellow(`\n⚠️  Partially successful: ${successCount}/${expectedCount} items created`));
+          return true;
+        } else {
+          console.log(chalk.green(`\n✅ All queued items created successfully (${successCount}/${expectedCount})`));
+          return true;
+        }
+      }
+      return true;
+    };
+    
+    return verifyCreation();
   } catch (error) {
     console.error(chalk.red('Error executing with Claude:'), error.message);
     return false;
