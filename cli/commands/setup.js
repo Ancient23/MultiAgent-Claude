@@ -100,12 +100,21 @@ async function execute() {
   console.log(chalk.yellow('\n🤖 ChatGPT/Codex Integration:'));
   
   // Check for existing AGENTS.md
-  let createAgentsMd = true;
+  let agentsMdAction = 'create';
   if (fs.existsSync('AGENTS.md')) {
     console.log(chalk.yellow('⚠️  Existing AGENTS.md found'));
-    createAgentsMd = (await question(chalk.cyan('Overwrite existing AGENTS.md? (y/n): '))).toLowerCase() === 'y';
+    console.log(chalk.gray('Default action: Intelligently merge new content'));
+    const mergeChoice = await question(chalk.cyan('Action (merge/overwrite/skip) [merge]: ')) || 'merge';
+    if (mergeChoice.toLowerCase() === 'skip') {
+      agentsMdAction = 'skip';
+    } else if (mergeChoice.toLowerCase() === 'overwrite') {
+      agentsMdAction = 'overwrite';
+    } else {
+      agentsMdAction = 'merge';
+    }
   } else {
-    createAgentsMd = (await question(chalk.cyan('Create AGENTS.md for Codex/ChatGPT? (y/n): '))).toLowerCase() === 'y';
+    const create = await question(chalk.cyan('Create AGENTS.md for Codex/ChatGPT? (y/n): '));
+    agentsMdAction = create.toLowerCase() === 'y' ? 'create' : 'skip';
   }
   
   // Check if .chatgpt directory already exists
@@ -195,7 +204,7 @@ async function execute() {
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, createAgentsMd);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, agentsMdAction);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -767,6 +776,147 @@ function createCustomAgent(agentName, projectAnalysis) {
   return outputPath;
 }
 
+function parseAGENTSmd(content) {
+  const sections = {};
+  const lines = content.split('\n');
+  let currentSection = null;
+  let sectionContent = [];
+  let inCodeBlock = false;
+  
+  for (const line of lines) {
+    // Track code blocks
+    if (line.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+    }
+    
+    // Detect section headers (##)
+    if (!inCodeBlock && line.startsWith('## ')) {
+      if (currentSection) {
+        sections[currentSection] = sectionContent.join('\n').trim();
+      }
+      currentSection = line.replace(/^##\s+/, '').trim();
+      sectionContent = [];
+    } else if (currentSection) {
+      sectionContent.push(line);
+    }
+  }
+  
+  // Save last section
+  if (currentSection) {
+    sections[currentSection] = sectionContent.join('\n').trim();
+  }
+  
+  return sections;
+}
+
+function mergeAGENTSmdSections(existing, newContent) {
+  const merged = { ...existing };
+  
+  // Sections to always update/merge
+  const alwaysUpdate = ['Project Overview', 'Directory Structure', 'Available Resources'];
+  
+  // Sections to append to if they exist
+  const appendSections = ['Role Guidelines', 'Anti-Patterns to Avoid', 'Tips for Success'];
+  
+  // Critical section that must be added if missing
+  const criticalSections = ['Memory System Navigation'];
+  
+  for (const [section, content] of Object.entries(newContent)) {
+    if (alwaysUpdate.includes(section)) {
+      // Intelligently merge these sections
+      if (merged[section]) {
+        // Preserve custom content but add our critical parts
+        if (section === 'Project Overview') {
+          // Add technology info if not present
+          if (!merged[section].includes('Key Technologies:') && content.includes('Key Technologies:')) {
+            merged[section] += '\n\n' + content.split('\n').filter(line => 
+              line.includes('Technologies:') || 
+              line.includes('Frameworks:') || 
+              line.includes('Features:')
+            ).join('\n');
+          }
+        } else if (section === 'Directory Structure') {
+          // Ensure .ai/memory is documented
+          if (!merged[section].includes('.ai/memory')) {
+            merged[section] += '\n' + content.split('\n').filter(line => 
+              line.includes('.ai/') || 
+              line.includes('memory')
+            ).join('\n');
+          }
+        }
+      } else {
+        merged[section] = content;
+      }
+    } else if (criticalSections.includes(section)) {
+      // Always ensure critical sections exist
+      if (!merged[section]) {
+        merged[section] = content;
+      } else {
+        // Enhance existing with our memory navigation if not present
+        if (!merged[section].includes('.ai/memory')) {
+          merged[section] = content + '\n\n' + merged[section];
+        }
+      }
+    } else if (appendSections.includes(section)) {
+      // Append new content to existing
+      if (merged[section]) {
+        // Check if content is not already there
+        const newItems = content.split('\n').filter(line => 
+          !merged[section].includes(line.replace(/^[#\-*\s]+/, '').trim())
+        );
+        if (newItems.length > 0) {
+          merged[section] += '\n\n' + newItems.join('\n');
+        }
+      } else {
+        merged[section] = content;
+      }
+    } else if (!merged[section]) {
+      // Add new sections that don't exist
+      merged[section] = content;
+    }
+  }
+  
+  return merged;
+}
+
+function rebuildAGENTSmd(sections) {
+  // Preferred section order
+  const sectionOrder = [
+    'Project Overview',
+    'Directory Structure',
+    'Memory System Navigation',
+    'Role Guidelines',
+    'Workflow Patterns',
+    'Testing Procedures',
+    'Available Resources',
+    'Cross-Platform Considerations',
+    'Anti-Patterns to Avoid',
+    'Tips for Success'
+  ];
+  
+  let content = '# AGENTS.md - Repository Guidelines\n\n';
+  
+  // Add sections in preferred order
+  for (const sectionName of sectionOrder) {
+    if (sections[sectionName]) {
+      content += `## ${sectionName}\n\n`;
+      content += sections[sectionName];
+      content += '\n\n';
+    }
+  }
+  
+  // Add any remaining sections not in our order
+  for (const [sectionName, sectionContent] of Object.entries(sections)) {
+    if (!sectionOrder.includes(sectionName)) {
+      content += `## ${sectionName}\n\n`;
+      content += sectionContent;
+      content += '\n\n';
+    }
+  }
+  
+  return content.trim() + '\n';
+}
+
 function createAGENTSmd(projectType, projectAnalysis, agents, mcpServers) {
   const agentsPath = 'AGENTS.md';
   
@@ -897,7 +1047,7 @@ function createAGENTSmd(projectType, projectAnalysis, agents, mcpServers) {
   return agentsPath;
 }
 
-function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], createAgentsMd = false) {
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
   const configPath = path.join('.claude', 'config.json');
   
   if (!fs.existsSync(path.dirname(configPath))) {
@@ -926,12 +1076,46 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   
   console.log(chalk.green('✓ Configuration saved to .claude/config.json'));
   
-  // Create AGENTS.md if requested
-  if (createAgentsMd) {
-    console.log(chalk.yellow('\n📄 Creating AGENTS.md for Codex/ChatGPT...'));
-    const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
-    console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
-    console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
+  // Handle AGENTS.md based on action
+  if (agentsMdAction !== 'skip') {
+    if (agentsMdAction === 'merge') {
+      console.log(chalk.yellow('\n📄 Merging with existing AGENTS.md...'));
+      
+      // Backup existing AGENTS.md
+      const existingContent = fs.readFileSync('AGENTS.md', 'utf8');
+      const backupPath = `AGENTS.md.backup.${Date.now()}`;
+      fs.writeFileSync(backupPath, existingContent);
+      console.log(chalk.gray(`  Created backup: ${backupPath}`));
+      
+      // Parse existing content
+      const existingSections = parseAGENTSmd(existingContent);
+      
+      // Generate new content sections
+      const newContent = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
+      const newSections = parseAGENTSmd(newContent);
+      
+      // Merge sections intelligently
+      const mergedSections = mergeAGENTSmdSections(existingSections, newSections);
+      
+      // Rebuild AGENTS.md with merged content
+      const mergedContent = rebuildAGENTSmd(mergedSections);
+      fs.writeFileSync('AGENTS.md', mergedContent);
+      
+      console.log(chalk.green('✓ Merged new content with existing AGENTS.md'));
+      console.log(chalk.gray('  - Preserved existing customizations'));
+      console.log(chalk.gray('  - Added memory system navigation'));
+      console.log(chalk.gray('  - Updated project overview if needed'));
+    } else if (agentsMdAction === 'overwrite') {
+      console.log(chalk.yellow('\n📄 Creating new AGENTS.md for Codex/ChatGPT...'));
+      const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
+      console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
+      console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
+    } else if (agentsMdAction === 'create') {
+      console.log(chalk.yellow('\n📄 Creating AGENTS.md for Codex/ChatGPT...'));
+      const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
+      console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
+      console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
+    }
   }
   
   // Create custom agents if requested
