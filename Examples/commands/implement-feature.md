@@ -1,5 +1,8 @@
 # /implement-feature - Fullstack Feature Implementation Command
 
+## Purpose
+Coordinates research, planning, and execution so that a fullstack feature moves from specification to finished implementation with tests and documentation.
+
 ## Overview
 Orchestrates end-to-end feature implementation using a two-phase approach: first the fullstack-feature-orchestrator agent creates a comprehensive plan, then the main system executes that plan to ensure production-ready features with proper testing and documentation.
 
@@ -13,13 +16,13 @@ Orchestrates end-to-end feature implementation using a two-phase approach: first
 # Implement a specific task from the task list
 /implement-feature --task-id websocket-fix
 
-# Implement authentication feature
-/implement-feature "Enable Clerk authentication with protected routes" --priority P1
+# Roll out a new streaming API
+/implement-feature "Add Server-Sent Events streaming endpoint" --priority P1
 
-# Fix code quality issues
-/implement-feature "Clean up ESLint warnings and TypeScript types" --type fix
+# Refactor database layer
+/implement-feature "Normalize user profile tables" --type enhancement
 
-# Add new dashboard feature
+# Add real-time metrics dashboard
 /implement-feature "Add real-time metrics dashboard with chart visualizations" --type feature
 ```
 
