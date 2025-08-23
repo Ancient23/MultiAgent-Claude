@@ -1069,6 +1069,15 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
       frameworks: Array.from(projectAnalysis.frameworks),
       features: Array.from(projectAnalysis.features)
     } : null,
+    // Queue items for Claude to handle during init
+    queuedForCreation: {
+      customAgents: customAgentsToCreate || [],
+      codexRoles: codexRolesToCreate || [],
+      agentsMd: agentsMdAction || 'skip',
+      needsProcessing: (customAgentsToCreate && customAgentsToCreate.length > 0) || 
+                       (codexRolesToCreate && codexRolesToCreate.length > 0) ||
+                       (agentsMdAction && agentsMdAction !== 'skip')
+    },
     createdAt: new Date().toISOString()
   };
   
@@ -1076,45 +1085,19 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   
   console.log(chalk.green('✓ Configuration saved to .claude/config.json'));
   
-  // Handle AGENTS.md based on action
-  if (agentsMdAction !== 'skip') {
-    if (agentsMdAction === 'merge') {
-      console.log(chalk.yellow('\n📄 Merging with existing AGENTS.md...'));
-      
-      // Backup existing AGENTS.md
-      const existingContent = fs.readFileSync('AGENTS.md', 'utf8');
-      const backupPath = `AGENTS.md.backup.${Date.now()}`;
-      fs.writeFileSync(backupPath, existingContent);
-      console.log(chalk.gray(`  Created backup: ${backupPath}`));
-      
-      // Parse existing content
-      const existingSections = parseAGENTSmd(existingContent);
-      
-      // Generate new content sections
-      const newContent = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
-      const newSections = parseAGENTSmd(newContent);
-      
-      // Merge sections intelligently
-      const mergedSections = mergeAGENTSmdSections(existingSections, newSections);
-      
-      // Rebuild AGENTS.md with merged content
-      const mergedContent = rebuildAGENTSmd(mergedSections);
-      fs.writeFileSync('AGENTS.md', mergedContent);
-      
-      console.log(chalk.green('✓ Merged new content with existing AGENTS.md'));
-      console.log(chalk.gray('  - Preserved existing customizations'));
-      console.log(chalk.gray('  - Added memory system navigation'));
-      console.log(chalk.gray('  - Updated project overview if needed'));
-    } else if (agentsMdAction === 'overwrite') {
-      console.log(chalk.yellow('\n📄 Creating new AGENTS.md for Codex/ChatGPT...'));
-      const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
-      console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
-      console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
-    } else if (agentsMdAction === 'create') {
-      console.log(chalk.yellow('\n📄 Creating AGENTS.md for Codex/ChatGPT...'));
-      const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
-      console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
-      console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
+  // Display AGENTS.md queue status
+  if (config.queuedForCreation.agentsMd && config.queuedForCreation.agentsMd !== 'skip') {
+    console.log(chalk.yellow('\n📄 AGENTS.md Handling:'));
+    if (config.queuedForCreation.agentsMd === 'update') {
+      console.log(chalk.gray('  Claude will intelligently update existing AGENTS.md during init'));
+      console.log(chalk.gray('  - Preserve custom sections'));
+      console.log(chalk.gray('  - Add memory system navigation'));
+      console.log(chalk.gray('  - Update with detected technologies'));
+    } else if (config.queuedForCreation.agentsMd === 'create') {
+      console.log(chalk.gray('  Claude will create AGENTS.md during init'));
+      console.log(chalk.gray('  - Include memory system instructions'));
+      console.log(chalk.gray('  - Add role guidelines'));
+      console.log(chalk.gray('  - Configure for ChatGPT/Codex'));
     }
   }
   

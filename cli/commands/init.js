@@ -93,12 +93,18 @@ function executeWithClaude(prompt) {
     console.log(chalk.gray('  5. Update CLAUDE.md with orchestration rules'));
     
     if (hasQueuedItems) {
-      console.log(chalk.yellow('\n  Additionally, Claude will create:'));
+      console.log(chalk.yellow('\n  Additionally, Claude will:'));
+      let stepNum = 6;
       if (queuedAgents.length > 0) {
-        console.log(chalk.gray(`  6. ${queuedAgents.length} custom agent(s) with proper implementations`));
+        console.log(chalk.gray(`  ${stepNum}. Create ${queuedAgents.length} custom agent(s) with proper implementations`));
+        stepNum++;
       }
       if (queuedRoles.length > 0) {
-        console.log(chalk.gray(`  7. ${queuedRoles.length} ChatGPT/Codex role(s) in .chatgpt/roles/`));
+        console.log(chalk.gray(`  ${stepNum}. Create ${queuedRoles.length} ChatGPT/Codex role(s) in .chatgpt/roles/`));
+        stepNum++;
+      }
+      if (agentsMdAction !== 'skip') {
+        console.log(chalk.gray(`  ${stepNum}. ${agentsMdAction === 'update' ? 'Intelligently update' : 'Create'} AGENTS.md for ChatGPT/Codex`));
       }
     }
     
@@ -111,6 +117,32 @@ function executeWithClaude(prompt) {
     let enhancedPrompt = prompt;
     if (hasQueuedItems) {
       enhancedPrompt += `\n\n## 📋 Queued Items from Setup\n\n`;
+      
+      // AGENTS.md handling
+      if (agentsMdAction !== 'skip') {
+        enhancedPrompt += `### AGENTS.md for ChatGPT/Codex\n`;
+        if (agentsMdAction === 'update' && fs.existsSync('AGENTS.md')) {
+          enhancedPrompt += `**Intelligently update the existing AGENTS.md file:**\n`;
+          enhancedPrompt += `- Read and analyze the current AGENTS.md\n`;
+          enhancedPrompt += `- Preserve all custom sections and user additions\n`;
+          enhancedPrompt += `- Add or update the "Memory System Navigation" section if missing or incomplete\n`;
+          enhancedPrompt += `- Ensure .ai/memory/ paths are documented\n`;
+          enhancedPrompt += `- Update project overview with detected technologies: ${JSON.stringify(projectType)}\n`;
+          enhancedPrompt += `- Add role guidelines for configured agents\n`;
+          enhancedPrompt += `- Create a backup before modifying (AGENTS.md.backup.[timestamp])\n`;
+          enhancedPrompt += `- Maintain existing formatting and structure where possible\n\n`;
+        } else if (agentsMdAction === 'create') {
+          enhancedPrompt += `**Create a new AGENTS.md file with:**\n`;
+          enhancedPrompt += `- Project overview with technologies: ${JSON.stringify(projectType)}\n`;
+          enhancedPrompt += `- Directory structure including .ai/memory/, .claude/, and .chatgpt/\n`;
+          enhancedPrompt += `- **Critical**: Memory System Navigation section explaining how to use .ai/memory/\n`;
+          enhancedPrompt += `- Role guidelines for each configured agent\n`;
+          enhancedPrompt += `- Testing procedures and workflow patterns\n`;
+          enhancedPrompt += `- Cross-platform considerations for Claude/ChatGPT compatibility\n\n`;
+        }
+      }
+      
+      // Custom agents
       if (queuedAgents.length > 0) {
         enhancedPrompt += `### Custom Agents to Create\n`;
         enhancedPrompt += `Please create the following custom agents using the /generate-agent command pattern:\n\n`;
@@ -119,6 +151,8 @@ function executeWithClaude(prompt) {
         });
         enhancedPrompt += `\n`;
       }
+      
+      // Codex roles
       if (queuedRoles.length > 0) {
         enhancedPrompt += `### ChatGPT/Codex Roles to Create\n`;
         enhancedPrompt += `Please create compressed, token-efficient roles in .chatgpt/roles/ for:\n\n`;
@@ -127,6 +161,7 @@ function executeWithClaude(prompt) {
         });
         enhancedPrompt += `\nEach role should be <1500 characters and include workflow, principles, and output format.\n`;
       }
+      
       enhancedPrompt += `\n**Important**: Use your expertise to create proper, high-quality implementations - not boilerplate templates.\n`;
     }
     
@@ -156,14 +191,23 @@ async function execute(options) {
   let hasQueuedItems = false;
   let queuedAgents = [];
   let queuedRoles = [];
+  let agentsMdAction = 'skip';
+  let projectType = 'Unknown';
+  let projectAnalysis = null;
   
   if (fs.existsSync(configPath)) {
     try {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      
+      // Get project info from config
+      projectType = config.projectType || 'Unknown';
+      projectAnalysis = config.projectAnalysis || null;
+      
       if (config.queuedForCreation && config.queuedForCreation.needsProcessing) {
         hasQueuedItems = true;
         queuedAgents = config.queuedForCreation.customAgents || [];
         queuedRoles = config.queuedForCreation.codexRoles || [];
+        agentsMdAction = config.queuedForCreation.agentsMd || 'skip';
         
         console.log(chalk.yellow('📋 Detected queued items from setup:'));
         if (queuedAgents.length > 0) {
@@ -173,6 +217,9 @@ async function execute(options) {
         if (queuedRoles.length > 0) {
           console.log(chalk.gray(`  Codex roles to create: ${queuedRoles.length}`));
           queuedRoles.forEach(role => console.log(chalk.gray(`    • ${role}`)));
+        }
+        if (agentsMdAction !== 'skip') {
+          console.log(chalk.gray(`  AGENTS.md: ${agentsMdAction === 'update' ? 'Update existing' : 'Create new'}`));
         }
         console.log('');
       }
@@ -234,6 +281,7 @@ async function execute(options) {
           config.queuedForCreation = {
             customAgents: [],
             codexRoles: [],
+            agentsMd: 'skip',
             needsProcessing: false
           };
           fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
