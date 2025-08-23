@@ -3,6 +3,23 @@ command: "/generate-tests"
 description: "Generate comprehensive Playwright tests for the application"
 ---
 
+## Purpose
+Analyzes the existing application and produces Playwright test suites that cover critical paths, accessibility, and visual consistency to prevent regressions.
+
+## Usage
+```
+/generate-tests [scope] [--include-visual] [--include-a11y]
+```
+
+## Examples
+```
+# Generate tests for checkout flow including accessibility checks
+/generate-tests "checkout flow" --include-a11y
+
+# Generate visual regression tests for profile settings
+/generate-tests "profile settings" --include-visual
+```
+
 ## Execution Flow
 
 ### Phase 1: Analysis
