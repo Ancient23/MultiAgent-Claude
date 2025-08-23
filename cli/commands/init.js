@@ -84,8 +84,53 @@ function executeWithClaude(prompt) {
     console.log(chalk.green('✓ Claude CLI found'));
     console.log(chalk.blue('Executing initialization with Claude...'));
     
+    // Add status indicators
+    console.log(chalk.gray('\nClaude will perform the following tasks:'));
+    console.log(chalk.gray('  1. Analyze project structure'));
+    console.log(chalk.gray('  2. Create memory system at .ai/memory/'));
+    console.log(chalk.gray('  3. Generate specialized agents in .claude/agents/'));
+    console.log(chalk.gray('  4. Create commands in .claude/commands/'));
+    console.log(chalk.gray('  5. Update CLAUDE.md with orchestration rules'));
+    
+    if (hasQueuedItems) {
+      console.log(chalk.yellow('\n  Additionally, Claude will create:'));
+      if (queuedAgents.length > 0) {
+        console.log(chalk.gray(`  6. ${queuedAgents.length} custom agent(s) with proper implementations`));
+      }
+      if (queuedRoles.length > 0) {
+        console.log(chalk.gray(`  7. ${queuedRoles.length} ChatGPT/Codex role(s) in .chatgpt/roles/`));
+      }
+    }
+    
+    console.log(chalk.blue('\n🎭 Claude is working...'));
+    console.log(chalk.gray('This may take a few moments as Claude analyzes your project\n'));
+    
     const tempFile = path.join('/tmp', `claude-init-${Date.now()}.md`);
-    fs.writeFileSync(tempFile, prompt);
+    
+    // Enhanced prompt with queued items
+    let enhancedPrompt = prompt;
+    if (hasQueuedItems) {
+      enhancedPrompt += `\n\n## 📋 Queued Items from Setup\n\n`;
+      if (queuedAgents.length > 0) {
+        enhancedPrompt += `### Custom Agents to Create\n`;
+        enhancedPrompt += `Please create the following custom agents using the /generate-agent command pattern:\n\n`;
+        queuedAgents.forEach(agent => {
+          enhancedPrompt += `- **${agent}**: Create a specialized agent for ${agent.replace(/-/g, ' ')} with appropriate domain expertise, MCP tools, and workflow patterns\n`;
+        });
+        enhancedPrompt += `\n`;
+      }
+      if (queuedRoles.length > 0) {
+        enhancedPrompt += `### ChatGPT/Codex Roles to Create\n`;
+        enhancedPrompt += `Please create compressed, token-efficient roles in .chatgpt/roles/ for:\n\n`;
+        queuedRoles.forEach(role => {
+          enhancedPrompt += `- **${role}**: Codex-optimized role matching the agent capabilities\n`;
+        });
+        enhancedPrompt += `\nEach role should be <1500 characters and include workflow, principles, and output format.\n`;
+      }
+      enhancedPrompt += `\n**Important**: Use your expertise to create proper, high-quality implementations - not boilerplate templates.\n`;
+    }
+    
+    fs.writeFileSync(tempFile, enhancedPrompt);
     
     execSync(`claude --print < ${tempFile}`, { 
       stdio: 'inherit',
@@ -105,6 +150,36 @@ async function execute(options) {
   
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
   console.log(chalk.gray(`Using workflow: ${workflow}\n`));
+  
+  // Check for setup config with queued items
+  const configPath = path.join(process.cwd(), '.claude', 'config.json');
+  let hasQueuedItems = false;
+  let queuedAgents = [];
+  let queuedRoles = [];
+  
+  if (fs.existsSync(configPath)) {
+    try {
+      const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      if (config.queuedForCreation && config.queuedForCreation.needsProcessing) {
+        hasQueuedItems = true;
+        queuedAgents = config.queuedForCreation.customAgents || [];
+        queuedRoles = config.queuedForCreation.codexRoles || [];
+        
+        console.log(chalk.yellow('📋 Detected queued items from setup:'));
+        if (queuedAgents.length > 0) {
+          console.log(chalk.gray(`  Custom agents to create: ${queuedAgents.length}`));
+          queuedAgents.forEach(agent => console.log(chalk.gray(`    • ${agent}`)));
+        }
+        if (queuedRoles.length > 0) {
+          console.log(chalk.gray(`  Codex roles to create: ${queuedRoles.length}`));
+          queuedRoles.forEach(role => console.log(chalk.gray(`    • ${role}`)));
+        }
+        console.log('');
+      }
+    } catch (e) {
+      // Config exists but couldn't parse - continue normally
+    }
+  }
 
   try {
     const prompt = await composePrompt(options);
@@ -126,17 +201,46 @@ async function execute(options) {
     } else {
       console.log(chalk.green('\n✅ Multi-agent environment initialized successfully!'));
       
+      // Show what was created
+      if (fs.existsSync('.ai/memory')) {
+        console.log(chalk.blue('\n🧠 Memory System Created:'));
+        console.log(chalk.gray('  .ai/memory/'));
+        console.log(chalk.gray('  ├── project.md - Project conventions'));
+        console.log(chalk.gray('  ├── patterns/ - Successful solutions'));
+        console.log(chalk.gray('  ├── decisions/ - Architectural records'));
+        console.log(chalk.gray('  └── index.json - Quick lookup'));
+      }
+      
       if (fs.existsSync('.claude')) {
-        console.log(chalk.blue('\nCreated structure:'));
+        console.log(chalk.blue('\n🤖 Claude Configuration:'));
         console.log(chalk.gray('  .claude/'));
-        console.log(chalk.gray('  ├── memory/'));
-        console.log(chalk.gray('  │   ├── project.md'));
-        console.log(chalk.gray('  │   ├── patterns/'));
-        console.log(chalk.gray('  │   ├── decisions/'));
-        console.log(chalk.gray('  │   └── index.json'));
-        console.log(chalk.gray('  ├── tasks/'));
-        console.log(chalk.gray('  ├── doc/'));
-        console.log(chalk.gray('  └── agents/'));
+        console.log(chalk.gray('  ├── agents/ - Specialized agents'));
+        console.log(chalk.gray('  ├── commands/ - Custom commands'));
+        console.log(chalk.gray('  ├── tasks/ - Session contexts'));
+        console.log(chalk.gray('  └── doc/ - Agent plans'));
+      }
+      
+      if (fs.existsSync('.chatgpt')) {
+        console.log(chalk.blue('\n💬 ChatGPT/Codex Integration:'));
+        console.log(chalk.gray('  .chatgpt/'));
+        console.log(chalk.gray('  ├── roles/ - Compressed agent roles'));
+        console.log(chalk.gray('  └── bundles/ - Optimized file bundles'));
+      }
+      
+      // Clear queued items from config
+      if (hasQueuedItems && fs.existsSync(configPath)) {
+        try {
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          config.queuedForCreation = {
+            customAgents: [],
+            codexRoles: [],
+            needsProcessing: false
+          };
+          fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+          console.log(chalk.gray('\n✓ Cleared processed queue from config'));
+        } catch (e) {
+          // Couldn't update config - not critical
+        }
       }
 
       // CI/CD and Testing Options
