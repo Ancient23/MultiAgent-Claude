@@ -44,6 +44,41 @@ function copyTemplateAgents(agents) {
   return copiedCount;
 }
 
+function copyTemplateCommands() {
+  const baseDir = path.join(__dirname, '..', '..', 'Examples', 'commands');
+  const targetDir = path.join(process.cwd(), '.claude', 'commands');
+  
+  // Ensure target directory exists
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  
+  // Copy essential command templates
+  const commandsToCopy = [
+    'implement-feature.md',
+    'generate-playwright-tests.md',
+    'WAVE_EXECUTE.md'
+  ];
+  
+  let copiedCount = 0;
+  commandsToCopy.forEach(cmdFile => {
+    const sourcePath = path.join(baseDir, cmdFile);
+    const targetPath = path.join(targetDir, cmdFile);
+    
+    if (fs.existsSync(sourcePath)) {
+      try {
+        fs.copyFileSync(sourcePath, targetPath);
+        copiedCount++;
+        console.log(chalk.green(`  ✓ Copied ${cmdFile}`));
+      } catch (error) {
+        console.log(chalk.red(`  ✗ Failed to copy ${cmdFile}: ${error.message}`));
+      }
+    }
+  });
+  
+  return copiedCount;
+}
+
 async function getWorkflow(options) {
   if (options.memoryOnly) {
     return 'init-memory';
@@ -262,6 +297,38 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
         enhancedPrompt += `**VERIFICATION**: You must create exactly ${queuedRoles.length} role files + 2 additional files (manifest.json and AGENTS.md).\n\n`;
       }
       
+      // Add commands section
+      enhancedPrompt += `### Commands to Create (REQUIRED)\n`;
+      enhancedPrompt += `**YOU MUST CREATE these command files in .claude/commands/:**\n\n`;
+      
+      // List essential commands based on project type and agents
+      const essentialCommands = [
+        'implement-feature',
+        'debug-issue',
+        'optimize-performance',
+        'refactor-code',
+        'update-docs'
+      ];
+      
+      // Add specialized commands based on selected agents
+      if (config && config.agents) {
+        if (config.agents.includes('playwright-test-engineer')) {
+          essentialCommands.push('generate-playwright-tests');
+        }
+        if (config.agents.includes('aws-backend-architect') || config.agents.includes('aws-deployment-specialist')) {
+          essentialCommands.push('deploy-aws');
+        }
+      }
+      
+      essentialCommands.forEach((cmd, index) => {
+        enhancedPrompt += `#### ${index + 1}. CREATE FILE: .claude/commands/${cmd}.md\n`;
+        enhancedPrompt += `- Use command template patterns\n`;
+        enhancedPrompt += `- Include triggers, workflow type, and agent assignments\n`;
+        enhancedPrompt += `- **REQUIRED**: Save to .claude/commands/${cmd}.md\n\n`;
+      });
+      
+      enhancedPrompt += `**VERIFICATION**: You must create exactly ${essentialCommands.length} command files.\n\n`;
+      
       enhancedPrompt += `### EXECUTION CHECKLIST\n`;
       enhancedPrompt += `**YOU MUST COMPLETE ALL OF THESE:**\n`;
       if (queuedAgents.length > 0) {
@@ -272,6 +339,7 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
         enhancedPrompt += `☐ Create .chatgpt/roles/manifest.json\n`;
         enhancedPrompt += `☐ Create .chatgpt/AGENTS.md\n`;
       }
+      enhancedPrompt += `☐ Create ${essentialCommands.length} command files in .claude/commands/\n`;
       if (agentsMdAction !== 'skip') {
         enhancedPrompt += `☐ ${agentsMdAction === 'update' ? 'Update' : agentsMdAction === 'merge' ? 'Merge' : 'Create'} AGENTS.md in root directory\n`;
       }
@@ -395,6 +463,20 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
         console.log(chalk.yellow(`⚠️  CLAUDE.md not found or not updated`));
       }
       
+      // Check commands
+      const commandsDir = '.claude/commands';
+      if (fs.existsSync(commandsDir)) {
+        const commandFiles = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
+        if (commandFiles.length > 0) {
+          console.log(chalk.green(`✓ Created ${commandFiles.length} command files in .claude/commands/`));
+          commandFiles.forEach(cmd => console.log(chalk.gray(`    • ${cmd}`)));
+        } else {
+          console.log(chalk.red(`✗ No command files created in .claude/commands/`));
+        }
+      } else {
+        console.log(chalk.red(`✗ Commands directory not found`));
+      }
+      
       // Summary
       if (expectedCount > 0) {
         if (successCount === 0) {
@@ -502,6 +584,15 @@ async function execute(options) {
       } else {
         console.log(chalk.yellow(`⚠️  No template agents were copied\n`));
       }
+    }
+    
+    // Copy template commands as well
+    console.log(chalk.blue('📂 Copying template commands from Examples...'));
+    const copiedCommands = copyTemplateCommands();
+    if (copiedCommands > 0) {
+      console.log(chalk.green(`✓ Successfully copied ${copiedCommands} command templates\n`));
+    } else {
+      console.log(chalk.yellow(`⚠️  No command templates were copied\n`));
     }
     const queuedItemsData = {
       hasQueuedItems,
