@@ -277,25 +277,39 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
       }
       enhancedPrompt += `☐ Update CLAUDE.md with orchestration rules and agent list\n`;
       enhancedPrompt += `\n**IMPORTANT**: This is not a suggestion. You MUST create ALL files listed above.\n`;
+      enhancedPrompt += `\n**WHEN COMPLETE**: After creating all files, please exit so the initialization can continue.\n`;
     }
+    
+    // Add exit instruction even without queued items
+    enhancedPrompt += `\n\n---\n**IMPORTANT**: When you have completed all tasks, please exit/stop so the script can continue with verification.\n`;
     
     fs.writeFileSync(tempFile, enhancedPrompt);
     
-    // Execute with Claude without --print flag to actually perform the tasks
-    // Use stdio: 'inherit' to show Claude's output in real-time
-    console.log(chalk.gray('Claude is now creating the files and configurations...\n'));
+    // Execute with Claude - requires user interaction
+    console.log(chalk.gray('Claude is now creating the files and configurations...'));
+    console.log(chalk.yellow('\n📝 Instructions:'));
+    console.log(chalk.yellow('1. When Claude asks for permission, approve the file operations'));
+    console.log(chalk.yellow('2. After Claude completes all tasks, type "exit" and press Enter'));
+    console.log(chalk.cyan('\nThis will allow the script to continue with verification.\n'));
+    console.log(chalk.gray('─'.repeat(80)));
     
     try {
+      // Use execSync with stdio: 'inherit' to allow full interaction with Claude
       execSync(`claude < ${tempFile}`, { 
         stdio: 'inherit',
         encoding: 'utf8' 
       });
       console.log(chalk.gray('\n' + '─'.repeat(80)));
-      console.log(chalk.green('✓ Claude execution completed successfully'));
+      console.log(chalk.green('✓ Claude execution completed'));
     } catch (execError) {
-      // Claude might exit with non-zero code even on success, so check if files were created
-      console.log(chalk.gray('\n' + '─'.repeat(80)));
-      console.log(chalk.yellow('Claude execution completed. Verifying results...'));
+      // Claude exits with code 130 when user types exit or Ctrl+D, which is normal
+      if (execError.status === 130) {
+        console.log(chalk.gray('\n' + '─'.repeat(80)));
+        console.log(chalk.green('✓ Claude execution completed'));
+      } else {
+        console.log(chalk.gray('\n' + '─'.repeat(80)));
+        console.log(chalk.yellow('Claude execution ended. Verifying results...'));
+      }
     }
     
     // Clean up temp file
