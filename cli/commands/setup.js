@@ -96,8 +96,17 @@ async function execute() {
     }
   }
   
-  // Ask about creating Codex/ChatGPT roles
+  // Ask about creating Codex/ChatGPT integration
   console.log(chalk.yellow('\n🤖 ChatGPT/Codex Integration:'));
+  
+  // Check for existing AGENTS.md
+  let createAgentsMd = true;
+  if (fs.existsSync('AGENTS.md')) {
+    console.log(chalk.yellow('⚠️  Existing AGENTS.md found'));
+    createAgentsMd = (await question(chalk.cyan('Overwrite existing AGENTS.md? (y/n): '))).toLowerCase() === 'y';
+  } else {
+    createAgentsMd = (await question(chalk.cyan('Create AGENTS.md for Codex/ChatGPT? (y/n): '))).toLowerCase() === 'y';
+  }
   
   // Check if .chatgpt directory already exists
   let preserveExisting = false;
@@ -186,7 +195,7 @@ async function execute() {
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, createAgentsMd);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -758,7 +767,137 @@ function createCustomAgent(agentName, projectAnalysis) {
   return outputPath;
 }
 
-function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = []) {
+function createAGENTSmd(projectType, projectAnalysis, agents, mcpServers) {
+  const agentsPath = 'AGENTS.md';
+  
+  // Build AGENTS.md content
+  let content = `# AGENTS.md - Repository Guidelines\n\n`;
+  content += `## Project Overview\n\n`;
+  content += `${projectType || 'Unknown project type'}\n\n`;
+  
+  // Add key technologies and frameworks
+  if (projectAnalysis) {
+    if (projectAnalysis.technologies.length > 0) {
+      content += `**Key Technologies**: ${projectAnalysis.technologies.join(', ')}\n`;
+    }
+    if (projectAnalysis.frameworks.length > 0) {
+      content += `**Frameworks**: ${projectAnalysis.frameworks.join(', ')}\n`;
+    }
+    if (projectAnalysis.features.length > 0) {
+      content += `**Features**: ${projectAnalysis.features.slice(0, 5).join(', ')}\n`;
+    }
+    if (projectAnalysis.monorepo) {
+      content += `**Architecture**: Monorepo with ${projectAnalysis.packageCount} packages\n`;
+    }
+    content += `\n`;
+  }
+  
+  // Directory structure
+  content += `## Directory Structure\n\n`;
+  content += `\`\`\`\n`;
+  content += `.claude/              # Claude-specific configuration\n`;
+  content += `├── agents/          # Project agents\n`;
+  content += `├── tasks/           # Session contexts\n`;
+  content += `└── doc/             # Agent plans\n`;
+  content += `.chatgpt/            # OpenAI-specific configuration\n`;
+  content += `├── roles/           # Agent role instructions\n`;
+  content += `└── bundles/         # Optimized file bundles\n`;
+  content += `.ai/\n`;
+  content += `└── memory/          # Unified persistent knowledge base\n`;
+  content += `    ├── project.md   # Project-wide context\n`;
+  content += `    ├── patterns/    # Successful implementation patterns\n`;
+  content += `    └── decisions/   # Architectural Decision Records\n`;
+  content += `\`\`\`\n\n`;
+  
+  // Memory System Navigation
+  content += `## Memory System Navigation\n\n`;
+  content += `**IMPORTANT**: Always check the memory system before implementing new features:\n\n`;
+  content += `1. **Project Context**: Review \`.ai/memory/project.md\` for conventions\n`;
+  content += `2. **Patterns**: Check \`.ai/memory/patterns/\` for existing solutions\n`;
+  content += `3. **Decisions**: Reference \`.ai/memory/decisions/\` for architectural choices\n`;
+  content += `4. **Session Context**: Check \`.claude/tasks/context_session_*.md\` for current work\n\n`;
+  
+  // Role Guidelines based on agents
+  content += `## Role Guidelines\n\n`;
+  
+  if (agents && agents.length > 0) {
+    agents.forEach(agent => {
+      const roleName = agent.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const triggers = agent.split('-').join(', ');
+      
+      content += `### ${roleName}\n`;
+      content += `**Triggers**: ${triggers}\n\n`;
+      content += `**Approach**:\n`;
+      content += `1. Check memory system for patterns\n`;
+      content += `2. Review existing implementations\n`;
+      content += `3. Plan implementation approach\n`;
+      content += `4. Validate with tests\n`;
+      content += `5. Document successful patterns\n\n`;
+    });
+  }
+  
+  // Workflow Patterns
+  content += `## Workflow Patterns\n\n`;
+  content += `### Research-Plan-Execute\n`;
+  content += `1. **Research**: Analyze codebase, check memory, review patterns\n`;
+  content += `2. **Plan**: Create detailed implementation plan\n`;
+  content += `3. **Execute**: Implement with validation\n`;
+  content += `4. **Document**: Update memory with successful patterns\n\n`;
+  
+  // Testing Procedures
+  content += `## Testing Procedures\n\n`;
+  content += `Always run before commits:\n`;
+  content += `\`\`\`bash\n`;
+  content += `npm test        # Run all tests\n`;
+  content += `npm run lint    # Check code style\n`;
+  content += `npm run typecheck # Type validation\n`;
+  content += `\`\`\`\n\n`;
+  
+  // MCP Server Integration
+  if (mcpServers && mcpServers.length > 0) {
+    content += `## Available Resources\n\n`;
+    content += `The following resources are available:\n`;
+    mcpServers.forEach(server => {
+      content += `- **${server}**: `;;
+      if (server === 'Context7') content += 'Latest documentation lookup\n';
+      else if (server === 'Sequential') content += 'Complex reasoning and analysis\n';
+      else if (server === 'Magic') content += 'UI component generation\n';
+      else if (server === 'Playwright') content += 'Browser automation and testing\n';
+      else if (server === 'AWS') content += 'AWS service integration\n';
+      else if (server === 'WebSearch') content += 'Web search capabilities\n';
+      else content += 'Specialized capabilities\n';
+    });
+    content += `\n`;
+  }
+  
+  // Cross-Platform Considerations
+  content += `## Cross-Platform Considerations\n\n`;
+  content += `- Ensure compatibility between Claude and ChatGPT\n`;
+  content += `- Keep memory system platform-agnostic\n`;
+  content += `- Document patterns that work across platforms\n`;
+  content += `- Use \`.chatgpt/roles/\` for ChatGPT-specific instructions\n\n`;
+  
+  // Anti-Patterns
+  content += `## Anti-Patterns to Avoid\n\n`;
+  content += `- ❌ Implementing without checking memory first\n`;
+  content += `- ❌ Creating platform-specific silos\n`;
+  content += `- ❌ Skipping test validation\n`;
+  content += `- ❌ Forgetting to document patterns\n`;
+  content += `- ❌ Ignoring session context\n\n`;
+  
+  // Tips for Success
+  content += `## Tips for Success\n\n`;
+  content += `- ✅ Memory first: Always check existing patterns\n`;
+  content += `- ✅ Test everything: Validate before committing\n`;
+  content += `- ✅ Document wins: Save successful patterns\n`;
+  content += `- ✅ Stay synchronized: Keep configs in sync\n`;
+  content += `- ✅ Think cross-platform: Solutions should work everywhere\n`;
+  
+  fs.writeFileSync(agentsPath, content);
+  return agentsPath;
+}
+
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], createAgentsMd = false) {
   const configPath = path.join('.claude', 'config.json');
   
   if (!fs.existsSync(path.dirname(configPath))) {
@@ -786,6 +925,14 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   
   console.log(chalk.green('✓ Configuration saved to .claude/config.json'));
+  
+  // Create AGENTS.md if requested
+  if (createAgentsMd) {
+    console.log(chalk.yellow('\n📄 Creating AGENTS.md for Codex/ChatGPT...'));
+    const agentsPath = createAGENTSmd(projectType, projectAnalysis, agents, mcpServers);
+    console.log(chalk.green(`✓ Created AGENTS.md: ${agentsPath}`));
+    console.log(chalk.gray('  This file instructs ChatGPT/Codex to use the memory system'));
+  }
   
   // Create custom agents if requested
   if (customAgentsToCreate && customAgentsToCreate.length > 0) {
