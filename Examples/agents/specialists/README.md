@@ -42,6 +42,7 @@ Main System Executes Plan
 - **backend-api-frontend-integrator**: API integration patterns
 - **infrastructure-migration-architect**: Infrastructure transformation plans
 - **sql-specialist**: Relational design, migrations, and query optimization (Postgres, MySQL)
+- **terraform-specialist**: Terraform plan/apply workflows and state management
 
 ### AI & ML
 - **ai-agent-architect**: LangChain, MCP servers, agent systems

@@ -143,7 +143,7 @@ async function execute() {
   let mcpServers = [];
   if (hasMcp.toLowerCase() === 'y') {
     console.log('Select MCP servers to use:');
-    const servers = ['Context7', 'Sequential', 'Magic', 'Playwright', 'AWS', 'WebSearch'];
+    const servers = ['Context7', 'Sequential', 'Magic', 'Playwright', 'AWS', 'WebSearch', 'Catalog'];
     
     for (const server of servers) {
       const use = await question(chalk.cyan(`Use ${server}? (y/n): `));
