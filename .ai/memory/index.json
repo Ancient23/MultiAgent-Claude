@@ -5,16 +5,16 @@
   "statistics": {
     "patterns": 3,
     "decisions": 4,
-    "documentation_files": 0,
-    "knowledge_files": 1
+    "documentation_files": 1,
+    "knowledge_files": 1,
+    "implementation_plans": 1
   },
   "quick_lookup": {
     "patterns": {
       "yaml-headers": "patterns/agent-templates/yaml-headers.md",
       "workflow-patterns": "patterns/agent-templates/workflow-patterns.md",
-      "phase-structure": "patterns/command-patterns/phase-structure.md", 
+      "phase-structure": "patterns/command-patterns/phase-structure.md",
       "orchestration-patterns": "patterns/orchestration-patterns/v2-features.md"
-
     },
     "decisions": {
       "research-plan-execute": "decisions/ADR-001-research-plan-execute-pattern.md",
@@ -24,15 +24,37 @@
     },
     "knowledge": {
       "project-context": "project.md"
+    },
+    "implementation_plans": {
+      "cli-ui-plan": "implementation-plans/cli-ui-plan.md"
     }
   },
   "tags": {
-    "agent-design": ["yaml-headers", "workflow-patterns", "agent-specialization"],
-    "command-workflow": ["phase-structure", "research-plan-execute"],
-    "framework-architecture": ["memory-architecture", "file-conventions"],
-    "quality-assurance": ["validate-templates", "test-cli"],
-    "development-tools": ["generate-agent", "agent-factory"],
-    "documentation": ["sync-docs", "documentation-sync-guardian"]
+    "agent-design": [
+      "yaml-headers",
+      "workflow-patterns",
+      "agent-specialization"
+    ],
+    "command-workflow": [
+      "phase-structure",
+      "research-plan-execute"
+    ],
+    "framework-architecture": [
+      "memory-architecture",
+      "file-conventions"
+    ],
+    "quality-assurance": [
+      "validate-templates",
+      "test-cli"
+    ],
+    "development-tools": [
+      "generate-agent",
+      "agent-factory"
+    ],
+    "documentation": [
+      "sync-docs",
+      "documentation-sync-guardian"
+    ]
   },
   "health_metrics": {
     "pattern_coverage": "85%",
