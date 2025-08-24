@@ -220,4 +220,39 @@ program
     }
   });
 
+program
+  .command('lop')
+  .description('Manage Lower Order Prompts (LOPs)')
+  .argument('<action>', 'Action to perform: validate, create, list, execute')
+  .argument('[file]', 'LOP file path (for validate/execute)')
+  .action(async (action, file) => {
+    const lopCommand = require('./commands/lop');
+    
+    switch (action) {
+      case 'validate':
+        if (!file) {
+          console.error('Error: File path required for validation');
+          process.exit(1);
+        }
+        await lopCommand.validate(file);
+        break;
+      case 'create':
+        await lopCommand.create();
+        break;
+      case 'list':
+        await lopCommand.list();
+        break;
+      case 'execute':
+        if (!file) {
+          console.error('Error: File path required for execution');
+          process.exit(1);
+        }
+        await lopCommand.execute(file);
+        break;
+      default:
+        console.error(`Unknown action: ${action}`);
+        console.log('Available actions: validate, create, list, execute');
+    }
+  });
+
 program.parse();

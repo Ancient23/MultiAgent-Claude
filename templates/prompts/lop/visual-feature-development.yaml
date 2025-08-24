@@ -1,0 +1,224 @@
+metadata:
+  name: Visual Feature Development
+  description: Develop pixel-perfect visual features using Playwright MCP for real-time browser iteration and design mock matching
+  type: feature
+  priority: HIGH
+  version: 1.0.0
+  tags:
+    - visual-development
+    - playwright-mcp
+    - ui-iteration
+    - design-matching
+    - responsive-design
+
+variables:
+  plan_location: .ai/memory/implementation-plans/visual-feature-plan.md
+  session_type: visual_development
+
+agents:
+  - name: meta-development-orchestrator
+    role: Overall coordination of visual development workflow
+    deploy_for: Managing phases, ensuring MCP integration, and coordinating agent deployment
+  
+  - name: playwright-visual-developer
+    role: Visual iteration specialist using Playwright MCP tools
+    deploy_for: Real-time browser control, screenshot capture, and iterative refinement to match mocks
+  
+  - name: frontend-ui-expert
+    role: UI/UX implementation and best practices
+    deploy_for: Component structure, styling, accessibility, and responsive design
+  
+  - name: react-ui-architect
+    role: React component architecture and state management
+    deploy_for: Component design patterns, hooks, performance optimization
+  
+  - name: visual-regression-specialist
+    role: Visual testing strategies and baseline management
+    deploy_for: Setting up visual regression tests, managing baselines, diff analysis
+  
+  - name: cli-web-bridge-architect
+    role: CLI to browser communication design
+    deploy_for: Integrating CLI commands with browser automation
+
+mcp_servers:
+  - playwright   # For browser control and screenshot capture
+  - magic       # For UI component generation
+  - filesystem  # For managing mock files and iterations
+
+phases:
+  - name: Visual Infrastructure Setup
+    description: Setup complete visual development environment with MCP integration
+    tasks:
+      - Create visual directory structure (.claude/mocks, .claude/visual-iterations, etc.)
+      - Setup Playwright MCP server configuration
+      - Create visual-config.json with thresholds and viewports
+      - Setup mock comparison utilities
+      - Configure iteration tracking system
+      - Create session management structure
+      - Setup baseline directory for visual regression
+    agents:
+      - playwright-visual-developer
+      - cli-web-bridge-architect
+    agent_tasks:
+      playwright-visual-developer: design iteration workflow and directory structure
+      cli-web-bridge-architect: setup CLI-browser communication patterns
+
+  - name: MCP Tool Integration
+    description: Integrate Playwright MCP tools for browser control
+    tasks:
+      - Configure playwright_navigate for page loading
+      - Setup playwright_screenshot for capture workflows
+      - Configure playwright_set_viewport for responsive testing
+      - Setup playwright_evaluate for CSS injection
+      - Configure playwright_click for interaction testing
+      - Setup playwright_fill_form for form testing
+      - Create tool wrapper utilities for common operations
+    agents:
+      - playwright-visual-developer
+    agent_tasks:
+      playwright-visual-developer: create MCP tool usage patterns and examples
+
+  - name: Visual Comparison Tools
+    description: Implement image comparison and diff generation utilities
+    tasks:
+      - Implement cli/utils/visual-compare.js with VisualComparer class
+      - Setup pixelmatch for image comparison
+      - Implement sharp for image processing
+      - Create diff image generation
+      - Setup threshold configuration (default 5%)
+      - Implement session report generation
+      - Create iteration history tracking
+    agents:
+      - visual-regression-specialist
+    agent_tasks:
+      visual-regression-specialist: design comparison algorithms and reporting
+
+  - name: Component Development Workflow
+    description: Create iterative component development process
+    tasks:
+      - Create /visual-iterate command template
+      - Setup mock loading workflow
+      - Implement iteration loop (navigate → capture → compare → update)
+      - Configure CSS injection for live updates
+      - Setup responsive viewport testing
+      - Create iteration documentation system
+      - Implement < 5% difference achievement workflow
+    agents:
+      - frontend-ui-expert
+      - react-ui-architect
+    agent_tasks:
+      frontend-ui-expert: design component iteration patterns
+      react-ui-architect: ensure React best practices in components
+
+  - name: CLI Command Integration
+    description: Add visual development commands to CLI
+    tasks:
+      - Add visual-setup command for interactive setup
+      - Add visual-compare command for manual comparison
+      - Add visual-report command for session reports
+      - Update mac mcp playwright to include visual features
+      - Add visual development option to setup command
+      - Update init command to copy visual templates
+      - Create command help documentation
+    agents:
+      - cli-web-bridge-architect
+    agent_tasks:
+      cli-web-bridge-architect: integrate visual commands with existing CLI
+
+  - name: Template and Documentation
+    description: Create templates and comprehensive documentation
+    tasks:
+      - Create templates/CLAUDE.visual.md with MCP tool documentation
+      - Create mock directory README with guidelines
+      - Document iteration best practices
+      - Create viewport testing guide
+      - Document CSS adjustment patterns
+      - Create troubleshooting guide
+      - Setup example mock files
+    agents:
+      - documentation-sync-guardian
+    agent_tasks:
+      documentation-sync-guardian: ensure documentation is complete and accurate
+
+  - name: Testing and Validation
+    description: Test complete visual development workflow
+    tasks:
+      - Test mac visual-setup command
+      - Create test mock in .claude/mocks/
+      - Test /visual-iterate command with real component
+      - Verify < 5% difference achievable in 2-3 iterations
+      - Test all viewports (mobile, tablet, desktop)
+      - Verify MCP tools work correctly
+      - Test session history tracking
+      - Validate diff generation
+    agents:
+      - implementation-verifier
+      - playwright-visual-developer
+    agent_tasks:
+      implementation-verifier: validate end-to-end workflow
+      playwright-visual-developer: test iteration patterns with real components
+
+verification:
+  criteria:
+    - Playwright MCP server installs and runs correctly
+    - Visual directories created automatically
+    - Mock comparison achieves < 5% difference
+    - Iteration history properly tracked
+    - All viewports tested successfully
+    - MCP tools (navigate, screenshot, etc.) work
+    - Visual reports generated accurately
+    - Session management works correctly
+    - CSS injection updates live
+    - Diff images generated for comparisons
+    - Templates available for new projects
+    - Documentation complete
+
+  pre_conditions:
+    - Playwright MCP server available
+    - Node.js 18+ installed
+    - Local development server running
+    - Design mocks available
+
+  post_conditions:
+    - Visual development environment ready
+    - Can iterate components to match mocks
+    - Session history preserved
+    - Templates ready for distribution
+
+memory_patterns:
+  - Document visual iteration strategies in .ai/memory/patterns/visual-development/
+  - Record successful CSS adjustment patterns
+  - Save optimal iteration counts for different component types
+  - Document viewport-specific fixes and patterns
+  - Create ADR for choosing pixelmatch over alternatives
+  - Record MCP tool usage patterns
+  - Document mock preparation best practices
+  - Save threshold configurations that work well
+
+testing:
+  required_tests:
+    - Visual comparison accuracy tests
+    - MCP tool integration tests
+    - Iteration workflow tests
+    - Session management tests
+  
+  test_commands:
+    - npm run visual:test
+    - npm run visual:compare
+    - npm run visual:report
+  
+  success_criteria:
+    - < 5% difference achievable
+    - All MCP tools functional
+    - Reports generated correctly
+    - Session history accurate
+
+anti_patterns:
+  - Hardcoding viewport sizes instead of using config
+  - Not preserving iteration history
+  - Using fixed pixel comparisons instead of percentage thresholds
+  - Ignoring responsive design in iterations
+  - Not testing with real browser via MCP
+  - Committing iteration screenshots to repository
+  - Using absolute paths for mock files
+  - Not handling MCP server connection errors
