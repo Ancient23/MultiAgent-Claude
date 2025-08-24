@@ -55,6 +55,13 @@ module.exports = defineConfig({
         ...devices['Desktop Chrome'],
       },
     },
+    {
+      name: 'visual-tests',
+      testMatch: /.*\.visual\.spec\.js/,
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
