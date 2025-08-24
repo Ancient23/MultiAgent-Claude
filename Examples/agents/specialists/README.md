@@ -41,10 +41,14 @@ Main System Executes Plan
 - **aws-deployment-specialist**: IaC, deployment strategies, CI/CD
 - **backend-api-frontend-integrator**: API integration patterns
 - **infrastructure-migration-architect**: Infrastructure transformation plans
+- **sql-specialist**: Relational design, migrations, and query optimization (Postgres, MySQL)
+- **terraform-specialist**: Terraform plan/apply workflows and state management
 
 ### AI & ML
 - **ai-agent-architect**: LangChain, MCP servers, agent systems
 - **multimodal-ai-specialist**: Vision-language models, RAG systems
+- **rag-vectordb-specialist**: Embedding strategies and vector-store integration (Weaviate, Pinecone, Qdrant; graph-based RAG handled by graph-rag-specialist)
+- **graph-rag-specialist**: Graph-based RAG with knowledge graphs (Neo4j, Memgraph)
 
 ### Specialized
 - **vercel-deployment-troubleshooter**: Vercel deployment diagnostics

@@ -6,6 +6,13 @@
         "@playwright/mcp@latest"
       ],
       "env": {}
+    },
+    "catalog": {
+      "command": "npx",
+      "args": [
+        "mcp-catalog"
+      ],
+      "env": {}
     }
   }
 }
