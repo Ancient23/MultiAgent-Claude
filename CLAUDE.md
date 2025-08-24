@@ -37,8 +37,12 @@ MultiAgent-Claude/
 │   │   ├── claude-memory-update.yml
 │   │   ├── playwright-cli-tests.yml
 │   │   └── playwright-web-tests.yml
-│   └── tests/           # Test templates
-│       └── cli.cli.spec.js
+│   ├── tests/           # Test templates
+│   │   └── cli.cli.spec.js
+│   ├── prompts/         # HOP/LOP templates
+│   │   ├── hop/         # Higher Order Prompts
+│   │   └── lop/         # Lower Order Prompts
+│   └── commands/        # Command templates
 ├── tests/               # Project tests
 │   └── cli.cli.spec.js  # CLI tests (19 passing)
 ├── claude-code-init-prompts.md       # Master initialization prompt
@@ -65,11 +69,20 @@ MultiAgent-Claude/
 │   ├── cli-test-engineer.md
 │   ├── documentation-sync-guardian.md
 │   └── agent-factory.md
-└── commands/                      # Project-specific commands
-    ├── validate-templates.md
-    ├── generate-agent.md
-    ├── test-cli.md
-    └── sync-docs.md
+├── commands/                      # Project-specific commands
+│   ├── implement.md               # Direct implementation execution
+│   ├── validate-templates.md
+│   ├── generate-agent.md
+│   ├── test-cli.md
+│   └── sync-docs.md
+└── prompts/                       # HOP/LOP system
+    ├── hop/                       # Higher Order Prompt templates
+    │   └── implementation-master.md
+    ├── lop/                       # Lower Order Prompt configs
+    │   ├── ci-visual-testing.yaml
+    │   ├── visual-feature-development.yaml
+    │   └── schema/lop-base-schema.json
+    └── generated/                 # Generated prompts output
 
 .ai/
 └── memory/                        # Unified persistent knowledge base (all platforms)
@@ -284,17 +297,46 @@ Located in `.claude/agents/` - these are project-specific agents for framework d
 - `documentation-bridge-specialist.md` - Multi-platform documentation and training materials
 - `codex-configuration-expert.md` - OpenAI Codex setup and AGENTS.md optimization
 
+## HOP/LOP Template System
+
+### Overview
+The HOP/LOP (Higher Order Prompt / Lower Order Prompt) system eliminates implementation prompt redundancy:
+- **HOPs**: Master templates at `.claude/prompts/hop/implementation-master.md`
+- **LOPs**: YAML configurations at `.claude/prompts/lop/*.yaml`
+- **Validation**: JSON Schema at `.claude/prompts/lop/schema/lop-base-schema.json`
+- **Reduction**: 78% → <5% redundancy in prompts
+
+### /implement Command
+Execute implementations directly in current context:
+```
+/implement ci-testing              # Execute CI testing immediately
+/implement visual-dev              # Execute visual development
+/implement plan my-plan.md         # Execute from markdown plan
+/implement plan refactor.md --with-ci-tests  # Add tests to any plan
+/implement --help                  # Show usage examples
+```
+
+### CLI Commands for LOPs
+```bash
+mac lop list                       # List available LOPs
+mac lop validate <file>            # Validate against schema
+mac lop create                     # Interactive creation
+mac lop execute <file>             # Generate prompt
+```
+
 ## Command Templates
 
 - `TEMPLATE-COMMAND.md` - Base template for research-plan-execute pattern
 - `implement-feature.md` - Feature implementation workflow
 - `WAVE_EXECUTE.md` - Wave execution pattern
+- `/implement` - Direct execution of implementation plans (NEW)
 
 ### Project-Specific Commands (Meta-Implementation)
 - `/validate-templates` - Validate all templates for consistency
 - `/generate-agent` - Interactive agent creation with best practices
 - `/test-cli` - Comprehensive CLI testing
 - `/sync-docs` - Synchronize all documentation
+- `/implement` - Execute LOPs or plans directly in context
 
 ## Key Conventions
 

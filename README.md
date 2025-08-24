@@ -146,6 +146,44 @@ This tiered approach ensures:
 - Gradual knowledge accumulation
 - Reduced repetition of solved problems
 
+## HOP/LOP Template System
+
+### Eliminating Redundancy with Reusable Templates
+
+The HOP/LOP (Higher Order Prompt / Lower Order Prompt) system reduces implementation prompt redundancy from 78% to less than 5% through:
+
+- **Higher Order Prompts (HOPs)**: Master templates with variable placeholders
+- **Lower Order Prompts (LOPs)**: YAML configurations for specific scenarios
+- **Variable Interpolation**: Dynamic content injection
+- **Schema Validation**: Ensures LOPs are correctly structured
+
+### Using the /implement Command in Claude
+
+The `/implement` command allows direct execution of implementation plans:
+
+```
+# Execute immediately in current context
+/implement ci-testing              # Setup CI testing
+/implement visual-dev              # Setup visual development
+/implement plan my-plan.md         # Execute from markdown plan
+
+# Add tests to any implementation
+/implement plan refactor.md --with-ci-tests
+/implement plan feature.md --with-visual-tests
+
+# Generate prompt without executing
+/implement ci-testing --output-only
+
+# Show help
+/implement --help
+```
+
+### Available LOPs
+
+- **ci-visual-testing.yaml**: CI-compatible Playwright testing
+- **visual-feature-development.yaml**: Local visual development with MCP
+- Custom LOPs can be created with `mac lop create`
+
 ## YAML-Based Prompt Architecture
 
 ### Component System
@@ -321,6 +359,21 @@ multiagent-claude agent deploy <name>
 
 # Add template agent to project
 multiagent-claude agent add <name>
+```
+
+#### HOP/LOP Prompt System
+```bash
+# List available LOPs (Lower Order Prompts)
+multiagent-claude lop list
+
+# Validate a LOP against schema
+multiagent-claude lop validate <file>
+
+# Create new LOP interactively
+multiagent-claude lop create
+
+# Execute LOP to generate implementation prompt
+multiagent-claude lop execute <file>
 ```
 
 #### Memory System
