@@ -1,7 +1,7 @@
 # MultiAgent-Claude Project Memory
 
-**Last Updated**: 2025-01-22  
-**Version**: 2.0.0  
+**Last Updated**: 2025-08-24  
+**Version**: 2.1.0  
 **Status**: Active Development
 
 ## Project Overview
@@ -42,6 +42,13 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 3. Main system executes plans
 4. Document successful patterns
 
+#### HOP/LOP Template Pattern
+1. Use Higher Order Prompts for reusable templates
+2. Configure Lower Order Prompts in YAML
+3. Validate LOPs against JSON Schema
+4. Execute with `/implement` command
+5. 78% → <5% redundancy achieved
+
 #### Cross-Platform Workflow
 1. Maintain dual configs (CLAUDE.md/AGENTS.md)
 2. Convert agents to roles for ChatGPT
@@ -73,6 +80,8 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 - inquirer: Interactive prompts
 - archiver: Bundle creation
 - js-yaml: YAML parsing
+- ajv: JSON Schema validation
+- glob: File pattern matching
 
 ## Architectural Decisions
 
@@ -84,6 +93,9 @@ COMPACT algorithm for 1500-char ChatGPT limits
 
 ### ADR-003: Bidirectional Sync Protocol
 Multi-level sync with conflict resolution
+
+### ADR-007: HOP/LOP Template System
+Variable interpolation templates reduce redundancy 78% → <5%
 
 ## Established Patterns
 
@@ -104,6 +116,13 @@ Multi-level sync with conflict resolution
 - Shared ADR structure
 - Cross-platform sync
 - Conflict resolution
+
+### HOP/LOP Implementation Pattern
+- Master templates with variables
+- YAML configuration files
+- Schema validation
+- Direct execution via /implement
+- Help mode with -h flag
 
 ## Quality Metrics
 
