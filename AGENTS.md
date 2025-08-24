@@ -36,6 +36,42 @@ MultiAgent-Claude/
         └── index.json                 # Quick lookup index
 ```
 
+## Agent & Command Templates
+
+- `Examples/commands/README.md` lists reusable CLI command templates and selection guidelines (e.g., `/wave-execute`, `/generate-tests`, `/implement-feature`).
+- `Examples/agents/README.md` catalogs available orchestrator and specialist agents with their trigger keywords.
+
+### Command Templates
+- `/wave-execute` - Runs the full 7-wave orchestration cycle with context propagation
+- `/generate-tests` - Generates comprehensive Playwright test plans
+- `/implement-feature` - Coordinates full-stack feature delivery via planning then execution
+- `TEMPLATE-COMMAND` - Starter template for creating new commands
+
+### Orchestrator Agents
+- code-review-orchestrator
+- fullstack-feature-orchestrator
+- infrastructure-migration-architect
+- issue-triage-orchestrator
+- master-orchestrator
+- parallel-controller
+- wave-execution-orchestrator
+
+### Specialist Agents
+- ai-agent-architect
+- aws-backend-architect
+- aws-deployment-specialist
+- backend-api-frontend-integrator
+- codebase-truth-analyzer
+- cpp-plugin-api-expert
+- documentation-architect
+- frontend-ui-expert
+- implementation-verifier
+- multimodal-ai-specialist
+- playwright-test-engineer
+- playwright-visual-developer
+- ui-design-auditor
+- vercel-deployment-troubleshooter
+
 ## Role Guidelines
 
 ### When Working on CLI Development
