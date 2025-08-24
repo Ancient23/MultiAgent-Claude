@@ -13,9 +13,6 @@
     "agents:parallel": "multiagent-claude parallel",
     "orchestrate": "multiagent-claude orchestrate",
     "verify": "multiagent-claude verify",
-    "visual:test": "playwright test tests/visual/",
-    "visual:update": "playwright test tests/visual/ --update-snapshots",
-    "visual:ui": "playwright test --ui",
     "init": "node cli/index.js init",
     "init:memory": "node cli/index.js init --memory-only",
     "init:docs": "node cli/index.js init --with-docs",
@@ -26,12 +23,14 @@
     "command:create": "node cli/index.js command create",
     "command:list": "node cli/index.js command list",
     "test": "playwright test",
+    "test:cli": "playwright test tests/cli-playwright.spec.js",
+    "test:visual": "playwright test tests/visual-regression.spec.js",
+    "test:update-snapshots": "UPDATE_SNAPSHOTS=true playwright test tests/visual-regression.spec.js",
+    "test:ci": "playwright test --reporter=blob",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "test:report": "playwright show-report",
-    "test:cli": "playwright test --project=cli-tests",
-    "test:ci": "playwright test --reporter=github"
+    "test:report": "playwright show-report"
   },
   "keywords": [
     "claude",

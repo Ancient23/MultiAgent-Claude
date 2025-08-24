@@ -505,6 +505,59 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
 async function execute(options) {
   const workflow = await getWorkflow(options);
   
+  // Create all required directories at the very start
+  const dirsToCreate = [
+    '.claude',
+    '.claude/agents',
+    '.claude/commands',
+    '.claude/tasks',
+    '.claude/doc',
+    '.ai/memory',
+    '.ai/memory/patterns',
+    '.ai/memory/patterns/testing',
+    '.ai/memory/decisions',
+    '.ai/memory/implementation-plans',
+    '.ai/memory/sessions',
+    '.ai/memory/sessions/archive'
+  ];
+  
+  // Create directories immediately
+  dirsToCreate.forEach(dir => {
+    const fullPath = path.join(process.cwd(), dir);
+    if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(fullPath, { recursive: true });
+    }
+  });
+  
+  // Skip interactive prompts if --minimal flag is set for CI
+  if (options.minimal) {
+    console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment (CI Mode)`));
+    console.log(chalk.gray(`Using minimal setup for CI/CD environments\n`));
+    
+    // Create minimal config
+    const configPath = path.join(process.cwd(), '.claude', 'config.json');
+    const minimalConfig = {
+      variant: 'base',
+      initialized: true,
+      ciMode: true,
+      timestamp: new Date().toISOString()
+    };
+    fs.writeFileSync(configPath, JSON.stringify(minimalConfig, null, 2));
+    
+    // Create basic CLAUDE.md
+    const claudeMd = `# CLAUDE.md\n\nMinimal configuration for CI/CD testing.\n\nGenerated: ${new Date().toISOString()}\n`;
+    fs.writeFileSync(path.join(process.cwd(), 'CLAUDE.md'), claudeMd);
+    
+    // Create basic memory files
+    const projectMd = `# Project Memory\n\nCI Mode - Minimal Setup\n\nGenerated: ${new Date().toISOString()}\n`;
+    fs.writeFileSync(path.join(process.cwd(), '.ai/memory/project.md'), projectMd);
+    
+    console.log(chalk.green('✅ Minimal CI environment initialized successfully!'));
+    console.log(chalk.gray('All directories created:'));
+    dirsToCreate.forEach(dir => console.log(chalk.gray(`  ✓ ${dir}`)));
+    return;
+  }
+  
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
   console.log(chalk.gray(`Using workflow: ${workflow}\n`));
   
@@ -653,39 +706,41 @@ async function execute(options) {
         }
       }
 
-      // CI/CD and Testing Options
-      console.log(chalk.cyan('\n\nCI/CD and Testing Configuration:'));
-      const cicdOptions = {
-        memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
-        playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
-        includeCliTests: false,
-        includeWebTests: false
-      };
+      // CI/CD and Testing Options - Skip if minimal
+      if (!options.minimal) {
+        console.log(chalk.cyan('\n\nCI/CD and Testing Configuration:'));
+        const cicdOptions = {
+          memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
+          playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
+          includeCliTests: false,
+          includeWebTests: false
+        };
 
-      // If Playwright enabled, ask about test types
-      if (cicdOptions.playwrightTests) {
-        cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
-        cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
-      }
+        // If Playwright enabled, ask about test types
+        if (cicdOptions.playwrightTests) {
+          cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
+          cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
+        }
 
-      // Copy workflow files if enabled
-      if (cicdOptions.memoryWorkflow) {
-        console.log(chalk.blue('\nAdding CI/CD workflows...'));
-        copyWorkflowTemplate('claude-memory-update.yml');
-      }
-      if (cicdOptions.playwrightTests) {
-        if (cicdOptions.includeCliTests) {
-          console.log(chalk.blue('\nAdding Playwright CLI testing...'));
-          copyWorkflowTemplate('playwright-cli-tests.yml');
-          copyTestTemplate('cli.cli.spec.js');
+        // Copy workflow files if enabled
+        if (cicdOptions.memoryWorkflow) {
+          console.log(chalk.blue('\nAdding CI/CD workflows...'));
+          copyWorkflowTemplate('claude-memory-update.yml');
         }
-        if (cicdOptions.includeWebTests) {
-          console.log(chalk.blue('\nAdding Playwright web testing...'));
-          copyWorkflowTemplate('playwright-web-tests.yml');
-        }
-        if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
-          console.log(chalk.yellow('\nRun the following to install Playwright:'));
-          console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+        if (cicdOptions.playwrightTests) {
+          if (cicdOptions.includeCliTests) {
+            console.log(chalk.blue('\nAdding Playwright CLI testing...'));
+            copyWorkflowTemplate('playwright-cli-tests.yml');
+            copyTestTemplate('cli.cli.spec.js');
+          }
+          if (cicdOptions.includeWebTests) {
+            console.log(chalk.blue('\nAdding Playwright web testing...'));
+            copyWorkflowTemplate('playwright-web-tests.yml');
+          }
+          if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
+            console.log(chalk.yellow('\nRun the following to install Playwright:'));
+            console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+          }
         }
       }
 

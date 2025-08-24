@@ -604,18 +604,11 @@ function detectProjectType() {
 
 function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
   
-  // Create minimal directory structure only
-  const dirs = [
-    '.claude', '.claude/agents', '.claude/commands', '.claude/tasks', '.claude/doc',
-    '.ai/memory', '.ai/memory/patterns', '.ai/memory/decisions',
-    '.chatgpt', '.chatgpt/roles'
-  ];
-  
-  dirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  });
+  // Only create .claude directory - all other directories created by init.js
+  const claudeDir = '.claude';
+  if (!fs.existsSync(claudeDir)) {
+    fs.mkdirSync(claudeDir, { recursive: true });
+  }
 
   // Save complete configuration for init to process
   const config = {

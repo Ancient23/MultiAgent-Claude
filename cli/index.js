@@ -19,6 +19,7 @@ program
   .option('--memory-only', 'Initialize with memory focus (claude-code-init-memory-prompt.md)')
   .option('--with-docs', 'Initialize with documentation import (claude-code-init-with-docs-import.md)')
   .option('--prompt-only', 'Only output the prompt without executing')
+  .option('--minimal', 'Minimal setup for CI/CD environments (skip interactive prompts)')
   .action((options) => {
     const initCommand = require('./commands/init');
     initCommand.execute(options);

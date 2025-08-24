@@ -915,6 +915,80 @@ npm publish
 npm install -g multiagent-claude
 ```
 
+## Testing
+
+### Running Tests Locally
+
+The project uses Playwright for comprehensive testing including CLI commands, unit tests, and visual regression.
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suites
+npm run test:cli          # CLI command tests only
+npm run test:visual        # Visual regression tests only
+
+# Run tests in different modes
+npm run test:headed        # Run with browser visible
+npm run test:debug         # Debug mode with inspector
+npm run test:ui            # Interactive UI mode
+
+# Update visual baselines (when intentional changes are made)
+npm run test:update-snapshots
+```
+
+### CI/CD Testing
+
+Tests run automatically on GitHub Actions with:
+- **4-way parallel sharding** for optimal performance
+- **Visual regression testing** with automatic baseline updates
+- **Cross-platform testing** on Ubuntu (CI) and all platforms locally
+- **Comprehensive test reports** with artifacts on failure
+
+CI test command:
+```bash
+npm run test:ci  # Runs with blob reporter for CI
+```
+
+### Test Organization
+
+```
+tests/
+├── cli-playwright.spec.js      # CLI command tests
+├── visual-regression.spec.js   # Visual regression tests
+├── cli.cli.spec.js             # Legacy CLI tests
+└── utils/
+    ├── cli-helpers.js          # CLI testing utilities
+    └── visual-helpers.js       # Visual baseline management
+```
+
+### Writing New Tests
+
+Use the provided test utilities for consistency:
+
+```javascript
+const { CLITestHelper } = require('./utils/cli-helpers');
+
+test('my new test', async () => {
+  const helper = new CLITestHelper();
+  await helper.createTestDirectory();
+  
+  const result = await helper.runCommand('setup --variant base');
+  expect(result.success).toBe(true);
+  
+  await helper.cleanupAll();
+});
+```
+
+### Visual Regression Testing
+
+Visual tests automatically capture and compare CLI output:
+- Baselines stored in `.playwright/baseline/`
+- Automatic updates on main branch via CI
+- Local updates with `npm run test:update-snapshots`
+- Diffs shown in test reports on failure
+
 ## Contributing
 
 To create new agents:
