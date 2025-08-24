@@ -1,6 +1,5 @@
----
-command: "/generate-tests"
-description: "Generate comprehensive Playwright tests for the application"
+command: "/generate-playwright-tests"
+description: "Invoke from the main context to generate Playwright tests, delegating planning to the `playwright-test-engineer` and maintaining session context"
 ---
 
 ## Purpose
@@ -23,14 +22,15 @@ Analyzes the existing application and produces Playwright test suites that cover
 ## Execution Flow
 
 ### Phase 1: Analysis
-1. Read .claude/tasks/ for the most recent context_session_*.md file for current context
+1. Look for .claude/tasks/context_session_[session_id].md; if missing, write current context to that path and use it going forward
 2. Analyze application structure and routes
 3. Identify critical user paths
 4. Check .ai/memory/patterns/ for existing test patterns
 5. Review .ai/memory/test-results/ for historical test data
+6. Append any analysis results to the session context file to keep it current
 
-### Phase 2: Test Planning
-Invoke playwright-test-engineer agent to create test plan:
+### Phase 2: Test Planning (Delegates to Test Engineer)
+Explicitly invoke the `playwright-test-engineer` agent to create the test plan:
 ```
 invoke_agent(
   agent: "playwright-test-engineer",
@@ -39,6 +39,7 @@ invoke_agent(
   expect_output: ".claude/doc/playwright-tests-*.md"
 )
 ```
+After the specialist completes, append a summary of its output to `contextFilePath` so the session context stays current before invoking any additional subagents.
 
 ### Phase 3: Test Generation
 Based on the plan, generate:
