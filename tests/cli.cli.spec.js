@@ -274,6 +274,32 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       await fs.rm(testDir, { recursive: true, force: true });
     });
   });
+
+  test.describe('Playwright Command', () => {
+    test('should display Playwright help', async () => {
+      const result = await runCLI('playwright --help');
+      expect(result.success).toBeTruthy();
+      const output = result.stdout + result.stderr;
+      expect(output).toContain('Manage Playwright testing');
+      expect(output).toContain('init');
+      expect(output).toContain('generate-tests');
+      expect(output).toContain('add-visual-tests');
+      expect(output).toContain('setup-ci');
+    });
+
+    test('should handle unknown action', async () => {
+      const result = await runCLI('playwright unknown');
+      const output = result.stdout + result.stderr;
+      expect(output).toContain('Unknown action');
+    });
+
+    test('mobile command placeholder', async () => {
+      test.fail(true, 'Mobile commands not implemented yet');
+      const result = await runCLI('playwright mobile');
+      // Intentionally failing expectation until mobile tooling is available
+      expect(result.success).toBeTruthy();
+    });
+  });
 });
 
 test.describe('CLI Performance Tests', () => {
