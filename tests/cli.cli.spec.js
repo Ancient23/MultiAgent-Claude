@@ -13,19 +13,20 @@ test.setTimeout(10000);
 async function runCLI(command, options = {}) {
   const timeout = options.timeout || 8000; // 8 second timeout by default
   const cwd = options.cwd || process.cwd();
-  
+  const cliPath = path.join(__dirname, '..', 'cli', 'index.js');
+
   try {
-    const { stdout, stderr } = await execAsync(`node cli/index.js ${command}`, {
+    const { stdout, stderr } = await execAsync(`node ${cliPath} ${command}`, {
       timeout,
       cwd
     });
     return { stdout, stderr, success: true };
   } catch (error) {
-    return { 
-      stdout: error.stdout || '', 
-      stderr: error.stderr || error.message, 
+    return {
+      stdout: error.stdout || '',
+      stderr: error.stderr || error.message,
       success: false,
-      error 
+      error
     };
   }
 }
@@ -142,8 +143,8 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       });
       
       expect(result.success).toBeFalsy();
-      // The error will be about module not found since we're running from wrong dir
-      expect(result.stderr).toContain('MODULE_NOT_FOUND');
+      // The CLI should report missing memory system when run outside project
+      expect(result.stderr).toContain('Memory system not found');
     });
   });
 
@@ -272,6 +273,54 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       
       // Cleanup
       await fs.rm(testDir, { recursive: true, force: true });
+    });
+  });
+
+  test.describe('Playwright Command', () => {
+    const testDir = path.join(process.cwd(), 'test-playwright-cli');
+
+    test.beforeEach(async () => {
+      await cleanupTestDir(testDir);
+      await fs.mkdir(testDir, { recursive: true });
+    });
+
+    test.afterEach(async () => {
+      await cleanupTestDir(testDir);
+    });
+
+    test('should display Playwright help', async () => {
+      const result = await runCLI('playwright --help', { cwd: testDir, timeout: 5000 });
+      expect(result.success).toBeTruthy();
+      const output = result.stdout + result.stderr;
+      expect(output).toContain('Manage Playwright testing');
+      expect(output).toContain('init');
+      expect(output).toContain('generate-tests');
+      expect(output).toContain('add-visual-tests');
+      expect(output).toContain('setup-ci');
+    });
+
+    test('should handle unknown action', async () => {
+      const result = await runCLI('playwright unknown', { cwd: testDir, timeout: 5000 });
+      expect(result.success).toBeFalsy();
+      expect(result.stderr).toContain('Unknown action');
+      expect(result.stdout).toContain('Available actions');
+    });
+
+    test('should handle missing action', async () => {
+      const result = await runCLI('playwright', { cwd: testDir, timeout: 5000 });
+      expect(result.success).toBeFalsy();
+      expect(result.stderr).toContain('missing required argument');
+    });
+
+    test('should handle invalid option', async () => {
+      const result = await runCLI('playwright init --bad', { cwd: testDir, timeout: 5000 });
+      expect(result.success).toBeFalsy();
+      expect(result.stderr).toContain('unknown option');
+    });
+
+    test.fixme('mobile command placeholder', async () => {
+      const result = await runCLI('playwright mobile', { cwd: testDir, timeout: 5000 });
+      expect(result.success).toBeTruthy();
     });
   });
 });
