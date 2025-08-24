@@ -15,13 +15,15 @@ This project is running MultiAgent-Claude on itself! The framework manages its o
 ```
 MultiAgent-Claude/
 ├── Examples/                          # Templates for user projects
-│   └── agents/                        # Agent template library
-│       ├── orchestrators/             # Opus-model coordination agents
-│       │   └── [orchestrator agents].md
-│       ├── specialists/               # Sonnet-model domain experts
-│       │   ├── TEMPLATE-agent.md     # Base template
-│       │   └── [specialist agents].md
-│       └── manifest.json              # Template registry
+│   ├── agents/                        # Agent template library (see Examples/agents/README.md)
+│   │   ├── orchestrators/             # Opus-model coordination agents
+│   │   ├── specialists/               # Sonnet-model domain experts
+│   │   ├── TEMPLATE-agent.md         # Base template
+│   │   ├── [agent templates].md
+│   │   └── manifest.json              # Template registry
+│   └── commands/                      # Command template library (see Examples/commands/README.md)
+│       ├── README.md                  # Command catalog and selection guide
+│       └── [command templates].md
 ├── cli/                 # CLI implementation
 │   ├── index.js         # Main CLI entry point
 │   └── commands/        # CLI command implementations
@@ -594,6 +596,6 @@ The CI/CD workflows are optimized to prevent spam commits:
 
 - Review `claude-code-init-prompts.md` for complete initialization workflow
 - Check `memory-system-addon-prompt.md` for memory system details
-- Reference individual agent templates for specialization patterns
-- Use command templates for consistent workflow implementation
+- See `Examples/agents/README.md` for orchestrator and specialist catalogs
+- Consult `Examples/commands/README.md` for command templates and selection guidelines
 - Run `mac --help` for CLI documentation
