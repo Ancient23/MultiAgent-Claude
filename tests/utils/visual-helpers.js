@@ -1,6 +1,8 @@
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const { promisify } = require('util');
+const zlib = require('zlib');
 
 class VisualBaselineManager {
   constructor(options = {}) {
@@ -9,10 +11,106 @@ class VisualBaselineManager {
     this.updateMode = (process.env.UPDATE_SNAPSHOTS === 'true' || options.updateBaselines || false) && !this.testMode;
     this.ciMode = process.env.CI === 'true';
     this.diffThreshold = options.diffThreshold || 0.01; // 1% difference threshold
+    this.compressionEnabled = options.compression !== false; // Enable by default
+    this.maxBaselineSize = options.maxBaselineSize || 100 * 1024 * 1024; // 100MB default
+    this.tempFiles = new Set(); // Track temporary files for cleanup
+    
+    // Setup cleanup on process exit
+    process.on('exit', () => this.cleanup());
+    process.on('SIGINT', () => { this.cleanup(); process.exit(); });
+    process.on('SIGTERM', () => { this.cleanup(); process.exit(); });
   }
   
   async ensureBaselineDirectory() {
     await fs.mkdir(this.baselineDir, { recursive: true });
+  }
+  
+  // Cleanup temporary files
+  cleanup() {
+    for (const tempFile of this.tempFiles) {
+      try {
+        require('fs').unlinkSync(tempFile);
+      } catch (error) {
+        // Ignore cleanup errors
+      }
+    }
+    this.tempFiles.clear();
+  }
+  
+  // Add file to cleanup list
+  addTempFile(filepath) {
+    this.tempFiles.add(filepath);
+  }
+  
+  // Remove file from cleanup list
+  removeTempFile(filepath) {
+    this.tempFiles.delete(filepath);
+  }
+  
+  // Compress buffer if compression is enabled and beneficial
+  async maybeCompress(buffer) {
+    if (!this.compressionEnabled || buffer.length < 1024) {
+      // Don't compress small files
+      return { compressed: false, data: buffer };
+    }
+    
+    try {
+      const gzip = promisify(zlib.gzip);
+      const compressed = await gzip(buffer);
+      
+      // Only use compression if it saves significant space
+      if (compressed.length < buffer.length * 0.9) {
+        return { compressed: true, data: compressed };
+      } else {
+        return { compressed: false, data: buffer };
+      }
+    } catch (error) {
+      // Fall back to uncompressed on error
+      return { compressed: false, data: buffer };
+    }
+  }
+  
+  // Decompress buffer if needed
+  async maybeDecompress(buffer, isCompressed) {
+    if (!isCompressed) {
+      return buffer;
+    }
+    
+    try {
+      const gunzip = promisify(zlib.gunzip);
+      return await gunzip(buffer);
+    } catch (error) {
+      throw new Error(`Failed to decompress baseline data: ${error.message}`);
+    }
+  }
+  
+  // Check and enforce storage limits
+  async checkStorageLimits() {
+    try {
+      const files = await fs.readdir(this.baselineDir);
+      let totalSize = 0;
+      
+      for (const file of files) {
+        if (file.endsWith('.png')) {
+          const filepath = path.join(this.baselineDir, file);
+          const stats = await fs.stat(filepath);
+          totalSize += stats.size;
+        }
+      }
+      
+      if (totalSize > this.maxBaselineSize) {
+        console.warn(`Warning: Baseline storage (${Math.round(totalSize / 1024 / 1024)}MB) exceeds limit (${Math.round(this.maxBaselineSize / 1024 / 1024)}MB)`);
+        
+        // Clean up old baselines automatically
+        const removed = await this.removeOutdatedBaselines(7 * 24 * 60 * 60 * 1000); // 7 days
+        if (removed > 0) {
+          console.log(`Cleaned up ${removed} old baseline files`);
+        }
+      }
+    } catch (error) {
+      // Don't fail on storage limit check errors
+      console.warn(`Could not check storage limits: ${error.message}`);
+    }
   }
   
   async getBaselinePath(name) {
@@ -33,7 +131,22 @@ class VisualBaselineManager {
     
     try {
       const buffer = await fs.readFile(baselinePath);
-      return buffer;
+      
+      // Check if the baseline is compressed
+      const metadataPath = baselinePath.replace('.png', '.json');
+      let isCompressed = false;
+      
+      try {
+        const metadataContent = await fs.readFile(metadataPath, 'utf8');
+        const metadata = JSON.parse(metadataContent);
+        isCompressed = metadata.compressed || false;
+      } catch (error) {
+        // If metadata is missing or corrupted, assume uncompressed
+        // This provides backward compatibility
+      }
+      
+      // Decompress if needed
+      return await this.maybeDecompress(buffer, isCompressed);
     } catch (error) {
       if (error.code === 'ENOENT') {
         // Baseline doesn't exist
@@ -45,15 +158,24 @@ class VisualBaselineManager {
   
   async saveBaseline(name, buffer) {
     await this.ensureBaselineDirectory();
+    
+    // Check storage limits before saving
+    await this.checkStorageLimits();
+    
     const baselinePath = await this.getBaselinePath(name);
-    await fs.writeFile(baselinePath, buffer);
+    
+    // Optionally compress the buffer
+    const { compressed, data } = await this.maybeCompress(buffer);
+    await fs.writeFile(baselinePath, data);
     
     // Also save metadata
     const metadataPath = baselinePath.replace('.png', '.json');
     const metadata = {
       name,
       timestamp: new Date().toISOString(),
-      size: buffer.length,
+      originalSize: buffer.length,
+      compressedSize: data.length,
+      compressed,
       hash: crypto.createHash('md5').update(buffer).digest('hex'),
       updateMode: this.updateMode,
       ci: this.ciMode

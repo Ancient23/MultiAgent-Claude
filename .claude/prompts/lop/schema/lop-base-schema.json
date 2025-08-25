@@ -57,7 +57,7 @@
         "plan_location": {
           "type": "string",
           "description": "Path to the implementation plan document",
-          "pattern": "^\\.ai/memory/implementation-plans/.+\\.md$"
+          "pattern": "^\\.ai/memory/implementation-plans/[a-zA-Z0-9][a-zA-Z0-9_-]*\\.md$"
         },
         "session_type": {
           "type": "string",

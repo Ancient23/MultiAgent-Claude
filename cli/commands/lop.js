@@ -12,10 +12,82 @@ class LOPManager {
     this.templateLopPath = path.join(__dirname, '../../templates/prompts/lop');
     this.schemaPath = path.join(this.projectLopPath, 'schema/lop-base-schema.json');
     this.hopPath = path.join(process.cwd(), '.claude/prompts/hop/implementation-master.md');
+    this.fileTimeout = 5000; // 5 second timeout for file operations
+  }
+
+  // Wrapper for file operations with timeout
+  async withTimeout(promise, operation = 'file operation') {
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error(`Timeout: ${operation} took longer than ${this.fileTimeout}ms`)), this.fileTimeout)
+    );
+    
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } catch (error) {
+      if (error.message.includes('Timeout')) {
+        console.error(chalk.red(`⚠️  ${operation} timed out after ${this.fileTimeout}ms`));
+      }
+      throw error;
+    }
+  }
+
+  // Safe file read with timeout
+  async safeReadFile(filepath, encoding = 'utf8') {
+    return await this.withTimeout(
+      new Promise((resolve, reject) => {
+        fs.readFile(filepath, encoding, (err, data) => {
+          if (err) reject(err);
+          else resolve(data);
+        });
+      }),
+      `Reading file ${path.basename(filepath)}`
+    );
+  }
+
+  // Safe file write with timeout
+  async safeWriteFile(filepath, content, encoding = 'utf8') {
+    return await this.withTimeout(
+      new Promise((resolve, reject) => {
+        fs.writeFile(filepath, content, encoding, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      }),
+      `Writing file ${path.basename(filepath)}`
+    );
+  }
+
+  // Error boundary wrapper for async operations
+  async safeExecute(operation, context = 'operation') {
+    try {
+      return await operation();
+    } catch (error) {
+      // Log error with context
+      console.error(chalk.red(`✗ ${context} failed: ${error.message}`));
+      
+      // Handle specific error types
+      if (error.code === 'ENOENT') {
+        console.error(chalk.yellow('  File or directory not found'));
+      } else if (error.code === 'EACCES') {
+        console.error(chalk.yellow('  Permission denied'));
+      } else if (error.code === 'EISDIR') {
+        console.error(chalk.yellow('  Expected file but found directory'));
+      } else if (error.message.includes('Timeout')) {
+        console.error(chalk.yellow('  Operation timed out - try again or check file locks'));
+      } else if (error.name === 'YAMLException') {
+        console.error(chalk.yellow('  Invalid YAML syntax in file'));
+      }
+      
+      // Re-throw with additional context
+      const contextualError = new Error(`${context}: ${error.message}`);
+      contextualError.originalError = error;
+      contextualError.context = context;
+      throw contextualError;
+    }
   }
 
   async validate(filePath) {
-    try {
+    return await this.safeExecute(async () => {
       console.log(chalk.cyan('🔍 Validating LOP file...'));
       
       // Read the LOP file
@@ -25,7 +97,7 @@ class LOPManager {
         return false;
       }
       
-      const content = fs.readFileSync(absolutePath, 'utf8');
+      const content = await this.safeReadFile(absolutePath, 'utf8');
       const lopData = yaml.load(content);
       
       // Load and validate against schema
@@ -38,7 +110,7 @@ class LOPManager {
         return false;
       }
       
-      const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+      const schema = JSON.parse(await this.safeReadFile(schemaPath, 'utf8'));
       const ajv = new Ajv({ allErrors: true });
       const validate = ajv.compile(schema);
       const valid = validate(lopData);
@@ -58,10 +130,7 @@ class LOPManager {
         });
         return false;
       }
-    } catch (error) {
-      console.error(chalk.red(`✗ Error validating LOP: ${error.message}`));
-      return false;
-    }
+    }, 'LOP validation');
   }
 
   async create() {
@@ -343,43 +412,101 @@ class LOPManager {
     return template;
   }
 
+  // Escape HTML/template characters to prevent injection
+  escapeTemplate(str) {
+    if (!str) return '';
+    const escapeMap = {
+      '<': '&lt;',
+      '>': '&gt;',
+      '&': '&amp;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;',
+      '$': '&#36;',
+      '{': '&#123;',
+      '}': '&#125;'
+    };
+    return String(str).replace(/[<>&"'`=$/{}]/g, char => escapeMap[char] || char);
+  }
+
+  // Validate path to prevent directory traversal
+  validatePath(filePath, allowedBasePath) {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid file path provided');
+    }
+
+    // Normalize and resolve the path
+    const normalizedPath = path.normalize(filePath);
+    const resolvedPath = path.resolve(process.cwd(), normalizedPath);
+    const resolvedBasePath = path.resolve(process.cwd(), allowedBasePath);
+
+    // Check if the resolved path is within the allowed base path
+    if (!resolvedPath.startsWith(resolvedBasePath + path.sep) && resolvedPath !== resolvedBasePath) {
+      throw new Error(`Path traversal detected: ${filePath} is outside allowed directory ${allowedBasePath}`);
+    }
+
+    // Additional checks for malicious patterns
+    if (normalizedPath.includes('..') || normalizedPath.includes('~')) {
+      throw new Error(`Potentially unsafe path pattern: ${filePath}`);
+    }
+
+    // Validate filename characters (alphanumeric, hyphens, underscores, dots only)
+    const filename = path.basename(normalizedPath);
+    if (!/^[a-zA-Z0-9._-]+$/.test(filename)) {
+      throw new Error(`Invalid filename characters: ${filename}`);
+    }
+
+    return normalizedPath;
+  }
+
   interpolateVariables(template, lop) {
-    // Replace simple variables
-    template = template.replace(/\$\{lop\.metadata\.name\}/g, lop.metadata.name);
-    template = template.replace(/\$\{lop\.metadata\.priority\}/g, lop.metadata.priority);
-    template = template.replace(/\$\{lop\.metadata\.type\}/g, lop.metadata.type);
-    template = template.replace(/\$\{lop\.metadata\.description\}/g, lop.metadata.description);
-    template = template.replace(/\$\{lop\.variables\.plan_location\}/g, lop.variables.plan_location);
-    template = template.replace(/\$\{lop\.variables\.session_type\}/g, lop.variables.session_type);
+    // Validate plan_location path to prevent traversal
+    if (lop.variables && lop.variables.plan_location) {
+      try {
+        this.validatePath(lop.variables.plan_location, '.ai/memory/implementation-plans');
+      } catch (error) {
+        throw new Error(`Invalid plan_location path: ${error.message}`);
+      }
+    }
+
+    // Replace simple variables with proper escaping
+    template = template.replace(/\$\{lop\.metadata\.name\}/g, this.escapeTemplate(lop.metadata.name));
+    template = template.replace(/\$\{lop\.metadata\.priority\}/g, this.escapeTemplate(lop.metadata.priority));
+    template = template.replace(/\$\{lop\.metadata\.type\}/g, this.escapeTemplate(lop.metadata.type));
+    template = template.replace(/\$\{lop\.metadata\.description\}/g, this.escapeTemplate(lop.metadata.description));
+    template = template.replace(/\$\{lop\.variables\.plan_location\}/g, this.escapeTemplate(lop.variables.plan_location));
+    template = template.replace(/\$\{lop\.variables\.session_type\}/g, this.escapeTemplate(lop.variables.session_type));
     
-    // Process agents
+    // Process agents with proper escaping
     let agentsSection = '';
     lop.agents.forEach(agent => {
-      agentsSection += `### ${agent.name}\n`;
-      agentsSection += `- **Role**: ${agent.role}\n`;
-      agentsSection += `- **Deploy for**: ${agent.deploy_for || 'See phases below'}\n\n`;
+      agentsSection += `### ${this.escapeTemplate(agent.name)}\n`;
+      agentsSection += `- **Role**: ${this.escapeTemplate(agent.role)}\n`;
+      agentsSection += `- **Deploy for**: ${this.escapeTemplate(agent.deploy_for || 'See phases below')}\n\n`;
     });
     template = template.replace(/\$\{#foreach lop\.agents as agent\}[\s\S]*?\$\{\/foreach\}/g, agentsSection);
     
-    // Process MCP servers
+    // Process MCP servers with proper escaping
     if (lop.mcp_servers && lop.mcp_servers.length > 0) {
       let mcpSection = '## Required MCP Servers\n\n';
       lop.mcp_servers.forEach(server => {
-        mcpSection += `- ${server}\n`;
+        mcpSection += `- ${this.escapeTemplate(server)}\n`;
       });
       template = template.replace(/\$\{#if lop\.mcp_servers\}[\s\S]*?\$\{\/if\}/g, mcpSection);
     } else {
       template = template.replace(/\$\{#if lop\.mcp_servers\}[\s\S]*?\$\{\/if\}/g, '');
     }
     
-    // Process phases
+    // Process phases with proper escaping
     let phasesSection = '';
     lop.phases.forEach((phase, index) => {
-      phasesSection += `### Phase ${index + 1}: ${phase.name}\n\n`;
-      phasesSection += `**Description**: ${phase.description}\n\n`;
+      phasesSection += `### Phase ${index + 1}: ${this.escapeTemplate(phase.name)}\n\n`;
+      phasesSection += `**Description**: ${this.escapeTemplate(phase.description)}\n\n`;
       phasesSection += `**Tasks**:\n`;
       phase.tasks.forEach(task => {
-        phasesSection += `- ${task}\n`;
+        phasesSection += `- ${this.escapeTemplate(task)}\n`;
       });
       
       if (phase.agents && phase.agents.length > 0) {
@@ -388,7 +515,7 @@ class LOPManager {
           const agentTask = phase.agent_tasks && phase.agent_tasks[agent] 
             ? phase.agent_tasks[agent] 
             : 'assist with this phase';
-          phasesSection += `- Use ${agent} to ${agentTask}\n`;
+          phasesSection += `- Use ${this.escapeTemplate(agent)} to ${this.escapeTemplate(agentTask)}\n`;
         });
       }
       
@@ -400,17 +527,17 @@ class LOPManager {
     });
     template = template.replace(/\$\{#foreach lop\.phases as phase index\}[\s\S]*?\$\{\/foreach\}/g, phasesSection);
     
-    // Process verification criteria
+    // Process verification criteria with proper escaping
     let criteriaSection = '';
     lop.verification.criteria.forEach(criterion => {
-      criteriaSection += `□ ${criterion}\n`;
+      criteriaSection += `□ ${this.escapeTemplate(criterion)}\n`;
     });
     template = template.replace(/\$\{#foreach lop\.verification\.criteria as criterion\}[\s\S]*?\$\{\/foreach\}/g, criteriaSection);
     
-    // Process memory patterns
+    // Process memory patterns with proper escaping
     let memorySection = '';
     lop.memory_patterns.forEach(pattern => {
-      memorySection += `- ${pattern}\n`;
+      memorySection += `- ${this.escapeTemplate(pattern)}\n`;
     });
     template = template.replace(/\$\{#foreach lop\.memory_patterns as pattern\}[\s\S]*?\$\{\/foreach\}/g, memorySection);
     
@@ -419,19 +546,19 @@ class LOPManager {
       let testingSection = '### Required Tests\n';
       if (lop.testing.required_tests) {
         lop.testing.required_tests.forEach(test => {
-          testingSection += `- ${test}\n`;
+          testingSection += `- ${this.escapeTemplate(test)}\n`;
         });
       }
       testingSection += '\n### Test Commands\n';
       if (lop.testing.test_commands) {
         lop.testing.test_commands.forEach(command => {
-          testingSection += `- \`${command}\`\n`;
+          testingSection += `- \`${this.escapeTemplate(command)}\`\n`;
         });
       }
       testingSection += '\n### Success Criteria\n';
       if (lop.testing.success_criteria) {
         lop.testing.success_criteria.forEach(criterion => {
-          testingSection += `- ${criterion}\n`;
+          testingSection += `- ${this.escapeTemplate(criterion)}\n`;
         });
       }
       template = template.replace(/\$\{#if lop\.testing\}[\s\S]*?\$\{\/if\}/g, testingSection);
@@ -443,7 +570,7 @@ class LOPManager {
     if (lop.anti_patterns && lop.anti_patterns.length > 0) {
       let antiPatternsSection = '';
       lop.anti_patterns.forEach(pattern => {
-        antiPatternsSection += `- ❌ ${pattern}\n`;
+        antiPatternsSection += `- ❌ ${this.escapeTemplate(pattern)}\n`;
       });
       template = template.replace(/\$\{#foreach lop\.anti_patterns as pattern\}[\s\S]*?\$\{\/foreach\}/g, antiPatternsSection);
     } else {
