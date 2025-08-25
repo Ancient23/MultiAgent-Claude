@@ -396,7 +396,7 @@ function updatePackageJsonScripts() {
       'visual:test:debug': 'playwright test --config=playwright-visual.config.js --debug',
       'visual:update': 'playwright test --config=playwright-visual.config.js --update-snapshots',
       'visual:report': 'playwright show-report .playwright/reports',
-      'visual:setup': 'node -e "require(\'./cli/commands/mcp-setup.js\').setupVisualDevelopment()"',
+      'visual:setup': 'npx playwright install chromium',
       'visual:compare': 'node -e "require(\'./cli/utils/visual-compare.js\').runComparison()"',
       'visual:clean': 'rm -rf .playwright/test-results .playwright/reports .claude/visual-iterations/*'
     };
@@ -471,4 +471,4 @@ async function addFromClaudeDesktop() {
   }
 }
 
-module.exports = { setupMCP, serveMCP, addFromClaudeDesktop, getClaudeDesktopConfigPath };
+module.exports = { setupMCP, serveMCP, addFromClaudeDesktop, getClaudeDesktopConfigPath, setupPlaywrightDirectories };

@@ -158,6 +158,51 @@ function copyTestTemplate(filename) {
   console.log(chalk.green(`✓ Added ${filename}`));
 }
 
+function copyVisualTestTemplates() {
+  // Copy visual test templates and helpers
+  const visualTestsSource = path.join(__dirname, '..', '..', 'tests', 'visual', 'development.visual.spec.js');
+  const visualTestsDest = path.join(process.cwd(), 'tests', 'visual');
+  
+  // Create directory
+  if (!fs.existsSync(visualTestsDest)) {
+    fs.mkdirSync(visualTestsDest, { recursive: true });
+  }
+  
+  // Copy visual test file if it exists
+  if (fs.existsSync(visualTestsSource)) {
+    const destFile = path.join(visualTestsDest, 'development.visual.spec.js');
+    fs.copyFileSync(visualTestsSource, destFile);
+    console.log(chalk.green('✓ Added visual test template'));
+  }
+  
+  // Copy test utilities
+  const utilsSource = path.join(__dirname, '..', '..', 'tests', 'utils');
+  const utilsDest = path.join(process.cwd(), 'tests', 'utils');
+  
+  if (!fs.existsSync(utilsDest)) {
+    fs.mkdirSync(utilsDest, { recursive: true });
+  }
+  
+  // Copy helper files
+  const helperFiles = ['visual-helpers.js', 'cli-helpers.js'];
+  helperFiles.forEach(file => {
+    const source = path.join(utilsSource, file);
+    if (fs.existsSync(source)) {
+      const dest = path.join(utilsDest, file);
+      fs.copyFileSync(source, dest);
+      console.log(chalk.green(`✓ Added ${file}`));
+    }
+  });
+  
+  // Copy visual regression spec
+  const visualRegressionSource = path.join(__dirname, '..', '..', 'tests', 'visual-regression.spec.js');
+  if (fs.existsSync(visualRegressionSource)) {
+    const visualRegressionDest = path.join(process.cwd(), 'tests', 'visual-regression.spec.js');
+    fs.copyFileSync(visualRegressionSource, visualRegressionDest);
+    console.log(chalk.green('✓ Added visual-regression.spec.js'));
+  }
+}
+
 
 function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
   // Destructure the queued items data
@@ -783,8 +828,59 @@ async function execute(options) {
             copyWorkflowTemplate('playwright-web-tests.yml');
           }
           if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
+            // Copy visual test templates if web tests enabled
+            if (cicdOptions.includeWebTests && cicdOptions.visualTestingOnCI) {
+              console.log(chalk.blue('\nAdding visual test templates...'));
+              copyVisualTestTemplates();
+            }
+            
+            // Create basic playwright.config.js if it doesn't exist
+            const playwrightConfigPath = path.join(process.cwd(), 'playwright.config.js');
+            if (!fs.existsSync(playwrightConfigPath)) {
+              const playwrightConfig = `const { defineConfig, devices } = require('@playwright/test');
+
+module.exports = defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: [
+    ['html', { outputFolder: '.playwright/reports' }],
+    ['list']
+  ],
+  use: {
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+`;
+              fs.writeFileSync(playwrightConfigPath, playwrightConfig);
+              console.log(chalk.green('✓ Created playwright.config.js'));
+            }
+            
             console.log(chalk.yellow('\nRun the following to install Playwright:'));
-            console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+            console.log(chalk.cyan('npm install --save-dev @playwright/test'));
+            console.log(chalk.cyan('npx playwright install'));
           }
         }
         
@@ -793,8 +889,13 @@ async function execute(options) {
           console.log(chalk.blue('\n🎨 Setting up Visual Development Environment...'));
           
           // Import and run visual development setup
-          const { setupPlaywrightDirectories } = require('./mcp');
-          setupPlaywrightDirectories();
+          try {
+            const { setupPlaywrightDirectories } = require('./mcp');
+            setupPlaywrightDirectories();
+          } catch (error) {
+            console.log(chalk.yellow('⚠️  Warning: Could not set up Playwright directories'));
+            console.log(chalk.gray(`  Error: ${error.message}`));
+          }
           
           // Copy playwright-visual-developer agent if not already present
           const visualAgentPath = path.join(process.cwd(), '.claude', 'agents', 'playwright-visual-developer.md');
