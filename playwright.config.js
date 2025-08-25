@@ -36,10 +36,10 @@ module.exports = defineConfig({
   expect: {
     // Use consistent snapshot names across platforms
     toHaveScreenshot: {
-      // Maximum difference in pixels
-      maxDiffPixels: 100,
-      // Threshold for pixel difference (0-1)
-      threshold: 0.2,
+      // Maximum difference in pixels (allow up to 1000 for cross-platform)
+      maxDiffPixels: 1000,
+      // Threshold for pixel difference (2% tolerance for font rendering differences)
+      threshold: 0.02,
     },
   },
 

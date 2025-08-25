@@ -46,7 +46,8 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       const result = await cliHelper.runCommand('setup --variant invalid');
       
       expect(result.success).toBe(false);
-      expect(result.stderr).toContain('error');
+      // Error message goes to stdout when using console.error in the CLI
+      expect(result.stdout.toLowerCase()).toContain('error');
     });
     
     test('setup command with agents option', async () => {

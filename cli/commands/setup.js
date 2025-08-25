@@ -23,9 +23,11 @@ async function execute(options = {}) {
   if (cliVariant) {
     const validVariants = ['base', 'standard', 'memory-only', 'with-docs'];
     if (!validVariants.includes(cliVariant)) {
-      console.error(chalk.red(`Error: Invalid variant '${cliVariant}'. Valid options are: ${validVariants.join(', ')}`));
+      const errorMsg = `Error: Invalid variant '${cliVariant}'. Valid options are: ${validVariants.join(', ')}`;
+      console.error(chalk.red(errorMsg));
       rl.close();
-      process.exit(1);
+      // For testing, throw error instead of process.exit
+      throw new Error(errorMsg);
     }
   }
   
@@ -794,8 +796,17 @@ function parseArgs(args) {
 
 // Export with argument parsing
 module.exports = { 
-  execute: (args) => {
+  execute: async (args) => {
     const options = parseArgs(args);
-    return execute(options);
+    try {
+      return await execute(options);
+    } catch (error) {
+      // Ensure readline is closed on error
+      if (rl && rl.close) {
+        try { rl.close(); } catch {}
+      }
+      // Re-throw for proper error handling
+      throw error;
+    }
   }
 };
