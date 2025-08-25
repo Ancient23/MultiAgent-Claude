@@ -1,0 +1,17 @@
+{
+  "variant": "base",
+  "agents": [],
+  "mcpServers": [],
+  "ciOptions": {},
+  "playwrightOptions": {},
+  "visualDevOptions": {},
+  "projectType": "Node.js/JavaScript (Playwright)",
+  "projectAnalysis": null,
+  "queuedForCreation": {
+    "customAgents": [],
+    "codexRoles": [],
+    "agentsMd": "skip",
+    "needsProcessing": false
+  },
+  "createdAt": "2025-08-25T00:14:53.277Z"
+}

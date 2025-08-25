@@ -30,6 +30,18 @@ module.exports = defineConfig({
     /* Video on failure */
     video: 'retain-on-failure',
   },
+  
+  /* Snapshot configuration for platform-agnostic names */
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}',
+  expect: {
+    // Use consistent snapshot names across platforms
+    toHaveScreenshot: {
+      // Maximum difference in pixels (allow up to 50000 for cross-platform font rendering)
+      maxDiffPixels: 50000,
+      // Threshold for pixel difference (10% tolerance for font rendering differences)
+      threshold: 0.10,
+    },
+  },
 
   /* Configure projects for major browsers */
   projects: [

@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://multiagent-claude.com/schemas/lop/v1.0.0",
+  "title": "Lower Order Prompt (LOP) Schema",
+  "description": "Schema for defining reusable implementation prompts in MultiAgent-Claude",
+  "type": "object",
+  "required": ["metadata", "variables", "agents", "phases", "verification", "memory_patterns"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Core metadata about the LOP",
+      "required": ["name", "description", "type", "priority"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this LOP",
+          "minLength": 3,
+          "maxLength": 100
+        },
+        "description": {
+          "type": "string",
+          "description": "Clear description of what this LOP implements",
+          "minLength": 10,
+          "maxLength": 500
+        },
+        "type": {
+          "type": "string",
+          "description": "Category of implementation",
+          "enum": ["testing", "feature", "refactor", "infrastructure", "documentation", "integration"]
+        },
+        "priority": {
+          "type": "string",
+          "description": "Implementation priority level",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "version": {
+          "type": "string",
+          "description": "Semantic version of this LOP",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "default": "1.0.0"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags for categorization and search",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          }
+        }
+      }
+    },
+    "variables": {
+      "type": "object",
+      "description": "Variables to be interpolated into the HOP template",
+      "required": ["plan_location", "session_type"],
+      "properties": {
+        "plan_location": {
+          "type": "string",
+          "description": "Path to the implementation plan document",
+          "pattern": "^\\.ai/memory/implementation-plans/[a-zA-Z0-9][a-zA-Z0-9_-]*\\.md$"
+        },
+        "session_type": {
+          "type": "string",
+          "description": "Type identifier for the context session",
+          "pattern": "^[a-z_]+$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "agents": {
+      "type": "array",
+      "description": "Agents required for this implementation",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "role"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Agent identifier (must exist in Examples/agents/)",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "role": {
+            "type": "string",
+            "description": "What this agent does in the implementation"
+          },
+          "deploy_for": {
+            "type": "string",
+            "description": "Specific tasks this agent handles"
+          }
+        }
+      }
+    },
+    "mcp_servers": {
+      "type": "array",
+      "description": "MCP servers required for this implementation",
+      "items": {
+        "type": "string",
+        "description": "MCP server name",
+        "enum": ["playwright", "filesystem", "github", "memory", "sequential-thinking", "magic", "context7", "aws-api", "shadcn"]
+      }
+    },
+    "phases": {
+      "type": "array",
+      "description": "Implementation phases to execute in order",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "tasks"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Phase name",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "description": {
+            "type": "string",
+            "description": "What this phase accomplishes"
+          },
+          "tasks": {
+            "type": "array",
+            "description": "Specific tasks to complete",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "agents": {
+            "type": "array",
+            "description": "Agents to deploy in this phase",
+            "items": {
+              "type": "string"
+            }
+          },
+          "agent_tasks": {
+            "type": "object",
+            "description": "Mapping of agent to specific task",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "Phases that must complete before this one",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "description": "Verification and success criteria",
+      "required": ["criteria"],
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "description": "Checklist items that must be verified",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "pre_conditions": {
+          "type": "array",
+          "description": "Conditions that must be met before starting",
+          "items": {
+            "type": "string"
+          }
+        },
+        "post_conditions": {
+          "type": "array",
+          "description": "Conditions that must be met after completion",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "memory_patterns": {
+      "type": "array",
+      "description": "Memory system updates required",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Pattern or decision to document"
+      }
+    },
+    "testing": {
+      "type": "object",
+      "description": "Testing requirements",
+      "properties": {
+        "required_tests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "test_commands": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(npm|yarn|pnpm|bun|cargo|go|python|pytest|jest|playwright) .+"
+          }
+        },
+        "success_criteria": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "anti_patterns": {
+      "type": "array",
+      "description": "Common mistakes to avoid",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

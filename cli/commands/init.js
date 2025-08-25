@@ -505,6 +505,59 @@ function executeWithClaude(prompt, config = null, queuedItemsData = {}) {
 async function execute(options) {
   const workflow = await getWorkflow(options);
   
+  // Create all required directories at the very start
+  const dirsToCreate = [
+    '.claude',
+    '.claude/agents',
+    '.claude/commands',
+    '.claude/tasks',
+    '.claude/doc',
+    '.ai/memory',
+    '.ai/memory/patterns',
+    '.ai/memory/patterns/testing',
+    '.ai/memory/decisions',
+    '.ai/memory/implementation-plans',
+    '.ai/memory/sessions',
+    '.ai/memory/sessions/archive'
+  ];
+  
+  // Create directories immediately
+  dirsToCreate.forEach(dir => {
+    const fullPath = path.join(process.cwd(), dir);
+    if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(fullPath, { recursive: true });
+    }
+  });
+  
+  // Skip interactive prompts if --minimal flag is set for CI
+  if (options.minimal) {
+    console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment (CI Mode)`));
+    console.log(chalk.gray(`Using minimal setup for CI/CD environments\n`));
+    
+    // Create minimal config
+    const configPath = path.join(process.cwd(), '.claude', 'config.json');
+    const minimalConfig = {
+      variant: 'base',
+      initialized: true,
+      ciMode: true,
+      timestamp: new Date().toISOString()
+    };
+    fs.writeFileSync(configPath, JSON.stringify(minimalConfig, null, 2));
+    
+    // Create basic CLAUDE.md
+    const claudeMd = `# CLAUDE.md\n\nMinimal configuration for CI/CD testing.\n\nGenerated: ${new Date().toISOString()}\n`;
+    fs.writeFileSync(path.join(process.cwd(), 'CLAUDE.md'), claudeMd);
+    
+    // Create basic memory files
+    const projectMd = `# Project Memory\n\nCI Mode - Minimal Setup\n\nGenerated: ${new Date().toISOString()}\n`;
+    fs.writeFileSync(path.join(process.cwd(), '.ai/memory/project.md'), projectMd);
+    
+    console.log(chalk.green('✅ Minimal CI environment initialized successfully!'));
+    console.log(chalk.gray('All directories created:'));
+    dirsToCreate.forEach(dir => console.log(chalk.gray(`  ✓ ${dir}`)));
+    return;
+  }
+  
   console.log(chalk.blue(`\n🚀 Initializing Multi-Agent Claude Environment`));
   console.log(chalk.gray(`Using workflow: ${workflow}\n`));
   
@@ -653,39 +706,128 @@ async function execute(options) {
         }
       }
 
-      // CI/CD and Testing Options
-      console.log(chalk.cyan('\n\nCI/CD and Testing Configuration:'));
-      const cicdOptions = {
-        memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
-        playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
-        includeCliTests: false,
-        includeWebTests: false
-      };
+      // CI/CD and Testing Options - Skip if minimal
+      if (!options.minimal) {
+        console.log(chalk.cyan('\n\nCI/CD and Testing Configuration:'));
+        const cicdOptions = {
+          memoryWorkflow: (await question('Enable GitHub Actions for memory updates? (y/n): ')).toLowerCase() === 'y',
+          playwrightTests: (await question('Add Playwright testing framework? (y/n): ')).toLowerCase() === 'y',
+          includeCliTests: false,
+          includeWebTests: false
+        };
 
-      // If Playwright enabled, ask about test types
-      if (cicdOptions.playwrightTests) {
-        cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
-        cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
-      }
+        // If Playwright enabled, ask about test types
+        if (cicdOptions.playwrightTests) {
+          cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
+          cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
+        }
 
-      // Copy workflow files if enabled
-      if (cicdOptions.memoryWorkflow) {
-        console.log(chalk.blue('\nAdding CI/CD workflows...'));
-        copyWorkflowTemplate('claude-memory-update.yml');
-      }
-      if (cicdOptions.playwrightTests) {
-        if (cicdOptions.includeCliTests) {
-          console.log(chalk.blue('\nAdding Playwright CLI testing...'));
-          copyWorkflowTemplate('playwright-cli-tests.yml');
-          copyTestTemplate('cli.cli.spec.js');
+        // Copy workflow files if enabled
+        if (cicdOptions.memoryWorkflow) {
+          console.log(chalk.blue('\nAdding CI/CD workflows...'));
+          copyWorkflowTemplate('claude-memory-update.yml');
         }
-        if (cicdOptions.includeWebTests) {
-          console.log(chalk.blue('\nAdding Playwright web testing...'));
-          copyWorkflowTemplate('playwright-web-tests.yml');
+        if (cicdOptions.playwrightTests) {
+          if (cicdOptions.includeCliTests) {
+            console.log(chalk.blue('\nAdding Playwright CLI testing...'));
+            copyWorkflowTemplate('playwright-cli-tests.yml');
+            copyTestTemplate('cli.cli.spec.js');
+          }
+          if (cicdOptions.includeWebTests) {
+            console.log(chalk.blue('\nAdding Playwright web testing...'));
+            copyWorkflowTemplate('playwright-web-tests.yml');
+          }
+          if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
+            console.log(chalk.yellow('\nRun the following to install Playwright:'));
+            console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+          }
         }
-        if (cicdOptions.includeCliTests || cicdOptions.includeWebTests) {
-          console.log(chalk.yellow('\nRun the following to install Playwright:'));
-          console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
+        
+        // Visual Development Setup
+        if (config && config.visualDevOptions && config.visualDevOptions.enabled) {
+          console.log(chalk.blue('\n🎨 Setting up Visual Development Environment...'));
+          
+          // Import and run visual development setup
+          const { setupPlaywrightDirectories } = require('./mcp');
+          setupPlaywrightDirectories();
+          
+          // Copy playwright-visual-developer agent if not already present
+          const visualAgentPath = path.join(process.cwd(), '.claude', 'agents', 'playwright-visual-developer.md');
+          if (!fs.existsSync(visualAgentPath)) {
+            copyTemplateAgents(['playwright-visual-developer']);
+          }
+          
+          // Copy cli-web-bridge-architect agent if not already present
+          const bridgeAgentPath = path.join(process.cwd(), '.claude', 'agents', 'cli-web-bridge-architect.md');
+          if (!fs.existsSync(bridgeAgentPath)) {
+            copyTemplateAgents(['cli-web-bridge-architect']);
+          }
+          
+          // Create /visual-iterate command
+          const visualIterateCommand = `# Visual Iteration Command
+
+Trigger: /visual-iterate [component-name] [mock-path?]
+
+You are implementing pixel-perfect UI using Playwright MCP tools to achieve < ${config.visualDevOptions.defaultThreshold || 5}% visual difference.
+
+## Configuration
+- Max Iterations: ${config.visualDevOptions.maxIterations || 10}
+- Threshold: ${config.visualDevOptions.defaultThreshold || 5}%
+
+## Required MCP Tools
+- playwright_navigate(url) - Navigate to component
+- playwright_screenshot(selector?, path?) - Capture screenshots
+- playwright_set_viewport(width, height) - Change viewport
+- playwright_evaluate(script) - Inject CSS/JS changes
+
+## Workflow
+
+### Phase 1: Setup
+1. Check for mock at .claude/mocks/[component-name].png
+2. Create session directory: .claude/visual-iterations/session-[timestamp]/
+3. Navigate to component
+4. Capture initial state
+
+### Phase 2: Iterative Refinement (${config.visualDevOptions.maxIterations || 10} iterations max)
+For each iteration:
+1. Compare screenshot with mock visually
+2. Identify differences (layout, colors, typography, spacing)
+3. Apply fixes using playwright_evaluate
+4. Capture new screenshot
+5. If < ${config.visualDevOptions.defaultThreshold || 5}% difference, proceed to Phase 3
+
+### Phase 3: Responsive Testing
+Test mobile (375x667), tablet (768x1024), and desktop (1920x1080) viewports
+
+### Phase 4: Documentation
+Create report at .claude/visual-reports/[component]-[timestamp].md with:
+- Number of iterations
+- Final difference percentage
+- Changes made per iteration
+- Responsive screenshots
+
+## Success Criteria
+✅ Visual difference < ${config.visualDevOptions.defaultThreshold || 5}%
+✅ All viewports tested
+✅ Report generated
+`;
+          
+          const visualCommandPath = path.join(process.cwd(), '.claude', 'commands', 'visual-iterate.md');
+          fs.writeFileSync(visualCommandPath, visualIterateCommand);
+          console.log(chalk.green('  ✓ Created /visual-iterate command'));
+          
+          // Setup Playwright MCP if configured
+          if (config.visualDevOptions.mcpPlaywright && config.mcpServers && config.mcpServers.includes('playwright')) {
+            console.log(chalk.blue('\n📦 Setting up Playwright MCP...'));
+            const { setupMCP } = require('./mcp');
+            setupMCP('playwright');
+          }
+          
+          console.log(chalk.green('\n✅ Visual Development Environment Ready!'));
+          console.log(chalk.cyan('\nNext steps:'));
+          console.log(chalk.gray('  1. Add design mocks to .claude/mocks/'));
+          console.log(chalk.gray('  2. Start your dev server'));
+          console.log(chalk.gray('  3. Tell Claude: /visual-iterate [component-name]'));
         }
       }
 

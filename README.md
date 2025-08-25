@@ -146,6 +146,44 @@ This tiered approach ensures:
 - Gradual knowledge accumulation
 - Reduced repetition of solved problems
 
+## HOP/LOP Template System
+
+### Eliminating Redundancy with Reusable Templates
+
+The HOP/LOP (Higher Order Prompt / Lower Order Prompt) system reduces implementation prompt redundancy from 78% to less than 5% through:
+
+- **Higher Order Prompts (HOPs)**: Master templates with variable placeholders
+- **Lower Order Prompts (LOPs)**: YAML configurations for specific scenarios
+- **Variable Interpolation**: Dynamic content injection
+- **Schema Validation**: Ensures LOPs are correctly structured
+
+### Using the /implement Command in Claude
+
+The `/implement` command allows direct execution of implementation plans:
+
+```
+# Execute immediately in current context
+/implement ci-testing              # Setup CI testing
+/implement visual-dev              # Setup visual development
+/implement plan my-plan.md         # Execute from markdown plan
+
+# Add tests to any implementation
+/implement plan refactor.md --with-ci-tests
+/implement plan feature.md --with-visual-tests
+
+# Generate prompt without executing
+/implement ci-testing --output-only
+
+# Show help
+/implement --help
+```
+
+### Available LOPs
+
+- **ci-visual-testing.yaml**: CI-compatible Playwright testing
+- **visual-feature-development.yaml**: Local visual development with MCP
+- Custom LOPs can be created with `mac lop create`
+
 ## YAML-Based Prompt Architecture
 
 ### Component System
@@ -321,6 +359,21 @@ multiagent-claude agent deploy <name>
 
 # Add template agent to project
 multiagent-claude agent add <name>
+```
+
+#### HOP/LOP Prompt System
+```bash
+# List available LOPs (Lower Order Prompts)
+multiagent-claude lop list
+
+# Validate a LOP against schema
+multiagent-claude lop validate <file>
+
+# Create new LOP interactively
+multiagent-claude lop create
+
+# Execute LOP to generate implementation prompt
+multiagent-claude lop execute <file>
 ```
 
 #### Memory System
@@ -914,6 +967,80 @@ npm publish
 # Users can then install globally
 npm install -g multiagent-claude
 ```
+
+## Testing
+
+### Running Tests Locally
+
+The project uses Playwright for comprehensive testing including CLI commands, unit tests, and visual regression.
+
+```bash
+# Run all tests
+npm test
+
+# Run specific test suites
+npm run test:cli          # CLI command tests only
+npm run test:visual        # Visual regression tests only
+
+# Run tests in different modes
+npm run test:headed        # Run with browser visible
+npm run test:debug         # Debug mode with inspector
+npm run test:ui            # Interactive UI mode
+
+# Update visual baselines (when intentional changes are made)
+npm run test:update-snapshots
+```
+
+### CI/CD Testing
+
+Tests run automatically on GitHub Actions with:
+- **4-way parallel sharding** for optimal performance
+- **Visual regression testing** with automatic baseline updates
+- **Cross-platform testing** on Ubuntu (CI) and all platforms locally
+- **Comprehensive test reports** with artifacts on failure
+
+CI test command:
+```bash
+npm run test:ci  # Runs with blob reporter for CI
+```
+
+### Test Organization
+
+```
+tests/
+├── cli-playwright.spec.js      # CLI command tests
+├── visual-regression.spec.js   # Visual regression tests
+├── cli.cli.spec.js             # Legacy CLI tests
+└── utils/
+    ├── cli-helpers.js          # CLI testing utilities
+    └── visual-helpers.js       # Visual baseline management
+```
+
+### Writing New Tests
+
+Use the provided test utilities for consistency:
+
+```javascript
+const { CLITestHelper } = require('./utils/cli-helpers');
+
+test('my new test', async () => {
+  const helper = new CLITestHelper();
+  await helper.createTestDirectory();
+  
+  const result = await helper.runCommand('setup --variant base');
+  expect(result.success).toBe(true);
+  
+  await helper.cleanupAll();
+});
+```
+
+### Visual Regression Testing
+
+Visual tests automatically capture and compare CLI output:
+- Baselines stored in `.playwright/baseline/`
+- Automatic updates on main branch via CI
+- Local updates with `npm run test:update-snapshots`
+- Diffs shown in test reports on failure
 
 ## Contributing
 

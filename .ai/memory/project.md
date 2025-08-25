@@ -1,7 +1,7 @@
 # MultiAgent-Claude Project Memory
 
-**Last Updated**: 2025-01-22  
-**Version**: 2.0.0  
+**Last Updated**: 2025-01-24  
+**Version**: 2.6.0  
 **Status**: Active Development
 
 ## Project Overview
@@ -42,6 +42,13 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 3. Main system executes plans
 4. Document successful patterns
 
+#### HOP/LOP Template Pattern
+1. Use Higher Order Prompts for reusable templates
+2. Configure Lower Order Prompts in YAML
+3. Validate LOPs against JSON Schema
+4. Execute with `/implement` command
+5. 78% → <5% redundancy achieved
+
 #### Cross-Platform Workflow
 1. Maintain dual configs (CLAUDE.md/AGENTS.md)
 2. Convert agents to roles for ChatGPT
@@ -73,6 +80,8 @@ MultiAgent-Claude is a sophisticated orchestration framework for AI development,
 - inquirer: Interactive prompts
 - archiver: Bundle creation
 - js-yaml: YAML parsing
+- ajv: JSON Schema validation
+- glob: File pattern matching
 
 ## Architectural Decisions
 
@@ -84,6 +93,9 @@ COMPACT algorithm for 1500-char ChatGPT limits
 
 ### ADR-003: Bidirectional Sync Protocol
 Multi-level sync with conflict resolution
+
+### ADR-007: HOP/LOP Template System
+Variable interpolation templates reduce redundancy 78% → <5%
 
 ## Established Patterns
 
@@ -104,6 +116,13 @@ Multi-level sync with conflict resolution
 - Shared ADR structure
 - Cross-platform sync
 - Conflict resolution
+
+### HOP/LOP Implementation Pattern
+- Master templates with variables
+- YAML configuration files
+- Schema validation
+- Direct execution via /implement
+- Help mode with -h flag
 
 ## Quality Metrics
 
@@ -217,3 +236,29 @@ Multi-level sync with conflict resolution
 - ✅ Growing ADR collection
 - ✅ High test coverage
 - ✅ Team adoption
+- ✅ Visual development integration
+- ✅ Pixel-perfect UI iteration
+
+## Recent Improvements
+
+### v2.6 - Local Visual Development System (2025-01-24)
+- **Complete Playwright MCP integration** for real-time browser control
+- **Visual iteration workflow** with pixel-perfect matching (< 5% threshold)
+- **Comprehensive visual comparison utilities** using pixelmatch and sharp
+- **Session-based iteration tracking** with detailed progress reports
+- **Interactive setup wizard** for visual development configuration
+- **Full CLI integration** with visual-setup, visual-compare, visual-report commands
+- **/visual-iterate command** for Claude Code visual development
+- **Multi-viewport testing** (mobile, tablet, desktop, wide)
+- **Visual development templates** and documentation
+- **Automatic directory structure** creation for visual assets
+
+### Key Visual Development Features
+- Real-time CSS/HTML injection via playwright_evaluate
+- Progressive refinement pattern (2-3 iterations typical)
+- Viewport-first responsive development
+- State-based component testing
+- Automatic diff image generation
+- Comprehensive iteration reports
+- Mock directory organization
+- Session history tracking

@@ -13,13 +13,58 @@ function question(prompt) {
   return new Promise(resolve => rl.question(prompt, resolve));
 }
 
-async function execute() {
+async function execute(options = {}) {
+  // Parse command-line options
+  const skipPrompts = options.skipPrompts || false;
+  const cliVariant = options.variant || null;
+  const cliAgents = options.agents || [];
+  
+  // Handle --variant flag (can be used with or without --skip-prompts)
+  if (cliVariant) {
+    const validVariants = ['base', 'standard', 'memory-only', 'with-docs'];
+    if (!validVariants.includes(cliVariant)) {
+      const errorMsg = `Error: Invalid variant '${cliVariant}'. Valid options are: ${validVariants.join(', ')}`;
+      console.error(chalk.red(errorMsg));
+      rl.close();
+      // For testing, throw error instead of process.exit
+      throw new Error(errorMsg);
+    }
+  }
+  
+  // Non-interactive mode for testing
+  if (skipPrompts) {
+    const projectType = await detectProjectType();
+    const variant = cliVariant || 'base';
+    const agents = cliAgents.length > 0 ? cliAgents : [];
+    
+    // Call setupEnvironment directly with minimal config for testing
+    const result = setupEnvironment(
+      variant,
+      agents,
+      [], // mcpServers
+      {}, // ciOptions
+      {}, // playwrightOptions
+      {}, // visualDevOptions
+      projectType || 'Unknown',
+      null, // projectAnalysis
+      [], // customAgentsToCreate
+      [], // codexRolesToCreate
+      'skip' // agentsMdAction
+    );
+    
+    // Important: close readline interface in non-interactive mode
+    rl.close();
+    
+    return result;
+  }
+  
+  // Interactive mode (existing behavior)
   console.log(chalk.blue('\n🚀 MultiAgent Claude Setup Wizard\n'));
 
   console.log(chalk.yellow('This wizard will help you set up the multi-agent environment.\n'));
 
   const projectType = await detectProjectType();
-  console.log(chalk.green(`✓ Detected project type: ${projectType}`));
+  console.log(chalk.green(`✓ Detected project type: ${projectType}`))
 
   console.log(chalk.yellow('\nChoose initialization variant:'));
   console.log('1. Standard multi-agent setup (recommended)');
@@ -181,6 +226,45 @@ async function execute() {
     };
   }
 
+  // Visual Development Integration
+  console.log(chalk.yellow('\n🎨 Visual Development (NEW):'));
+  const enableVisualDev = await question(chalk.cyan('Enable Playwright MCP visual development for pixel-perfect UI iteration? (y/n): '));
+  
+  let visualDevOptions = {};
+  if (enableVisualDev.toLowerCase() === 'y') {
+    visualDevOptions = {
+      enabled: true,
+      mcpPlaywright: true,
+      iterativeRefinement: true,
+      mockComparison: true,
+      defaultThreshold: 5, // 5% difference threshold
+      maxIterations: 10
+    };
+    
+    // Auto-select playwright-visual-developer agent if not already selected
+    if (!selectedAgents.includes('playwright-visual-developer')) {
+      selectedAgents.push('playwright-visual-developer');
+      console.log(chalk.green('  ✓ Added playwright-visual-developer agent'));
+    }
+    
+    // Auto-select cli-web-bridge-architect for CLI-browser integration
+    if (!selectedAgents.includes('cli-web-bridge-architect')) {
+      selectedAgents.push('cli-web-bridge-architect');
+      console.log(chalk.green('  ✓ Added cli-web-bridge-architect agent'));
+    }
+    
+    // Ensure Playwright MCP is in the list
+    if (!mcpServers.includes('playwright')) {
+      mcpServers.push('playwright');
+      console.log(chalk.green('  ✓ Added Playwright MCP server'));
+    }
+    
+    console.log(chalk.cyan('  Visual development will be configured during initialization'));
+    console.log(chalk.gray('  • Mock directory: .claude/mocks/'));
+    console.log(chalk.gray('  • Iterations saved: .claude/visual-iterations/'));
+    console.log(chalk.gray('  • Goal: < 5% visual difference from design mocks'));
+  }
+
   rl.close();
 
   console.log(chalk.blue('\n📝 Configuration Summary:\n'));
@@ -201,10 +285,16 @@ async function execute() {
     console.log(chalk.gray(`    - Accessibility: ${playwrightOptions.accessibility}`));
     console.log(chalk.gray(`    - CI Integration: ${playwrightOptions.ciIntegration}`));
   }
+  if (visualDevOptions.enabled) {
+    console.log(chalk.gray(`  Visual Development: Enabled`));
+    console.log(chalk.gray(`    - MCP Playwright: ${visualDevOptions.mcpPlaywright}`));
+    console.log(chalk.gray(`    - Threshold: ${visualDevOptions.defaultThreshold}%`));
+    console.log(chalk.gray(`    - Max Iterations: ${visualDevOptions.maxIterations}`));
+  }
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, agentsMdAction);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, visualDevOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, agentsMdAction);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -602,20 +692,13 @@ function detectProjectType() {
 // The framework uses its own agents (agent-factory, codex-configuration-expert, role-instruction-engineer)
 // to create context-aware, project-specific agents and configurations
 
-function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, visualDevOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
   
-  // Create minimal directory structure only
-  const dirs = [
-    '.claude', '.claude/agents', '.claude/commands', '.claude/tasks', '.claude/doc',
-    '.ai/memory', '.ai/memory/patterns', '.ai/memory/decisions',
-    '.chatgpt', '.chatgpt/roles'
-  ];
-  
-  dirs.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  });
+  // Only create .claude directory - all other directories created by init.js
+  const claudeDir = '.claude';
+  if (!fs.existsSync(claudeDir)) {
+    fs.mkdirSync(claudeDir, { recursive: true });
+  }
 
   // Save complete configuration for init to process
   const config = {
@@ -624,6 +707,7 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
     mcpServers,
     ciOptions,
     playwrightOptions,
+    visualDevOptions,
     projectType,
     projectAnalysis: projectAnalysis ? {
       monorepo: projectAnalysis.monorepo,
@@ -682,4 +766,47 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   }
 }
 
-module.exports = { execute };
+// Parse command-line arguments helper
+function parseArgs(args) {
+  const options = {};
+  
+  if (!args || !Array.isArray(args)) {
+    return options;
+  }
+  
+  // Parse --skip-prompts flag
+  if (args.includes('--skip-prompts')) {
+    options.skipPrompts = true;
+  }
+  
+  // Parse --variant flag
+  const variantIndex = args.indexOf('--variant');
+  if (variantIndex !== -1 && args[variantIndex + 1]) {
+    options.variant = args[variantIndex + 1];
+  }
+  
+  // Parse --agents flag (comma-separated list)
+  const agentsIndex = args.indexOf('--agents');
+  if (agentsIndex !== -1 && args[agentsIndex + 1]) {
+    options.agents = args[agentsIndex + 1].split(',').map(a => a.trim());
+  }
+  
+  return options;
+}
+
+// Export with argument parsing
+module.exports = { 
+  execute: async (args) => {
+    const options = parseArgs(args);
+    try {
+      return await execute(options);
+    } catch (error) {
+      // Ensure readline is closed on error
+      if (rl && rl.close) {
+        try { rl.close(); } catch {}
+      }
+      // Re-throw for proper error handling
+      throw error;
+    }
+  }
+};

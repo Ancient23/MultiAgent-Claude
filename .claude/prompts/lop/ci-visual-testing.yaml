@@ -1,0 +1,212 @@
+metadata:
+  name: CI Visual Testing Implementation
+  description: Implement comprehensive CI-compatible Playwright visual testing with full test coverage and GitHub Actions integration
+  type: testing
+  priority: HIGH
+  version: 1.0.0
+  tags:
+    - testing
+    - ci-cd
+    - playwright
+    - visual-regression
+    - github-actions
+
+variables:
+  plan_location: .ai/memory/implementation-plans/ci-testing-plan.md
+  session_type: ci_visual_testing
+
+agents:
+  - name: meta-development-orchestrator
+    role: Overall coordination and phase management
+    deploy_for: Coordinating multi-phase implementation and ensuring all components integrate properly
+  
+  - name: cli-test-engineer
+    role: Test architecture design and CLI test coverage
+    deploy_for: Creating test utilities, CLI helpers, and ensuring comprehensive command testing
+  
+  - name: playwright-test-engineer
+    role: E2E test scenario design and visual regression strategy
+    deploy_for: Designing test scenarios, page objects, and visual baseline management
+  
+  - name: implementation-verifier
+    role: Validate all changes work correctly
+    deploy_for: Verifying tests pass, CI runs successfully, and no regressions introduced
+  
+  - name: documentation-sync-guardian
+    role: Keep all documentation current and synchronized
+    deploy_for: Updating README, CLAUDE.md, and ensuring memory patterns are documented
+
+mcp_servers: []  # CI testing doesn't require MCP servers
+
+phases:
+  - name: Core Test Infrastructure
+    description: Setup comprehensive test infrastructure with utilities and helpers
+    tasks:
+      - Create tests/utils/cli-helpers.js with CLITestHelper class
+      - Create tests/utils/visual-helpers.js with VisualBaselineManager class
+      - Setup Playwright configuration for CI environment
+      - Configure visual baseline directory structure
+      - Implement test data management utilities
+      - Setup parallel execution configuration
+    agents:
+      - cli-test-engineer
+    agent_tasks:
+      cli-test-engineer: analyze existing tests and create comprehensive test utilities
+
+  - name: CLI Test Implementation
+    description: Implement complete CLI command testing suite
+    tasks:
+      - Create tests/cli-playwright.spec.js with all command tests
+      - Test setup command creates minimal structure
+      - Test init command creates full directory structure
+      - Test init --minimal flag for CI compatibility
+      - Test add commands (ci-cd, testing, web-testing)
+      - Test pipeline flow (setup → init sequence)
+      - Verify error handling and edge cases
+    agents:
+      - cli-test-engineer
+      - playwright-test-engineer
+    agent_tasks:
+      cli-test-engineer: design CLI test scenarios
+      playwright-test-engineer: implement test execution patterns
+
+  - name: Visual Regression Testing
+    description: Implement visual regression testing with baseline management
+    tasks:
+      - Create tests/visual-regression.spec.js
+      - Implement CLI output visual consistency tests
+      - Setup baseline screenshot management
+      - Implement visual change detection tests
+      - Configure threshold-based comparison
+      - Setup viewport testing for different screen sizes
+      - Implement diff generation for failures
+    agents:
+      - playwright-test-engineer
+    agent_tasks:
+      playwright-test-engineer: create visual regression test architecture
+
+  - name: CI/CD Integration
+    description: Configure complete CI/CD pipeline with GitHub Actions
+    tasks:
+      - Update .github/workflows/playwright-cli-tests.yml with 4-way sharding
+      - Configure blob reporter for parallel execution
+      - Setup artifact collection for test results
+      - Implement report merging for sharded tests
+      - Configure visual diff artifact uploads
+      - Setup failure notifications
+      - Optimize for fast execution (< 5 minutes)
+    agents:
+      - meta-development-orchestrator
+    agent_tasks:
+      meta-development-orchestrator: ensure CI pipeline is optimized and reliable
+
+  - name: Template Creation
+    description: Create templates for user projects
+    tasks:
+      - Create templates/workflows/playwright-tests.yml
+      - Create templates/playwright.config.js with best practices
+      - Create templates/tests/example.spec.js
+      - Setup template visual baseline structure
+      - Configure template package.json scripts
+      - Create template test utilities
+    agents:
+      - cli-test-engineer
+    agent_tasks:
+      cli-test-engineer: ensure templates follow best practices
+
+  - name: Testing and Verification
+    description: Comprehensive testing of all implementations
+    tasks:
+      - Run full test suite with npm test
+      - Verify all 19 existing tests still pass
+      - Verify all new CLI tests pass
+      - Verify visual regression tests work
+      - Test CI workflow in GitHub Actions
+      - Verify parallel execution reduces time by 50%
+      - Confirm no flaky tests
+    agents:
+      - implementation-verifier
+    agent_tasks:
+      implementation-verifier: validate everything works end-to-end
+
+  - name: Documentation and Memory
+    description: Complete documentation and memory system updates
+    tasks:
+      - Update README.md with testing instructions
+      - Update CLAUDE.md with test patterns
+      - Create .ai/memory/patterns/testing/ci-patterns.md
+      - Create .ai/memory/decisions/adr-playwright-ci.md
+      - Document visual regression workflow
+      - Create troubleshooting guide
+      - Update package.json with all test scripts
+    agents:
+      - documentation-sync-guardian
+    agent_tasks:
+      documentation-sync-guardian: ensure all documentation is complete and accurate
+
+verification:
+  criteria:
+    - All tests run successfully in headless mode
+    - Visual regression baselines properly managed
+    - Parallel execution reduces CI time by at least 50%
+    - No flaky tests in CI environment
+    - Test reports easily accessible via artifacts
+    - Templates work for new projects
+    - CLI commands fully tested with > 90% coverage
+    - All existing 19 tests continue passing
+    - New tests add at least 10 more test cases
+    - GitHub Actions workflow runs without errors
+    - Documentation complete and accurate
+    - Memory patterns documented
+
+  pre_conditions:
+    - Node.js 18+ installed
+    - Playwright dependencies available
+    - GitHub Actions runner environment understood
+    - Existing test suite analyzed
+
+  post_conditions:
+    - All tests passing in CI
+    - Visual baselines committed to repository
+    - CI workflow merged to main branch
+    - Templates ready for distribution
+
+memory_patterns:
+  - Document CI testing patterns in .ai/memory/patterns/testing/ci-patterns.md
+  - Create ADR for choosing Playwright over other test frameworks
+  - Document visual regression threshold decisions
+  - Save successful sharding configuration
+  - Record optimal parallel execution settings
+  - Document headless browser configuration
+  - Save artifact collection patterns
+  - Record test data management strategies
+
+testing:
+  required_tests:
+    - CLI command tests
+    - Visual regression tests
+    - Template validation tests
+    - CI workflow tests
+  
+  test_commands:
+    - npm test
+    - npm run test:cli
+    - npm run test:visual
+    - npm run test:ci
+    - npm run test:update-snapshots
+  
+  success_criteria:
+    - All tests pass locally
+    - All tests pass in CI
+    - Visual baselines match
+    - Coverage > 90%
+
+anti_patterns:
+  - Using arbitrary sleep/wait times instead of Playwright's auto-waiting
+  - Hardcoding paths instead of using path.join
+  - Not cleaning up test directories after tests
+  - Using real network requests in tests
+  - Committing large screenshot files without optimization
+  - Running tests sequentially instead of in parallel
+  - Not handling CI vs local environment differences
+  - Ignoring flaky test warnings

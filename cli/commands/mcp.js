@@ -152,18 +152,260 @@ async function installMCPServer(serverName) {
 }
 
 function setupPlaywrightDirectories() {
+  console.log(chalk.blue('🎨 Setting up comprehensive visual development environment...'));
+  
+  // Complete visual development directories
   const dirs = [
-    '.claude/mocks',
-    '.claude/visual-iterations',
-    '.claude/visual-reports',
-    '.playwright/baseline'
+    '.claude/mocks',                    // Design mockups and references
+    '.claude/visual-iterations',        // Screenshot iterations during development
+    '.claude/visual-reports',            // Visual comparison reports
+    '.claude/visual-sessions',           // Session-specific iterations
+    '.claude/visual-baselines',          // Approved baseline screenshots
+    '.playwright/baseline',             // Playwright baseline screenshots
+    '.playwright/test-results',          // Test execution results
+    '.playwright/screenshots',           // Ad-hoc screenshots
+    '.playwright/reports',               // HTML reports
+    'tests/visual',                      // Visual regression test files
+    'tests/fixtures/visual',             // Visual test fixtures and data
+    'tests/utils'                        // Test utilities
   ];
   
   dirs.forEach(dir => {
     fs.mkdirSync(dir, { recursive: true });
+    console.log(chalk.gray(`  ✅ Created ${dir}`));
   });
   
-  console.log(chalk.green('✅ Created visual development directories'));
+  // Create comprehensive visual configuration
+  const visualConfig = {
+    iterationGoal: 0.05,  // 5% difference threshold
+    maxIterations: 10,    // Maximum iterations before stopping
+    defaultViewports: {
+      mobile: { width: 375, height: 667, deviceScaleFactor: 2 },
+      tablet: { width: 768, height: 1024, deviceScaleFactor: 2 },
+      desktop: { width: 1920, height: 1080, deviceScaleFactor: 1 },
+      wide: { width: 2560, height: 1440, deviceScaleFactor: 1 }
+    },
+    comparisonSettings: {
+      threshold: 0.05,      // 5% pixel difference threshold
+      includeAA: true,      // Include anti-aliasing in comparison
+      diffMask: true,       // Generate diff masks
+      alpha: 0.1,           // Alpha channel sensitivity
+      aaThreshold: 5,       // Anti-aliasing threshold
+      diffColor: [255, 0, 0] // Red for differences
+    },
+    sessionSettings: {
+      saveAllIterations: true,
+      generateReports: true,
+      trackHistory: true,
+      maxSessionAge: 7  // Days to keep session data
+    },
+    devServerUrl: 'http://localhost:3000',
+    browsers: ['chromium', 'firefox', 'webkit'],
+    retries: 2,
+    outputFormats: ['png', 'json', 'html']
+  };
+  
+  fs.writeFileSync(
+    path.join(process.cwd(), '.claude', 'visual-config.json'),
+    JSON.stringify(visualConfig, null, 2)
+  );
+  console.log(chalk.gray('  ✅ Created visual-config.json'));
+  
+  // Create mock directory README
+  const mockReadme = `# Visual Mock Directory
+
+Place your design mockups here with descriptive names:
+- homepage.png
+- dashboard.png
+- login-form.png
+- header-component.png
+- button-states.png
+
+## Naming Convention
+Use kebab-case for mock files matching your component names.
+
+## Recommended Formats
+- PNG for pixel-perfect comparisons (preferred)
+- JPG for general layout comparisons
+- Same dimensions as target viewport
+- Include mobile, tablet, and desktop versions when needed
+
+## Directory Structure
+\`\`\`
+.claude/mocks/
+├── components/
+│   ├── button-default.png
+│   ├── button-hover.png
+│   └── button-disabled.png
+├── pages/
+│   ├── homepage-desktop.png
+│   ├── homepage-mobile.png
+│   └── dashboard.png
+└── responsive/
+    ├── header-375w.png
+    ├── header-768w.png
+    └── header-1920w.png
+\`\`\`
+
+## Usage
+Tell Claude: "/visual-iterate homepage" to start matching homepage.png
+
+## Tips
+- Use high-quality exports from design tools (Figma, Sketch, XD)
+- Ensure mocks match expected viewport dimensions
+- Include all component states (hover, active, disabled)
+- Name files to match component/page names in code
+`;
+  
+  fs.writeFileSync(
+    path.join(process.cwd(), '.claude', 'mocks', 'README.md'),
+    mockReadme
+  );
+  console.log(chalk.gray('  ✅ Created mocks/README.md'));
+  
+  // Create example Playwright visual test configuration
+  const playwrightVisualConfig = `// playwright-visual.config.js
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/visual',
+  outputDir: '.playwright/test-results',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  
+  reporter: [
+    ['html', { outputFolder: '.playwright/reports' }],
+    ['json', { outputFile: '.playwright/reports/results.json' }],
+    ['list']
+  ],
+  
+  use: {
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: {
+      mode: 'only-on-failure',
+      fullPage: true
+    },
+    video: process.env.CI ? 'retain-on-failure' : 'off'
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 }
+      },
+    },
+    {
+      name: 'firefox',
+      use: { 
+        ...devices['Desktop Firefox'],
+        viewport: { width: 1920, height: 1080 }
+      },
+    },
+    {
+      name: 'webkit',
+      use: { 
+        ...devices['Desktop Safari'],
+        viewport: { width: 1920, height: 1080 }
+      },
+    },
+    {
+      name: 'mobile-chrome',
+      use: { 
+        ...devices['Pixel 5'],
+        viewport: { width: 375, height: 667 }
+      },
+    },
+    {
+      name: 'mobile-safari',
+      use: { 
+        ...devices['iPhone 13'],
+        viewport: { width: 390, height: 844 }
+      },
+    },
+    {
+      name: 'tablet',
+      use: { 
+        ...devices['iPad Pro'],
+        viewport: { width: 1024, height: 1366 }
+      },
+    },
+  ],
+
+  webServer: {
+    command: process.env.CI ? 'npm run build && npm run start' : 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
+});
+`;
+  
+  const configPath = path.join(process.cwd(), 'playwright-visual.config.js');
+  if (!fs.existsSync(configPath)) {
+    fs.writeFileSync(configPath, playwrightVisualConfig);
+    console.log(chalk.gray('  ✅ Created playwright-visual.config.js'));
+  }
+  
+  // Create visual iteration tracking template
+  const iterationTemplate = {
+    sessionId: null,
+    componentName: null,
+    startTime: null,
+    iterations: [],
+    finalDifference: null,
+    status: 'in-progress',
+    viewport: null,
+    mockPath: null
+  };
+  
+  fs.writeFileSync(
+    path.join(process.cwd(), '.claude', 'visual-sessions', 'template.json'),
+    JSON.stringify(iterationTemplate, null, 2)
+  );
+  
+  // Update package.json scripts
+  updatePackageJsonScripts();
+  
+  console.log(chalk.green('\n✅ Visual development environment fully configured!'));
+  console.log(chalk.cyan('\n📝 Next steps:'));
+  console.log(chalk.gray('  1. Add design mocks to .claude/mocks/'));
+  console.log(chalk.gray('  2. Run: npm run visual:setup'));
+  console.log(chalk.gray('  3. Start dev server: npm run dev'));
+  console.log(chalk.gray('  4. Tell Claude: /visual-iterate [component-name]'));
+  console.log(chalk.yellow('\n🎯 Goal: Iterate until < 5% difference from mock'));
+}
+
+function updatePackageJsonScripts() {
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
+  if (fs.existsSync(packageJsonPath)) {
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    
+    if (!packageJson.scripts) {
+      packageJson.scripts = {};
+    }
+    
+    // Add visual development scripts
+    const visualScripts = {
+      'visual:test': 'playwright test --config=playwright-visual.config.js',
+      'visual:test:ui': 'playwright test --config=playwright-visual.config.js --ui',
+      'visual:test:debug': 'playwright test --config=playwright-visual.config.js --debug',
+      'visual:update': 'playwright test --config=playwright-visual.config.js --update-snapshots',
+      'visual:report': 'playwright show-report .playwright/reports',
+      'visual:setup': 'node -e "require(\'./cli/commands/mcp-setup.js\').setupVisualDevelopment()"',
+      'visual:compare': 'node -e "require(\'./cli/utils/visual-compare.js\').runComparison()"',
+      'visual:clean': 'rm -rf .playwright/test-results .playwright/reports .claude/visual-iterations/*'
+    };
+    
+    Object.assign(packageJson.scripts, visualScripts);
+    
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    console.log(chalk.gray('  ✅ Updated package.json scripts'));
+  }
 }
 
 function getClaudeDesktopConfigPath() {

@@ -1,211 +1,203 @@
-name: Playwright CLI Tests
+name: Playwright CLI & Visual Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
   test:
-    timeout-minutes: 60
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: [1/10, 2/10, 3/10, 4/10, 5/10, 6/10, 7/10, 8/10, 9/10, 10/10]
+        shard: [1/4, 2/4, 3/4, 4/4]
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
           
       - name: Install dependencies
         run: npm ci
         
-      - name: Install Playwright Browsers
+      - name: Install Playwright
         run: npx playwright install --with-deps chromium
         
-      - name: Initialize Memory System for Tests
+      - name: Create test directories
         run: |
-          # Create memory system for testing
-          mkdir -p .ai/memory/{patterns,decisions,reports}
-          echo "# Test Project Context" > .ai/memory/project.md
-          echo "{}" > .ai/memory/index.json
+          mkdir -p .playwright/baseline
+          mkdir -p test-results
           
-      - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }} --reporter=blob
+      - name: Run CLI tests
+        run: npx playwright test tests/cli-playwright.spec.js --shard=${{ matrix.shard }}
         
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
+      - name: Run Visual Regression tests
+        run: npx playwright test tests/visual-regression.spec.js --shard=${{ matrix.shard }}
+        
+      - name: Upload blob report
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: blob-report-${{ strategy.job-index }}
           path: blob-report/
-          retention-days: 30
+          retention-days: 7
           
-      - name: Upload test videos
-        uses: actions/upload-artifact@v4
+      - name: Upload visual diffs
         if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          name: test-videos-${{ strategy.job-index }}
+          name: visual-diffs-${{ strategy.job-index }}
           path: test-results/
           retention-days: 7
-
+          
   merge-reports:
     if: always()
-    needs: [test]
+    needs: test
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
           
       - name: Install dependencies
         run: npm ci
-          
-      - name: Download all reports
+        
+      - name: Download blob reports
         uses: actions/download-artifact@v4
         with:
-          path: all-reports/
           pattern: blob-report-*
           merge-multiple: true
+          path: all-blob-reports/
           
       - name: Merge reports
-        run: |
-          npx playwright merge-reports --reporter html ./all-reports/ || echo "No reports to merge"
-          
-      - name: Upload merged report
+        run: npx playwright merge-reports all-blob-reports
+        
+      - name: Upload HTML report
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-merged
+          name: playwright-report
           path: playwright-report/
           retention-days: 30
           
-      - name: Comment on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+      - name: Upload visual regression report
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const testResults = 'Test results have been generated and are available as artifacts.';
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## 🎭 Playwright Test Results\n\n${testResults}\n\n[View Test Report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
-            });
+          name: visual-regression-report
+          path: test-results/visual-report.html
+          retention-days: 7
 
-  update-memory-from-tests:
-    needs: [test]
-    if: success() && github.ref == 'refs/heads/main'
+  update-baselines:
+    if: github.ref == 'refs/heads/main' && success()
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
+          cache: 'npm'
           
       - name: Install dependencies
         run: npm ci
         
-      - name: Initialize Memory System
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        
+      - name: Update visual baselines
         run: |
-          if [ ! -d ".ai/memory" ]; then
-            mkdir -p .ai/memory/{patterns,decisions,reports}
-            echo "# Project Context" > .ai/memory/project.md
-            echo "{}" > .ai/memory/index.json
-          fi
+          UPDATE_SNAPSHOTS=true npx playwright test tests/visual-regression.spec.js
           
-      - name: Document Test Patterns
-        id: patterns
+      - name: Commit updated baselines
         run: |
-          # Extract successful test patterns
+          if [ -n "$(git status --porcelain .playwright/baseline/)" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .playwright/baseline/
+            git commit -m "📸 Update visual regression baselines
+            
+            - Updated from main branch
+            - Run ID: ${{ github.run_id }}"
+            git push
+          else
+            echo "No baseline changes detected"
+          fi
+
+  document-patterns:
+    if: github.ref == 'refs/heads/main' && failure()
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Document test failures
+        run: |
+          mkdir -p .ai/memory/patterns/testing
           DATE=$(date +%Y-%m-%d)
-          PATTERN_FILE=".ai/memory/patterns/cli-patterns/test-patterns-${DATE}.md"
+          PATTERN_FILE=".ai/memory/patterns/testing/test-failures-${DATE}.md"
           
-          mkdir -p .ai/memory/patterns/cli-patterns
-          
-          # Check if pattern already documented today
-          if [ -f "${PATTERN_FILE}" ]; then
-            echo "Test patterns already documented today"
-            echo "patterns_created=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          
-          # Only create pattern file if tests revealed new insights
-          # For now, only document on first run of the day
-          echo "patterns_created=true" >> $GITHUB_OUTPUT
-          cat > ${PATTERN_FILE} << EOF
+          # Only document if not already documented today
+          if [ ! -f "${PATTERN_FILE}" ]; then
+            cat > ${PATTERN_FILE} << EOF
           ---
-          source: playwright-tests
+          source: playwright-test-failures
           created_by: ci
           created_at: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
           test_run: ${{ github.run_id }}
-          version: 1.0
           ---
           
-          # CLI Test Patterns
+          # Test Failure Patterns
           
-          ## Successful Patterns from Test Run
+          ## Failed Test Run: ${{ github.run_id }}
           
-          ### Command Structure Tests
-          - All commands properly display help information
-          - Version command returns semantic version
-          - Error handling works for invalid commands
+          ### Failure Context
+          - Branch: ${{ github.ref }}
+          - Commit: ${{ github.sha }}
+          - Time: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
-          ### Memory System Tests
-          - Status command shows system health
-          - Validation command checks integrity
-          - Report generation creates markdown files
+          ### Investigation Required
+          - Check test artifacts for details
+          - Review visual diffs if available
+          - Analyze failure patterns for flakiness
           
-          ### Performance Patterns
-          - Commands complete within 5 seconds
-          - Concurrent commands handled properly
-          
-          ## Test Coverage Areas
-          - Basic command functionality
-          - Memory system operations
-          - Agent management
-          - Error handling
-          - Performance benchmarks
+          ### Common Failure Causes
+          1. Timing issues in CI environment
+          2. Visual baseline drift
+          3. Platform-specific behavior
+          4. Resource constraints
           EOF
-          
-      - name: Commit Test Patterns
-        if: steps.patterns.outputs.patterns_created == 'true'
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          
-          # Only commit if there are actual new patterns
-          if [ -n "$(git status --porcelain .ai/memory/patterns/)" ]; then
-            git add .ai/memory/patterns/
-            git commit -m "🎭 Document new test patterns
+            
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .ai/memory/patterns/testing/
+            git commit -m "📝 Document test failure patterns
             
             - Test run: ${{ github.run_id }}
-            - Date: $(date +%Y-%m-%d)
-            - First test run of the day with patterns"
-            
+            - Investigation required"
             git push
-          else
-            echo "No new test patterns to commit"
           fi

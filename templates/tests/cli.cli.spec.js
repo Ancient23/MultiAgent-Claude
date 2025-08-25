@@ -70,6 +70,30 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
     });
   });
 
+  test.describe('Setup Command', () => {
+    
+    test('should run setup with skip-prompts flag', async () => {
+      const result = await runCLI('setup --skip-prompts --variant base');
+      expect(result.success).toBeTruthy();
+      expect(result.stdout).toContain('Configuration saved');
+    });
+    
+    test('should handle invalid variant', async () => {
+      const result = await runCLI('setup --variant invalid');
+      expect(result.success).toBeFalsy();
+      // Check both stdout and stderr for error message
+      const combinedOutput = (result.stdout + ' ' + result.stderr).toLowerCase();
+      expect(combinedOutput).toContain('error');
+      expect(combinedOutput).toContain('invalid variant');
+    });
+    
+    test('should accept agents flag', async () => {
+      const result = await runCLI('setup --skip-prompts --variant standard --agents agent1,agent2');
+      expect(result.success).toBeTruthy();
+      expect(result.stdout).toContain('Configuration saved');
+    });
+  });
+
   test.describe('Memory System', () => {
     
     test('should show memory status', async () => {

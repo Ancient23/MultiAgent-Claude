@@ -19,6 +19,7 @@ program
   .option('--memory-only', 'Initialize with memory focus (claude-code-init-memory-prompt.md)')
   .option('--with-docs', 'Initialize with documentation import (claude-code-init-with-docs-import.md)')
   .option('--prompt-only', 'Only output the prompt without executing')
+  .option('--minimal', 'Minimal setup for CI/CD environments (skip interactive prompts)')
   .action((options) => {
     const initCommand = require('./commands/init');
     initCommand.execute(options);
@@ -85,9 +86,17 @@ program
 program
   .command('setup')
   .description('Interactive setup wizard')
-  .action(() => {
+  .option('--skip-prompts', 'Skip interactive prompts (for testing)')
+  .option('--variant <type>', 'Variant type (base, standard, memory-only, with-docs)')
+  .option('--agents <list>', 'Comma-separated list of agents to include')
+  .action((options) => {
     const setupCommand = require('./commands/setup');
-    setupCommand.execute();
+    // Convert commander options to args array for backward compatibility
+    const args = [];
+    if (options.skipPrompts) args.push('--skip-prompts');
+    if (options.variant) args.push('--variant', options.variant);
+    if (options.agents) args.push('--agents', options.agents);
+    setupCommand.execute(args);
   });
 
 program
@@ -216,6 +225,104 @@ program
       default:
         console.error(`Unknown action: ${action}`);
         console.log('Available actions: list, show, validate, test, export, cache-stats, cache-clear');
+    }
+  });
+
+program
+  .command('lop')
+  .description('Manage Lower Order Prompts (LOPs)')
+  .argument('<action>', 'Action to perform: validate, create, list, execute')
+  .argument('[file]', 'LOP file path (for validate/execute)')
+  .action(async (action, file) => {
+    const lopCommand = require('./commands/lop');
+    
+    switch (action) {
+      case 'validate':
+        if (!file) {
+          console.error('Error: File path required for validation');
+          process.exit(1);
+        }
+        await lopCommand.validate(file);
+        break;
+      case 'create':
+        await lopCommand.create();
+        break;
+      case 'list':
+        await lopCommand.list();
+        break;
+      case 'execute':
+        if (!file) {
+          console.error('Error: File path required for execution');
+          process.exit(1);
+        }
+        await lopCommand.execute(file);
+        break;
+      default:
+        console.error(`Unknown action: ${action}`);
+        console.log('Available actions: validate, create, list, execute');
+    }
+  });
+
+// Visual Development Commands
+program
+  .command('visual-setup')
+  .description('Setup visual development environment with Playwright MCP')
+  .action(async () => {
+    try {
+      const { setupVisualDevelopment } = require('./commands/mcp-setup');
+      await setupVisualDevelopment();
+    } catch (error) {
+      console.error('Error setting up visual development:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual-compare')
+  .description('Compare images and generate visual diff reports')
+  .argument('[actual]', 'Path to actual image')
+  .argument('[expected]', 'Path to expected/mock image')
+  .option('--report <session>', 'Generate report for a session directory')
+  .option('--threshold <value>', 'Difference threshold (0-1, default: 0.05)')
+  .action(async (actual, expected, options) => {
+    try {
+      const { VisualComparer } = require('./utils/visual-compare');
+      const comparer = new VisualComparer({ threshold: parseFloat(options.threshold) || 0.05 });
+      
+      if (options.report) {
+        const report = await comparer.generateReport(options.report);
+        console.log(`Report generated: ${report.reportPath}`);
+        console.log(`Final difference: ${report.finalResult?.percentage || 'N/A'}%`);
+      } else if (actual && expected) {
+        const result = await comparer.compareImages(actual, expected);
+        console.log(`Difference: ${result.percentage}%`);
+        console.log(`Status: ${result.passed ? 'PASSED' : 'FAILED'}`);
+        console.log(`Diff saved to: ${result.diffPath}`);
+      } else {
+        console.log('Usage: mac visual-compare <actual> <expected>');
+        console.log('   or: mac visual-compare --report <session-directory>');
+      }
+    } catch (error) {
+      console.error('Visual comparison error:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual-report')
+  .description('Generate visual comparison report for a session')
+  .argument('<session>', 'Session directory path')
+  .action(async (session) => {
+    try {
+      const { VisualComparer } = require('./utils/visual-compare');
+      const comparer = new VisualComparer();
+      const report = await comparer.generateReport(session);
+      console.log(`Report generated: ${report.reportPath}`);
+      console.log(`Final difference: ${report.finalResult?.percentage || 'N/A'}%`);
+      console.log(`Status: ${report.finalResult?.passed ? 'PASSED' : 'FAILED'}`);
+    } catch (error) {
+      console.error('Report generation error:', error.message);
+      process.exit(1);
     }
   });
 
