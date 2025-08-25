@@ -31,14 +31,14 @@ jobs:
         run: npx playwright install --with-deps chromium
         
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}
+        run: npx playwright test --shard=${{ matrix.shard }} --reporter=blob
         
-      - name: Upload test results
+      - name: Upload blob report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ strategy.job-index }}
-          path: playwright-report/
+          name: blob-report-${{ strategy.job-index }}
+          path: blob-report/
           retention-days: 30
           
       - name: Upload test videos
@@ -66,15 +66,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Download all reports
+      - name: Download all blob reports
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-report-*
+          pattern: blob-report-*
           merge-multiple: true
-          path: all-reports/
+          path: all-blob-reports/
           
-      - name: Merge reports
-        run: npx playwright merge-reports all-reports
+      - name: Merge blob reports
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
         
       - name: Upload merged report
         uses: actions/upload-artifact@v4

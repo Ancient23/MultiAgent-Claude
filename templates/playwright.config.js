@@ -17,6 +17,18 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  
+  /* Cross-platform snapshot configuration */
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}',
+  expect: {
+    // Use consistent snapshot names across platforms
+    toHaveScreenshot: {
+      // High tolerance for cross-platform font rendering differences
+      maxDiffPixels: 50000,
+      // 10% threshold accommodates OS-specific rendering
+      threshold: 0.10,
+    },
+  },
 
   projects: [
     {
