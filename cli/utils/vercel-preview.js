@@ -355,12 +355,19 @@ class VercelPreviewDetector {
             const result = await detector.waitForDeployment(url);
             if (result.ready) {
               console.log(chalk.green(`✅ Deployment ready!`));
-              // Output the URL for GitHub Actions to capture
-              console.log(`::set-output name=url::${url}`);
+              // Output the URL for GitHub Actions to capture (using new format)
+              if (process.env.GITHUB_OUTPUT) {
+                const fs = require('fs');
+                fs.appendFileSync(process.env.GITHUB_OUTPUT, `url=${url}\n`);
+              }
               process.exit(0);
             } else {
               console.log(chalk.yellow('⚠️  Deployment not ready, but URL detected'));
-              console.log(`::set-output name=url::${url}`);
+              // Output the URL for GitHub Actions to capture (using new format)
+              if (process.env.GITHUB_OUTPUT) {
+                const fs = require('fs');
+                fs.appendFileSync(process.env.GITHUB_OUTPUT, `url=${url}\n`);
+              }
               process.exit(0);
             }
           } else {

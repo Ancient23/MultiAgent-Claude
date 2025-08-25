@@ -60,12 +60,32 @@ async function setupCommand() {
     await question('Fallback URL if detection fails (default: http://localhost:3000): ') || 
     'http://localhost:3000';
   
-  // Timeout settings
+  // Timeout settings with validation
   const waitTimeout = await question('Max wait time for deployment (ms, default: 300000): ');
-  config.deployment.waitTimeout = waitTimeout ? parseInt(waitTimeout) : 300000;
+  if (waitTimeout) {
+    const timeout = parseInt(waitTimeout);
+    if (isNaN(timeout) || timeout < 0 || timeout > 600000) {
+      console.log(chalk.yellow('Invalid timeout (must be 0-600000ms), using default: 300000'));
+      config.deployment.waitTimeout = 300000;
+    } else {
+      config.deployment.waitTimeout = timeout;
+    }
+  } else {
+    config.deployment.waitTimeout = 300000;
+  }
   
   const retryInterval = await question('Retry interval (ms, default: 5000): ');
-  config.deployment.retryInterval = retryInterval ? parseInt(retryInterval) : 5000;
+  if (retryInterval) {
+    const interval = parseInt(retryInterval);
+    if (isNaN(interval) || interval < 100 || interval > 60000) {
+      console.log(chalk.yellow('Invalid interval (must be 100-60000ms), using default: 5000'));
+      config.deployment.retryInterval = 5000;
+    } else {
+      config.deployment.retryInterval = interval;
+    }
+  } else {
+    config.deployment.retryInterval = 5000;
+  }
   
   // Visual testing configuration
   console.log(chalk.cyan('\nVisual Testing Configuration:'));
@@ -79,9 +99,19 @@ async function setupCommand() {
     const viewports = await question('Viewports (default: mobile,desktop): ') || 'mobile,desktop';
     config.visualTesting.viewports = viewports.split(',').map(v => v.trim());
     
-    // Threshold
+    // Threshold with validation
     const threshold = await question('Visual diff threshold (0-1, default: 0.05): ');
-    config.visualTesting.threshold = threshold ? parseFloat(threshold) : 0.05;
+    if (threshold) {
+      const thresh = parseFloat(threshold);
+      if (isNaN(thresh) || thresh < 0 || thresh > 1) {
+        console.log(chalk.yellow('Invalid threshold (must be 0-1), using default: 0.05'));
+        config.visualTesting.threshold = 0.05;
+      } else {
+        config.visualTesting.threshold = thresh;
+      }
+    } else {
+      config.visualTesting.threshold = 0.05;
+    }
     
     // Baseline strategy
     console.log('\nBaseline update strategy:');
