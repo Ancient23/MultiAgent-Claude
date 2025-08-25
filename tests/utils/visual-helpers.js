@@ -5,7 +5,8 @@ const crypto = require('crypto');
 class VisualBaselineManager {
   constructor(options = {}) {
     this.baselineDir = options.baselineDir || path.join(process.cwd(), '.playwright', 'baseline');
-    this.updateMode = process.env.UPDATE_SNAPSHOTS === 'true' || options.updateBaselines || false;
+    this.testMode = options.testMode || false; // Add testMode support
+    this.updateMode = (process.env.UPDATE_SNAPSHOTS === 'true' || options.updateBaselines || false) && !this.testMode;
     this.ciMode = process.env.CI === 'true';
     this.diffThreshold = options.diffThreshold || 0.01; // 1% difference threshold
   }
@@ -23,7 +24,9 @@ class VisualBaselineManager {
   async getBaseline(name) {
     const baselinePath = await this.getBaselinePath(name);
     
-    if (this.updateMode) {
+    // In test mode, always try to read the baseline
+    // In update mode (but not test mode), return null to force new baseline
+    if (this.updateMode && !this.testMode) {
       // In update mode, return null to force new baseline
       return null;
     }

@@ -30,6 +30,15 @@ module.exports = defineConfig({
     /* Video on failure */
     video: 'retain-on-failure',
   },
+  
+  /* Snapshot configuration for platform-agnostic names */
+  expect: {
+    // Use consistent snapshot names across platforms
+    toHaveScreenshot: {
+      // Disable platform-specific suffixes
+      stylePath: [],
+    },
+  },
 
   /* Configure projects for major browsers */
   projects: [

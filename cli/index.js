@@ -86,9 +86,17 @@ program
 program
   .command('setup')
   .description('Interactive setup wizard')
-  .action(() => {
+  .option('--skip-prompts', 'Skip interactive prompts (for testing)')
+  .option('--variant <type>', 'Variant type (base, standard, memory-only, with-docs)')
+  .option('--agents <list>', 'Comma-separated list of agents to include')
+  .action((options) => {
     const setupCommand = require('./commands/setup');
-    setupCommand.execute();
+    // Convert commander options to args array for backward compatibility
+    const args = [];
+    if (options.skipPrompts) args.push('--skip-prompts');
+    if (options.variant) args.push('--variant', options.variant);
+    if (options.agents) args.push('--agents', options.agents);
+    setupCommand.execute(args);
   });
 
 program

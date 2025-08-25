@@ -13,13 +13,56 @@ function question(prompt) {
   return new Promise(resolve => rl.question(prompt, resolve));
 }
 
-async function execute() {
+async function execute(options = {}) {
+  // Parse command-line options
+  const skipPrompts = options.skipPrompts || false;
+  const cliVariant = options.variant || null;
+  const cliAgents = options.agents || [];
+  
+  // Handle --variant flag (can be used with or without --skip-prompts)
+  if (cliVariant) {
+    const validVariants = ['base', 'standard', 'memory-only', 'with-docs'];
+    if (!validVariants.includes(cliVariant)) {
+      console.error(chalk.red(`Error: Invalid variant '${cliVariant}'. Valid options are: ${validVariants.join(', ')}`));
+      rl.close();
+      process.exit(1);
+    }
+  }
+  
+  // Non-interactive mode for testing
+  if (skipPrompts) {
+    const projectType = await detectProjectType();
+    const variant = cliVariant || 'base';
+    const agents = cliAgents.length > 0 ? cliAgents : [];
+    
+    // Call setupEnvironment directly with minimal config for testing
+    const result = setupEnvironment(
+      variant,
+      agents,
+      [], // mcpServers
+      {}, // ciOptions
+      {}, // playwrightOptions
+      {}, // visualDevOptions
+      projectType || 'Unknown',
+      null, // projectAnalysis
+      [], // customAgentsToCreate
+      [], // codexRolesToCreate
+      'skip' // agentsMdAction
+    );
+    
+    // Important: close readline interface in non-interactive mode
+    rl.close();
+    
+    return result;
+  }
+  
+  // Interactive mode (existing behavior)
   console.log(chalk.blue('\n🚀 MultiAgent Claude Setup Wizard\n'));
 
   console.log(chalk.yellow('This wizard will help you set up the multi-agent environment.\n'));
 
   const projectType = await detectProjectType();
-  console.log(chalk.green(`✓ Detected project type: ${projectType}`));
+  console.log(chalk.green(`✓ Detected project type: ${projectType}`))
 
   console.log(chalk.yellow('\nChoose initialization variant:'));
   console.log('1. Standard multi-agent setup (recommended)');
@@ -721,4 +764,38 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
   }
 }
 
-module.exports = { execute };
+// Parse command-line arguments helper
+function parseArgs(args) {
+  const options = {};
+  
+  if (!args || !Array.isArray(args)) {
+    return options;
+  }
+  
+  // Parse --skip-prompts flag
+  if (args.includes('--skip-prompts')) {
+    options.skipPrompts = true;
+  }
+  
+  // Parse --variant flag
+  const variantIndex = args.indexOf('--variant');
+  if (variantIndex !== -1 && args[variantIndex + 1]) {
+    options.variant = args[variantIndex + 1];
+  }
+  
+  // Parse --agents flag (comma-separated list)
+  const agentsIndex = args.indexOf('--agents');
+  if (agentsIndex !== -1 && args[agentsIndex + 1]) {
+    options.agents = args[agentsIndex + 1].split(',').map(a => a.trim());
+  }
+  
+  return options;
+}
+
+// Export with argument parsing
+module.exports = { 
+  execute: (args) => {
+    const options = parseArgs(args);
+    return execute(options);
+  }
+};
