@@ -30,7 +30,15 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:ui": "playwright test --ui",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "visual:test": "playwright test --config=playwright-visual.config.js",
+    "visual:test:ui": "playwright test --config=playwright-visual.config.js --ui",
+    "visual:test:debug": "playwright test --config=playwright-visual.config.js --debug",
+    "visual:update": "playwright test --config=playwright-visual.config.js --update-snapshots",
+    "visual:report": "playwright show-report .playwright/reports",
+    "visual:setup": "node -e \"require('./cli/commands/mcp-setup.js').setupVisualDevelopment()\"",
+    "visual:compare": "node -e \"require('./cli/utils/visual-compare.js').runComparison()\"",
+    "visual:clean": "rm -rf .playwright/test-results .playwright/reports .claude/visual-iterations/*"
   },
   "keywords": [
     "claude",
@@ -57,7 +65,11 @@
     "ora": "^5.4.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.48.2"
+    "@playwright/mcp": "^0.0.35",
+    "@playwright/test": "^1.48.2",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.34.3"
   },
   "repository": {
     "type": "git",

@@ -742,6 +742,93 @@ async function execute(options) {
             console.log(chalk.cyan('npm install --save-dev @playwright/test playwright'));
           }
         }
+        
+        // Visual Development Setup
+        if (config && config.visualDevOptions && config.visualDevOptions.enabled) {
+          console.log(chalk.blue('\n🎨 Setting up Visual Development Environment...'));
+          
+          // Import and run visual development setup
+          const { setupPlaywrightDirectories } = require('./mcp');
+          setupPlaywrightDirectories();
+          
+          // Copy playwright-visual-developer agent if not already present
+          const visualAgentPath = path.join(process.cwd(), '.claude', 'agents', 'playwright-visual-developer.md');
+          if (!fs.existsSync(visualAgentPath)) {
+            copyTemplateAgents(['playwright-visual-developer']);
+          }
+          
+          // Copy cli-web-bridge-architect agent if not already present
+          const bridgeAgentPath = path.join(process.cwd(), '.claude', 'agents', 'cli-web-bridge-architect.md');
+          if (!fs.existsSync(bridgeAgentPath)) {
+            copyTemplateAgents(['cli-web-bridge-architect']);
+          }
+          
+          // Create /visual-iterate command
+          const visualIterateCommand = `# Visual Iteration Command
+
+Trigger: /visual-iterate [component-name] [mock-path?]
+
+You are implementing pixel-perfect UI using Playwright MCP tools to achieve < ${config.visualDevOptions.defaultThreshold || 5}% visual difference.
+
+## Configuration
+- Max Iterations: ${config.visualDevOptions.maxIterations || 10}
+- Threshold: ${config.visualDevOptions.defaultThreshold || 5}%
+
+## Required MCP Tools
+- playwright_navigate(url) - Navigate to component
+- playwright_screenshot(selector?, path?) - Capture screenshots
+- playwright_set_viewport(width, height) - Change viewport
+- playwright_evaluate(script) - Inject CSS/JS changes
+
+## Workflow
+
+### Phase 1: Setup
+1. Check for mock at .claude/mocks/[component-name].png
+2. Create session directory: .claude/visual-iterations/session-[timestamp]/
+3. Navigate to component
+4. Capture initial state
+
+### Phase 2: Iterative Refinement (${config.visualDevOptions.maxIterations || 10} iterations max)
+For each iteration:
+1. Compare screenshot with mock visually
+2. Identify differences (layout, colors, typography, spacing)
+3. Apply fixes using playwright_evaluate
+4. Capture new screenshot
+5. If < ${config.visualDevOptions.defaultThreshold || 5}% difference, proceed to Phase 3
+
+### Phase 3: Responsive Testing
+Test mobile (375x667), tablet (768x1024), and desktop (1920x1080) viewports
+
+### Phase 4: Documentation
+Create report at .claude/visual-reports/[component]-[timestamp].md with:
+- Number of iterations
+- Final difference percentage
+- Changes made per iteration
+- Responsive screenshots
+
+## Success Criteria
+✅ Visual difference < ${config.visualDevOptions.defaultThreshold || 5}%
+✅ All viewports tested
+✅ Report generated
+`;
+          
+          const visualCommandPath = path.join(process.cwd(), '.claude', 'commands', 'visual-iterate.md');
+          fs.writeFileSync(visualCommandPath, visualIterateCommand);
+          console.log(chalk.green('  ✓ Created /visual-iterate command'));
+          
+          // Setup Playwright MCP if configured
+          if (config.visualDevOptions.mcpPlaywright && config.mcpServers && config.mcpServers.includes('playwright')) {
+            console.log(chalk.blue('\n📦 Setting up Playwright MCP...'));
+            const { setupMCP } = require('./mcp');
+            setupMCP('playwright');
+          }
+          
+          console.log(chalk.green('\n✅ Visual Development Environment Ready!'));
+          console.log(chalk.cyan('\nNext steps:'));
+          console.log(chalk.gray('  1. Add design mocks to .claude/mocks/'));
+          console.log(chalk.gray('  2. Start your dev server'));
+          console.log(chalk.gray('  3. Tell Claude: /visual-iterate [component-name]'));
+        }
       }
 
       console.log(chalk.green('\n✅ Setup complete!'));

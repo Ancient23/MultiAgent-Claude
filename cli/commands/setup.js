@@ -181,6 +181,45 @@ async function execute() {
     };
   }
 
+  // Visual Development Integration
+  console.log(chalk.yellow('\n🎨 Visual Development (NEW):'));
+  const enableVisualDev = await question(chalk.cyan('Enable Playwright MCP visual development for pixel-perfect UI iteration? (y/n): '));
+  
+  let visualDevOptions = {};
+  if (enableVisualDev.toLowerCase() === 'y') {
+    visualDevOptions = {
+      enabled: true,
+      mcpPlaywright: true,
+      iterativeRefinement: true,
+      mockComparison: true,
+      defaultThreshold: 5, // 5% difference threshold
+      maxIterations: 10
+    };
+    
+    // Auto-select playwright-visual-developer agent if not already selected
+    if (!selectedAgents.includes('playwright-visual-developer')) {
+      selectedAgents.push('playwright-visual-developer');
+      console.log(chalk.green('  ✓ Added playwright-visual-developer agent'));
+    }
+    
+    // Auto-select cli-web-bridge-architect for CLI-browser integration
+    if (!selectedAgents.includes('cli-web-bridge-architect')) {
+      selectedAgents.push('cli-web-bridge-architect');
+      console.log(chalk.green('  ✓ Added cli-web-bridge-architect agent'));
+    }
+    
+    // Ensure Playwright MCP is in the list
+    if (!mcpServers.includes('playwright')) {
+      mcpServers.push('playwright');
+      console.log(chalk.green('  ✓ Added Playwright MCP server'));
+    }
+    
+    console.log(chalk.cyan('  Visual development will be configured during initialization'));
+    console.log(chalk.gray('  • Mock directory: .claude/mocks/'));
+    console.log(chalk.gray('  • Iterations saved: .claude/visual-iterations/'));
+    console.log(chalk.gray('  • Goal: < 5% visual difference from design mocks'));
+  }
+
   rl.close();
 
   console.log(chalk.blue('\n📝 Configuration Summary:\n'));
@@ -201,10 +240,16 @@ async function execute() {
     console.log(chalk.gray(`    - Accessibility: ${playwrightOptions.accessibility}`));
     console.log(chalk.gray(`    - CI Integration: ${playwrightOptions.ciIntegration}`));
   }
+  if (visualDevOptions.enabled) {
+    console.log(chalk.gray(`  Visual Development: Enabled`));
+    console.log(chalk.gray(`    - MCP Playwright: ${visualDevOptions.mcpPlaywright}`));
+    console.log(chalk.gray(`    - Threshold: ${visualDevOptions.defaultThreshold}%`));
+    console.log(chalk.gray(`    - Max Iterations: ${visualDevOptions.maxIterations}`));
+  }
 
   console.log(chalk.yellow('\n🔧 Setting up environment...\n'));
 
-  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, agentsMdAction);
+  setupEnvironment(variant, selectedAgents, mcpServers, ciOptions, playwrightOptions, visualDevOptions, projectType, global.projectStructureAnalysis, customAgentsToCreate, codexRolesToCreate, agentsMdAction);
   
   console.log(chalk.green('\n✅ Setup complete!\n'));
   console.log(chalk.blue('Next steps:'));
@@ -602,7 +647,7 @@ function detectProjectType() {
 // The framework uses its own agents (agent-factory, codex-configuration-expert, role-instruction-engineer)
 // to create context-aware, project-specific agents and configurations
 
-function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
+function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrightOptions = {}, visualDevOptions = {}, projectType = 'Unknown', projectAnalysis = null, customAgentsToCreate = [], codexRolesToCreate = [], agentsMdAction = 'skip') {
   
   // Only create .claude directory - all other directories created by init.js
   const claudeDir = '.claude';
@@ -617,6 +662,7 @@ function setupEnvironment(variant, agents, mcpServers, ciOptions = {}, playwrigh
     mcpServers,
     ciOptions,
     playwrightOptions,
+    visualDevOptions,
     projectType,
     projectAnalysis: projectAnalysis ? {
       monorepo: projectAnalysis.monorepo,

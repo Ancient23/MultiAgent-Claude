@@ -1,0 +1,56 @@
+{
+  "iterationGoal": 0.05,
+  "maxIterations": 10,
+  "defaultViewports": {
+    "mobile": {
+      "width": 375,
+      "height": 667,
+      "deviceScaleFactor": 2
+    },
+    "tablet": {
+      "width": 768,
+      "height": 1024,
+      "deviceScaleFactor": 2
+    },
+    "desktop": {
+      "width": 1920,
+      "height": 1080,
+      "deviceScaleFactor": 1
+    },
+    "wide": {
+      "width": 2560,
+      "height": 1440,
+      "deviceScaleFactor": 1
+    }
+  },
+  "comparisonSettings": {
+    "threshold": 0.05,
+    "includeAA": true,
+    "diffMask": true,
+    "alpha": 0.1,
+    "aaThreshold": 5,
+    "diffColor": [
+      255,
+      0,
+      0
+    ]
+  },
+  "sessionSettings": {
+    "saveAllIterations": true,
+    "generateReports": true,
+    "trackHistory": true,
+    "maxSessionAge": 7
+  },
+  "devServerUrl": "http://localhost:3000",
+  "browsers": [
+    "chromium",
+    "firefox",
+    "webkit"
+  ],
+  "retries": 2,
+  "outputFormats": [
+    "png",
+    "json",
+    "html"
+  ]
+}

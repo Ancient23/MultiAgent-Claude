@@ -255,4 +255,67 @@ program
     }
   });
 
+// Visual Development Commands
+program
+  .command('visual-setup')
+  .description('Setup visual development environment with Playwright MCP')
+  .action(async () => {
+    try {
+      const { setupVisualDevelopment } = require('./commands/mcp-setup');
+      await setupVisualDevelopment();
+    } catch (error) {
+      console.error('Error setting up visual development:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual-compare')
+  .description('Compare images and generate visual diff reports')
+  .argument('[actual]', 'Path to actual image')
+  .argument('[expected]', 'Path to expected/mock image')
+  .option('--report <session>', 'Generate report for a session directory')
+  .option('--threshold <value>', 'Difference threshold (0-1, default: 0.05)')
+  .action(async (actual, expected, options) => {
+    try {
+      const { VisualComparer } = require('./utils/visual-compare');
+      const comparer = new VisualComparer({ threshold: parseFloat(options.threshold) || 0.05 });
+      
+      if (options.report) {
+        const report = await comparer.generateReport(options.report);
+        console.log(`Report generated: ${report.reportPath}`);
+        console.log(`Final difference: ${report.finalResult?.percentage || 'N/A'}%`);
+      } else if (actual && expected) {
+        const result = await comparer.compareImages(actual, expected);
+        console.log(`Difference: ${result.percentage}%`);
+        console.log(`Status: ${result.passed ? 'PASSED' : 'FAILED'}`);
+        console.log(`Diff saved to: ${result.diffPath}`);
+      } else {
+        console.log('Usage: mac visual-compare <actual> <expected>');
+        console.log('   or: mac visual-compare --report <session-directory>');
+      }
+    } catch (error) {
+      console.error('Visual comparison error:', error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual-report')
+  .description('Generate visual comparison report for a session')
+  .argument('<session>', 'Session directory path')
+  .action(async (session) => {
+    try {
+      const { VisualComparer } = require('./utils/visual-compare');
+      const comparer = new VisualComparer();
+      const report = await comparer.generateReport(session);
+      console.log(`Report generated: ${report.reportPath}`);
+      console.log(`Final difference: ${report.finalResult?.percentage || 'N/A'}%`);
+      console.log(`Status: ${report.finalResult?.passed ? 'PASSED' : 'FAILED'}`);
+    } catch (error) {
+      console.error('Report generation error:', error.message);
+      process.exit(1);
+    }
+  });
+
 program.parse();
