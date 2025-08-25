@@ -15,9 +15,114 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
+  # Detect deployment URL (Vercel or custom)
+  detect-deployment:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.detect.outputs.url }}
+      detected: ${{ steps.detect.outputs.detected }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      
+      - name: Check for manual deployment URL
+        id: manual
+        run: |
+          if [ -n "${{ secrets.DEPLOYMENT_URL }}" ]; then
+            echo "url=${{ secrets.DEPLOYMENT_URL }}" >> $GITHUB_OUTPUT
+            echo "detected=true" >> $GITHUB_OUTPUT
+            echo "✅ Using manual deployment URL from secrets"
+          elif [ -n "${{ secrets.VISUAL_TEST_URL }}" ]; then
+            echo "url=${{ secrets.VISUAL_TEST_URL }}" >> $GITHUB_OUTPUT
+            echo "detected=true" >> $GITHUB_OUTPUT
+            echo "✅ Using visual test URL from secrets"
+          else
+            echo "detected=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No manual URL configured, will attempt auto-detection"
+          fi
+      
+      - name: Detect Vercel Preview URL
+        if: steps.manual.outputs.detected != 'true'
+        id: vercel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          # Try to detect Vercel preview URL
+          echo "🔍 Attempting to detect Vercel preview URL..."
+          
+          # Check if vercel-preview utility exists
+          if [ -f "cli/utils/vercel-preview.js" ]; then
+            node cli/utils/vercel-preview.js auto --debug || true
+          else
+            # Fallback to GitHub API check
+            PR_NUMBER=${{ github.event.pull_request.number }}
+            OWNER=${{ github.repository_owner }}
+            REPO=${{ github.event.repository.name }}
+            
+            # Check PR comments for Vercel bot
+            VERCEL_URL=$(gh api repos/${OWNER}/${REPO}/issues/${PR_NUMBER}/comments \
+              --jq '.[] | select(.user.login == "vercel[bot]" or .body | contains("vercel.app")) | .body' \
+              | grep -oE 'https://[a-zA-Z0-9.-]+\.vercel\.app' | head -1 || true)
+            
+            if [ -n "$VERCEL_URL" ]; then
+              echo "url=$VERCEL_URL" >> $GITHUB_OUTPUT
+              echo "detected=true" >> $GITHUB_OUTPUT
+              echo "✅ Found Vercel preview URL: $VERCEL_URL"
+            else
+              echo "detected=false" >> $GITHUB_OUTPUT
+              echo "⚠️ No Vercel preview URL found"
+            fi
+          fi
+      
+      - name: Set deployment URL output
+        id: detect
+        run: |
+          if [ "${{ steps.manual.outputs.detected }}" == "true" ]; then
+            echo "url=${{ steps.manual.outputs.url }}" >> $GITHUB_OUTPUT
+            echo "detected=true" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.vercel.outputs.detected }}" == "true" ]; then
+            echo "url=${{ steps.vercel.outputs.url }}" >> $GITHUB_OUTPUT
+            echo "detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ secrets.BASE_URL || 'http://localhost:3000' }}" >> $GITHUB_OUTPUT
+            echo "detected=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Using fallback URL: ${{ secrets.BASE_URL || 'http://localhost:3000' }}"
+          fi
+      
+      - name: Wait for deployment to be ready
+        if: steps.detect.outputs.detected == 'true'
+        run: |
+          URL="${{ steps.detect.outputs.url }}"
+          echo "⏳ Waiting for deployment to be ready: $URL"
+          
+          MAX_ATTEMPTS=60
+          ATTEMPT=0
+          
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            if curl -s -o /dev/null -w "%{http_code}" "$URL" | grep -q "^[23]"; then
+              echo "✅ Deployment is ready!"
+              exit 0
+            fi
+            
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS - Deployment not ready yet, waiting..."
+            sleep 5
+          done
+          
+          echo "⚠️ Deployment did not become ready in time, proceeding anyway"
+
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    needs: [detect-deployment]
+    if: always()
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +148,9 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
         env:
-          BASE_URL: ${{ secrets.BASE_URL || 'http://localhost:3000' }}
+          BASE_URL: ${{ needs.detect-deployment.outputs.url || secrets.BASE_URL || 'http://localhost:3000' }}
+          DEPLOYMENT_URL: ${{ needs.detect-deployment.outputs.url }}
+          IS_VERCEL_PREVIEW: ${{ needs.detect-deployment.outputs.detected }}
       
       - name: Upload test results
         if: always()

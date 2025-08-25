@@ -326,4 +326,44 @@ program
     }
   });
 
+// Visual CI Commands
+program
+  .command('visual:ci-setup')
+  .description('Configure visual testing for CI/CD environments')
+  .action(async () => {
+    try {
+      const { setupCommand } = require('./commands/visual-ci');
+      await setupCommand();
+    } catch (error) {
+      console.error(chalk.red('Error:'), error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual:detect-url')
+  .description('Test deployment URL detection locally')
+  .action(async () => {
+    try {
+      const { detectUrlCommand } = require('./commands/visual-ci');
+      await detectUrlCommand();
+    } catch (error) {
+      console.error(chalk.red('Error:'), error.message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('visual:ci-status')
+  .description('Show visual CI configuration status')
+  .action(async () => {
+    try {
+      const { statusCommand } = require('./commands/visual-ci');
+      await statusCommand();
+    } catch (error) {
+      console.error(chalk.red('Error:'), error.message);
+      process.exit(1);
+    }
+  });
+
 program.parse();

@@ -720,8 +720,53 @@ async function execute(options) {
         if (cicdOptions.playwrightTests) {
           cicdOptions.includeCliTests = (await question('Include CLI tests? (y/n): ')).toLowerCase() === 'y';
           cicdOptions.includeWebTests = (await question('Include web application tests? (y/n): ')).toLowerCase() === 'y';
+          
+          // Ask about deployment detection for web tests
+          if (cicdOptions.includeWebTests) {
+            console.log(chalk.cyan('\nDeployment Configuration for Visual Testing:'));
+            cicdOptions.deploymentProvider = await question('Deployment provider (vercel/custom/manual/none): ') || 'none';
+            
+            if (cicdOptions.deploymentProvider === 'vercel') {
+              cicdOptions.vercelAutoDetect = (await question('Enable automatic Vercel preview URL detection? (y/n): ')).toLowerCase() === 'y';
+              if (!cicdOptions.vercelAutoDetect) {
+                cicdOptions.vercelProjectName = await question('Vercel project name (optional): ');
+              }
+            } else if (cicdOptions.deploymentProvider === 'manual') {
+              cicdOptions.manualDeploymentUrl = await question('Manual deployment URL (leave empty to set in GitHub secrets): ');
+            }
+            
+            cicdOptions.visualTestingOnCI = (await question('Enable visual regression testing on CI? (y/n): ')).toLowerCase() === 'y';
+          }
         }
 
+        // Save deployment configuration if provided
+        if (cicdOptions.deploymentProvider && cicdOptions.deploymentProvider !== 'none') {
+          const deploymentConfig = {
+            deployment: {
+              provider: cicdOptions.deploymentProvider,
+              autoDetect: cicdOptions.vercelAutoDetect || false,
+              vercel: cicdOptions.deploymentProvider === 'vercel' ? {
+                projectName: cicdOptions.vercelProjectName || null
+              } : undefined,
+              fallbackUrl: cicdOptions.manualDeploymentUrl || 'http://localhost:3000',
+              waitTimeout: 300000,
+              retryInterval: 5000
+            },
+            visualTesting: {
+              enableOnCI: cicdOptions.visualTestingOnCI || false,
+              viewports: ['mobile', 'desktop'],
+              threshold: 0.05
+            }
+          };
+          
+          const deploymentConfigPath = path.join('.claude', 'config', 'deployment.json');
+          if (!fs.existsSync(path.dirname(deploymentConfigPath))) {
+            fs.mkdirSync(path.dirname(deploymentConfigPath), { recursive: true });
+          }
+          fs.writeFileSync(deploymentConfigPath, JSON.stringify(deploymentConfig, null, 2));
+          console.log(chalk.green('✓ Saved deployment configuration'));
+        }
+        
         // Copy workflow files if enabled
         if (cicdOptions.memoryWorkflow) {
           console.log(chalk.blue('\nAdding CI/CD workflows...'));
