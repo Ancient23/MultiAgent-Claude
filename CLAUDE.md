@@ -598,12 +598,70 @@ execute_plan(plan)
 - `npm run visual:test` - Visual regression tests
 - `npm run visual:update` - Update visual baselines
 
+### Visual CI Commands
+- `mac visual:ci-setup` - Configure deployment detection for CI visual testing
+- `mac visual:detect-url` - Test deployment URL detection locally
+- `mac visual:ci-status` - Show visual CI configuration status
+
 #### Test Configuration
 - Tests use latest Playwright v1.48.2+
 - Default timeout: 30 seconds
 - Trace on failure for debugging
 - Blob reporter for sharded tests
 - GitHub Actions optimized with v4 actions
+
+## Deployment Detection for Visual CI Testing
+
+### Overview
+The framework now supports automatic deployment URL detection for visual regression testing on CI, allowing tests to run against live preview deployments instead of localhost.
+
+### Supported Providers
+- **Vercel**: Automatic preview URL detection from PR comments
+- **Custom**: Provide your own detection script
+- **Manual**: Specify URL in GitHub secrets
+- **None**: Fallback to localhost
+
+### Configuration
+Projects can configure deployment detection during setup:
+```bash
+mac init  # Prompts for deployment configuration
+mac visual:ci-setup  # Dedicated visual CI configuration
+```
+
+Configuration is stored in `.claude/config/deployment.json`:
+```json
+{
+  "deployment": {
+    "provider": "vercel",
+    "autoDetect": true,
+    "fallbackUrl": "http://localhost:3000",
+    "waitTimeout": 300000
+  },
+  "visualTesting": {
+    "enableOnCI": true,
+    "viewports": ["mobile", "desktop"],
+    "threshold": 0.05
+  }
+}
+```
+
+### GitHub Actions Integration
+The `playwright-web-tests.yml` workflow includes automatic deployment detection:
+1. Checks for manual URL in secrets
+2. Detects Vercel preview from PR comments
+3. Waits for deployment to be ready
+4. Falls back to localhost if needed
+
+### Required Secrets
+- `VERCEL_TOKEN` (optional) - For enhanced Vercel API access
+- `DEPLOYMENT_URL` (optional) - Manual override URL
+- `BASE_URL` (optional) - Fallback URL
+
+### Testing Detection Locally
+```bash
+mac visual:detect-url  # Test detection with current environment
+mac visual:ci-status   # View current configuration
+```
 
 ## CI/CD Best Practices
 
@@ -633,6 +691,8 @@ The CI/CD workflows are optimized to prevent spam commits:
 - **Daily Test Patterns**: Test patterns documented once per day
 - **Failure-Only Results**: Test results saved only when failures occur
 - **Clean Git History**: No more "Update memory from CI" spam
+- **Deployment URL Detection**: Automatic Vercel preview URL detection for visual CI testing
+- **Visual CI Integration**: Test against live deployments instead of localhost
 
 ## Support Resources
 
