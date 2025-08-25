@@ -46,8 +46,10 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
       const result = await cliHelper.runCommand('setup --variant invalid');
       
       expect(result.success).toBe(false);
-      // Error message goes to stdout when using console.error in the CLI
-      expect(result.stdout.toLowerCase()).toContain('error');
+      // Check both stdout and stderr for error message
+      const combinedOutput = (result.stdout + ' ' + result.stderr).toLowerCase();
+      expect(combinedOutput).toContain('error');
+      expect(combinedOutput).toContain('invalid variant');
     });
     
     test('setup command with agents option', async () => {
@@ -196,7 +198,7 @@ test.describe('MultiAgent-Claude CLI Tests', () => {
   test.describe('Pipeline Flow', () => {
     test('complete setup → init → add pipeline', async () => {
       // Step 1: Setup
-      const setupResult = await cliHelper.runCommand('setup --variant visual-dev --skip-prompts');
+      const setupResult = await cliHelper.runCommand('setup --variant standard --skip-prompts');
       expect(setupResult.success).toBe(true);
       
       // Verify setup created minimal structure
