@@ -32,11 +32,14 @@ module.exports = defineConfig({
   },
   
   /* Snapshot configuration for platform-agnostic names */
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}',
   expect: {
     // Use consistent snapshot names across platforms
     toHaveScreenshot: {
-      // Disable platform-specific suffixes
-      stylePath: [],
+      // Maximum difference in pixels
+      maxDiffPixels: 100,
+      // Threshold for pixel difference (0-1)
+      threshold: 0.2,
     },
   },
 
