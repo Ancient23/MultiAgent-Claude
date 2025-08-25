@@ -33,7 +33,7 @@ async function execute(options = {}) {
   
   // Non-interactive mode for testing
   if (skipPrompts) {
-    const projectType = await detectProjectType();
+    const projectType = await detectProjectType(false);  // Pass false for non-interactive mode
     const variant = cliVariant || 'base';
     const agents = cliAgents.length > 0 ? cliAgents : [];
     
@@ -46,7 +46,7 @@ async function execute(options = {}) {
       {}, // playwrightOptions
       {}, // visualDevOptions
       projectType || 'Unknown',
-      null, // projectAnalysis
+      global.projectStructureAnalysis, // Pass the analysis that was stored globally
       [], // customAgentsToCreate
       [], // codexRolesToCreate
       'skip' // agentsMdAction
@@ -63,7 +63,7 @@ async function execute(options = {}) {
 
   console.log(chalk.yellow('This wizard will help you set up the multi-agent environment.\n'));
 
-  const projectType = await detectProjectType();
+  const projectType = await detectProjectType(true);  // Pass true for interactive mode
   console.log(chalk.green(`✓ Detected project type: ${projectType}`))
 
   console.log(chalk.yellow('\nChoose initialization variant:'));
@@ -452,7 +452,178 @@ function getSuggestedAgents(projectStructure, availableAgents) {
   };
 }
 
-function detectProjectType() {
+async function parseClaudeMdStructure() {
+  const packages = [];
+  
+  try {
+    // Check if CLAUDE.md exists
+    if (fs.existsSync('CLAUDE.md')) {
+      const claudeMdContent = fs.readFileSync('CLAUDE.md', 'utf8');
+      
+      // Look for Project Structure section
+      const structureMatch = claudeMdContent.match(/##\s*(?:Project Structure|📁\s*Project Structure)([\s\S]*?)(?=\n##|\n#[^#]|$)/i);
+      
+      if (structureMatch) {
+        const structureSection = structureMatch[1];
+        
+        // Look for package indicators in the structure
+        // Match paths that look like package directories (containing /)
+        const packagePatterns = [
+          /^([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+).*(?:package|app|service|lib|module)/gim,
+          /^├──\s+([a-zA-Z0-9_-]+)\/.*# .*(?:package|app|service|module)/gim,
+          /^│\s+├──\s+([a-zA-Z0-9_-]+)\/.*package\.json/gim
+        ];
+        
+        for (const pattern of packagePatterns) {
+          const matches = structureSection.matchAll(pattern);
+          for (const match of matches) {
+            const packagePath = match[1].trim();
+            if (!packages.includes(packagePath)) {
+              // Verify the path exists and has package.json
+              if (fs.existsSync(packagePath) && fs.existsSync(path.join(packagePath, 'package.json'))) {
+                packages.push(packagePath);
+              }
+            }
+          }
+        }
+      }
+      
+      // Also check for explicit workspace or packages listing
+      const workspaceMatch = claudeMdContent.match(/(?:workspaces?|packages?):\s*\n((?:\s*[-*]\s*.+\n?)+)/i);
+      if (workspaceMatch) {
+        const workspaceList = workspaceMatch[1];
+        const items = workspaceList.match(/[-*]\s*([^\n]+)/g) || [];
+        
+        for (const item of items) {
+          const packagePath = item.replace(/[-*]\s*/, '').trim();
+          if (fs.existsSync(packagePath) && fs.existsSync(path.join(packagePath, 'package.json'))) {
+            if (!packages.includes(packagePath)) {
+              packages.push(packagePath);
+            }
+          }
+        }
+      }
+      
+      if (packages.length > 0) {
+        console.log(chalk.green(`✓ Found ${packages.length} packages from CLAUDE.md`));
+      }
+    }
+  } catch (error) {
+    console.log(chalk.yellow('⚠️  Could not parse CLAUDE.md for package structure'));
+  }
+  
+  return packages;
+}
+
+async function scanCustomDirectories(existingPackages) {
+  const customPackages = [];
+  
+  console.log(chalk.yellow('\n📦 Package Directory Detection'));
+  
+  if (existingPackages.length > 0) {
+    console.log(chalk.green(`✓ Already detected ${existingPackages.length} packages:`));
+    existingPackages.forEach(pkg => console.log(chalk.gray(`  - ${pkg}`)));
+  } else {
+    console.log(chalk.yellow('No packages detected in standard locations.'));
+  }
+  
+  console.log(chalk.cyan('\nDoes your monorepo have packages in non-standard directories?'));
+  console.log(chalk.gray('(e.g., frontend, backend, shared, core, plugins, etc.)'));
+  
+  const hasCustom = await question(chalk.cyan('Scan additional directories? (y/n): '));
+  
+  if (hasCustom.toLowerCase() === 'y') {
+    console.log(chalk.cyan('Enter directory names to scan (comma-separated), or "auto" to scan all directories:'));
+    console.log(chalk.gray('Example: frontend,backend,shared,core'));
+    
+    const input = await question(chalk.cyan('Directories: '));
+    
+    if (input.toLowerCase() === 'auto') {
+      // Auto-scan all top-level directories
+      console.log(chalk.yellow('Auto-scanning all directories...'));
+      
+      const allDirs = fs.readdirSync('.').filter(item => {
+        if (item.startsWith('.') || item === 'node_modules') return false;
+        return fs.statSync(item).isDirectory();
+      });
+      
+      for (const dir of allDirs) {
+        // Skip if already in existing packages
+        if (existingPackages.some(pkg => pkg.startsWith(dir + '/'))) continue;
+        
+        // Check if directory has package.json
+        if (fs.existsSync(path.join(dir, 'package.json'))) {
+          customPackages.push(dir);
+          console.log(chalk.green(`  ✓ Found package: ${dir}`));
+        }
+        
+        // Check subdirectories
+        try {
+          const subDirs = fs.readdirSync(dir).filter(subItem => {
+            const subPath = path.join(dir, subItem);
+            return fs.statSync(subPath).isDirectory() && 
+                   fs.existsSync(path.join(subPath, 'package.json'));
+          });
+          
+          subDirs.forEach(subDir => {
+            const packagePath = path.join(dir, subDir);
+            if (!existingPackages.includes(packagePath) && !customPackages.includes(packagePath)) {
+              customPackages.push(packagePath);
+              console.log(chalk.green(`  ✓ Found package: ${packagePath}`));
+            }
+          });
+        } catch (e) {
+          // Directory might not be readable
+        }
+      }
+    } else if (input.trim()) {
+      // Scan specified directories
+      const dirs = input.split(',').map(d => d.trim()).filter(Boolean);
+      
+      for (const dir of dirs) {
+        if (!fs.existsSync(dir)) {
+          console.log(chalk.yellow(`  ⚠️  Directory not found: ${dir}`));
+          continue;
+        }
+        
+        // Check if directory itself has package.json
+        if (fs.existsSync(path.join(dir, 'package.json'))) {
+          customPackages.push(dir);
+          console.log(chalk.green(`  ✓ Found package: ${dir}`));
+        }
+        
+        // Check subdirectories
+        try {
+          const subDirs = fs.readdirSync(dir).filter(subItem => {
+            const subPath = path.join(dir, subItem);
+            return fs.statSync(subPath).isDirectory() && 
+                   fs.existsSync(path.join(subPath, 'package.json'));
+          });
+          
+          subDirs.forEach(subDir => {
+            const packagePath = path.join(dir, subDir);
+            if (!existingPackages.includes(packagePath) && !customPackages.includes(packagePath)) {
+              customPackages.push(packagePath);
+              console.log(chalk.green(`  ✓ Found package: ${packagePath}`));
+            }
+          });
+        } catch (e) {
+          console.log(chalk.yellow(`  ⚠️  Could not scan: ${dir}`));
+        }
+      }
+    }
+    
+    if (customPackages.length === 0) {
+      console.log(chalk.yellow('No additional packages found in specified directories.'));
+    } else {
+      console.log(chalk.green(`\n✓ Found ${customPackages.length} additional packages`));
+    }
+  }
+  
+  return customPackages;
+}
+
+async function detectProjectType(interactive = false) {
   const projectStructure = {
     monorepo: false,
     packages: [],
@@ -460,6 +631,19 @@ function detectProjectType() {
     frameworks: new Set(),
     features: new Set()
   };
+  
+  // NEW: Check CLAUDE.md first for existing project structure
+  if (interactive) {
+    const claudeMdPackages = await parseClaudeMdStructure();
+    if (claudeMdPackages.length > 0) {
+      projectStructure.packages.push(...claudeMdPackages);
+      projectStructure.monorepo = true;
+      console.log(chalk.gray(`  Loaded ${claudeMdPackages.length} packages from CLAUDE.md`));
+    } else if (fs.existsSync('CLAUDE.md')) {
+      console.log(chalk.yellow('  CLAUDE.md exists but no package structure found'));
+      console.log(chalk.gray('  Tip: Run "claude /init" first to map your project structure'));
+    }
+  }
   
   // Check for monorepo indicators
   if (fs.existsSync('lerna.json')) {
@@ -653,6 +837,42 @@ function detectProjectType() {
   // Check for Kubernetes
   if (fs.existsSync('k8s') || fs.existsSync('kubernetes') || fs.existsSync('helm')) {
     projectStructure.features.add('Kubernetes');
+  }
+  
+  // NEW: Interactive custom directory detection
+  if (interactive) {
+    const customPackages = await scanCustomDirectories(projectStructure.packages);
+    if (customPackages.length > 0) {
+      projectStructure.packages.push(...customPackages);
+      projectStructure.monorepo = true;
+      
+      // Analyze newly found packages
+      customPackages.forEach(pkgPath => {
+        try {
+          const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgPath, 'package.json'), 'utf8'));
+          
+          // Analyze package dependencies for framework detection
+          const deps = { ...pkgJson.dependencies, ...pkgJson.devDependencies };
+          
+          // Frontend frameworks
+          if (deps.react || deps['react-dom']) projectStructure.frameworks.add('React');
+          if (deps.next) projectStructure.frameworks.add('Next.js');
+          if (deps.vue) projectStructure.frameworks.add('Vue.js');
+          
+          // Backend frameworks
+          if (deps.express) projectStructure.frameworks.add('Express');
+          if (deps.fastify) projectStructure.frameworks.add('Fastify');
+          if (deps['@nestjs/core']) projectStructure.frameworks.add('NestJS');
+          
+          // SDK indicators
+          if (pkgJson.name?.includes('sdk') || pkgJson.name?.includes('-sdk')) {
+            projectStructure.features.add('SDK/Library');
+          }
+        } catch (e) {
+          // Package might not have valid package.json
+        }
+      });
+    }
   }
   
   // Build comprehensive project type string
