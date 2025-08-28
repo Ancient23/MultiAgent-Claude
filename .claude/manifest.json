@@ -51,6 +51,14 @@
       "role": "specialist",
       "purpose": "Optimize prompts for framework agents",
       "keywords": ["prompt", "engineer", "optimize", "specialist"]
+    },
+    {
+      "name": "unreal-cpp-api-specialist",
+      "file": "unreal-cpp-api-specialist.md",
+      "model": "sonnet",
+      "role": "specialist",
+      "purpose": "Unreal Engine 5.5 C++ gameplay systems and GAS implementation",
+      "keywords": ["unreal", "ue5", "cpp", "gas", "multiplayer", "replication", "blueprint"]
     }
   ],
   "commands": [
