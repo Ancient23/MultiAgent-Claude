@@ -105,7 +105,7 @@ ${answers.task}
   };
   
   console.log(chalk.yellow('\n💡 Tell Claude:'));
-  console.log(chalk.cyan(`   "${instructions[answers.mode]}"`));
+  console.log(chalk.cyan(`   "${instructions[mode]}"`));
 }
 
 module.exports = { orchestrate };
