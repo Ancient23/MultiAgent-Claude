@@ -603,6 +603,36 @@ execute_plan(plan)
 - `mac visual:detect-url` - Test deployment URL detection locally
 - `mac visual:ci-status` - Show visual CI configuration status
 
+### Agent/Role Conversion & Sync Commands
+- `mac convert-agent <source> <target> <file>` - Convert between Claude and ChatGPT formats
+  - `mac convert-agent claude chatgpt agent.md` - Convert Claude agent to ChatGPT role
+  - `mac convert-agent chatgpt claude role.md` - Convert ChatGPT role to Claude agent
+  - `mac convert-agent claude chatgpt ./agents/ --batch` - Batch convert directory
+- `mac sync <action>` - Bidirectional sync service for agents and roles
+  - `mac sync start [strategy]` - Start sync (strategies: manual, newest, claude, chatgpt)
+  - `mac sync status` - Show sync status
+  - `mac sync sync` - Perform one-time sync
+  - `mac sync resolve <name> <choice>` - Resolve conflict
+  - `mac sync clear [errors|conflicts]` - Clear errors or conflicts
+- `mac sync-dashboard [port]` - Start web-based monitoring dashboard (default: 8080)
+
+### Validation & Quality Commands
+- `mac validate <type> [path]` - Validate agents, templates, and conversions
+  - `mac validate agent <path>` - Validate single agent
+  - `mac validate all` - Validate all agents
+  - `mac validate conversion <path>` - Test platform conversion
+  - `mac validate yaml <template>` - Validate YAML template
+- `mac evolution <action> [path]` - Track and analyze agent/template evolution
+  - `mac evolution track <path>` - Track agent version
+  - `mac evolution report` - Generate evolution report
+  - `mac evolution learn` - Learn from patterns
+  - `mac evolution compare <path> --from 1.0.0 --to 2.0.0` - Compare versions
+- `mac metrics <action>` - Collect and display quality metrics
+  - `mac metrics collect` - Collect metrics
+  - `mac metrics show` - Display metrics
+  - `mac metrics html [--output <path>]` - Generate HTML dashboard
+  - `mac metrics watch` - Live metrics monitor
+
 #### Test Configuration
 - Tests use latest Playwright v1.48.2+
 - Default timeout: 30 seconds
