@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiAgent Claude - Your AI Team Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            color: #666;
+            font-size: 1.2em;
+            font-style: italic;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+        
+        .story-text {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+        
+        .diagram-container {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .benefit-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .benefit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .benefit-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        
+        .cta {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .cta h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: white;
+            color: #f5576c;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <!-- Brand Logo SVG -->
+                <svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Hexagon background -->
+                    <defs>
+                        <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Central hexagon -->
+                    <polygon points="60,10 100,35 100,85 60,110 20,85 20,35" 
+                             fill="url(#brandGradient)" 
+                             stroke="white" 
+                             stroke-width="3"/>
+                    
+                    <!-- Robot head symbol -->
+                    <g transform="translate(60, 60)">
+                        <!-- Head -->
+                        <rect x="-20" y="-20" width="40" height="35" 
+                              fill="white" rx="5"/>
+                        <!-- Eyes -->
+                        <circle cx="-8" cy="-5" r="4" fill="#667eea"/>
+                        <circle cx="8" cy="-5" r="4" fill="#667eea"/>
+                        <!-- Antenna -->
+                        <line x1="0" y1="-20" x2="0" y2="-30" 
+                              stroke="white" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="0" cy="-32" r="3" fill="white"/>
+                        <!-- Smile -->
+                        <path d="M -10,5 Q 0,12 10,5" 
+                              stroke="#667eea" stroke-width="2" fill="none"/>
+                    </g>
+                    
+                    <!-- Connection dots -->
+                    <circle cx="20" cy="35" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="100" cy="35" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="20" cy="85" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="100" cy="85" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="60" cy="10" r="4" fill="white" opacity="0.8"/>
+                    <circle cx="60" cy="110" r="4" fill="white" opacity="0.8"/>
+                </svg>
+            </div>
+            <h1>MultiAgent Claude</h1>
+            <p class="tagline">Your AI Team That Builds Software For You!</p>
+        </header>
+
+        <section class="section">
+            <h2>🎯 Imagine This...</h2>
+            <div class="story-text">
+                <p>You have a <span class="highlight">brilliant idea</span> for an app or website. Maybe it's a booking system for your salon, an online store for your crafts, or a cool game you've been dreaming about.</p>
+                
+                <p>Usually, you'd need to either:</p>
+                <ul style="margin: 20px 40px;">
+                    <li>Learn to code (takes years!) 😰</li>
+                    <li>Hire expensive developers ($$$) 💸</li>
+                    <li>Give up on your dream 😢</li>
+                </ul>
+                
+                <p><strong>But what if you had a team of AI assistants that could build it for you?</strong></p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🤖 How MultiAgent Claude Works</h2>
+            <p class="story-text">Think of it like having your own <span class="highlight">software development company</span> - but instead of people, you have specialized AI helpers!</p>
+            
+            <div class="diagram-container">
+                <!-- Main Workflow Diagram -->
+                <svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="shadow">
+                            <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+                        </filter>
+                    </defs>
+                    
+                    <!-- Title -->
+                    <text x="400" y="40" text-anchor="middle" font-size="24" font-weight="bold" fill="#667eea">
+                        Your AI Team at Work!
+                    </text>
+                    
+                    <!-- You (The Boss) -->
+                    <g transform="translate(400, 100)">
+                        <circle r="40" fill="#f5576c" filter="url(#shadow)"/>
+                        <text y="5" text-anchor="middle" fill="white" font-size="14" font-weight="bold">YOU</text>
+                        <text y="-60" text-anchor="middle" font-size="16" fill="#333">The Boss</text>
+                    </g>
+                    
+                    <!-- Your Request -->
+                    <rect x="300" y="160" width="200" height="40" rx="20" fill="#ffd93d" filter="url(#shadow)"/>
+                    <text x="400" y="185" text-anchor="middle" font-size="14" fill="#333">
+                        "I want a website!"
+                    </text>
+                    
+                    <!-- Arrow down -->
+                    <path d="M 400,200 L 400,250" stroke="#667eea" stroke-width="3" 
+                          marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    
+                    <!-- AI Manager -->
+                    <g transform="translate(400, 280)">
+                        <rect x="-60" y="-25" width="120" height="50" rx="10" fill="url(#grad1)" filter="url(#shadow)"/>
+                        <text y="5" text-anchor="middle" fill="white" font-size="14" font-weight="bold">AI Manager</text>
+                        <text y="-40" text-anchor="middle" font-size="12" fill="#666">Understands & Plans</text>
+                    </g>
+                    
+                    <!-- Arrows to specialists -->
+                    <path d="M 400,305 L 200,380" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M 400,305 L 400,380" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M 400,305 L 600,380" stroke="#667eea" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    
+                    <!-- AI Specialists -->
+                    <!-- Designer -->
+                    <g transform="translate(200, 420)">
+                        <rect x="-70" y="-30" width="140" height="60" rx="10" fill="#4CAF50" filter="url(#shadow)"/>
+                        <text y="-5" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Design Expert</text>
+                        <text y="15" text-anchor="middle" fill="white" font-size="11">Makes it pretty!</text>
+                    </g>
+                    
+                    <!-- Coder -->
+                    <g transform="translate(400, 420)">
+                        <rect x="-70" y="-30" width="140" height="60" rx="10" fill="#2196F3" filter="url(#shadow)"/>
+                        <text y="-5" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Code Writer</text>
+                        <text y="15" text-anchor="middle" fill="white" font-size="11">Builds features!</text>
+                    </g>
+                    
+                    <!-- Tester -->
+                    <g transform="translate(600, 420)">
+                        <rect x="-70" y="-30" width="140" height="60" rx="10" fill="#FF9800" filter="url(#shadow)"/>
+                        <text y="-5" text-anchor="middle" fill="white" font-size="13" font-weight="bold">Test Expert</text>
+                        <text y="15" text-anchor="middle" fill="white" font-size="11">Checks everything!</text>
+                    </g>
+                    
+                    <!-- Arrows back up -->
+                    <path d="M 200,450 L 400,500" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M 400,450 L 400,500" stroke="#2196F3" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <path d="M 600,450 L 400,500" stroke="#FF9800" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    
+                    <!-- Final Product -->
+                    <g transform="translate(400, 530)">
+                        <rect x="-80" y="-25" width="160" height="50" rx="25" fill="#f5576c" filter="url(#shadow)"/>
+                        <text y="5" text-anchor="middle" fill="white" font-size="16" font-weight="bold">
+                            ✨ Your App! ✨
+                        </text>
+                    </g>
+                    
+                    <!-- Arrow marker -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" 
+                                refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#667eea"/>
+                        </marker>
+                    </defs>
+                </svg>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>✨ What Makes This Special?</h2>
+            
+            <div class="benefit-cards">
+                <div class="benefit-card">
+                    <div class="benefit-icon">💬</div>
+                    <div class="benefit-title">Just Talk Normally!</div>
+                    <p>Say what you want in plain English. No coding required!</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">👥</div>
+                    <div class="benefit-title">Team of Experts</div>
+                    <p>Each AI specializes in different things - design, code, testing, etc.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">🧠</div>
+                    <div class="benefit-title">They Remember!</div>
+                    <p>The AI team remembers your project and learns what you like.</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">⚡</div>
+                    <div class="benefit-title">Super Fast</div>
+                    <p>What takes humans weeks can be done in hours!</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔄</div>
+                    <div class="benefit-title">Easy Changes</div>
+                    <p>Don't like something? Just ask for changes!</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">💰</div>
+                    <div class="benefit-title">Save Money</div>
+                    <p>No need to hire expensive developers!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🎬 Real Examples</h2>
+            <div class="story-text">
+                <p><strong>Sarah's Salon Booking Site:</strong><br>
+                "I want a website where my clients can book appointments, see my work gallery, and pay online."<br>
+                <em>→ MultiAgent Claude created it in 2 hours!</em></p>
+                
+                <p><strong>Mike's Game Idea:</strong><br>
+                "I want to make a puzzle game where you match colors to music beats."<br>
+                <em>→ The AI team built a working prototype in one afternoon!</em></p>
+                
+                <p><strong>Emma's Online Store:</strong><br>
+                "I need a shop for my handmade jewelry with Instagram integration."<br>
+                <em>→ Complete e-commerce site ready in 3 hours!</em></p>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🚀 How to Get Started</h2>
+            <div class="story-text">
+                <ol style="margin-left: 40px; line-height: 2;">
+                    <li><strong>Install the Tool:</strong> One simple setup (we'll help you!)</li>
+                    <li><strong>Tell Your AI Team:</strong> Describe what you want to build</li>
+                    <li><strong>Watch the Magic:</strong> Your AI team starts working</li>
+                    <li><strong>Review & Refine:</strong> Ask for any changes you want</li>
+                    <li><strong>Launch Your Creation:</strong> Share it with the world!</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>🤔 Common Questions</h2>
+            <div class="story-text">
+                <p><strong>Q: Do I need to know how to code?</strong><br>
+                A: Nope! Just explain what you want in plain English.</p>
+                
+                <p><strong>Q: What if I want to change something later?</strong><br>
+                A: Just ask! The AI team remembers your project and can make updates anytime.</p>
+                
+                <p><strong>Q: Is it really that simple?</strong><br>
+                A: Yes! It's like having a conversation with a really smart friend who happens to know everything about building software.</p>
+                
+                <p><strong>Q: What can I build with this?</strong><br>
+                A: Websites, apps, games, booking systems, online stores, portfolios, blogs - if you can imagine it, the AI team can build it!</p>
+            </div>
+        </section>
+
+        <div class="section cta">
+            <h2>Ready to Build Your Dream?</h2>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">
+                Join thousands of entrepreneurs who are already using AI to bring their ideas to life!
+            </p>
+            <a href="https://github.com/Anthropic/MultiAgent-Claude" class="cta-button">
+                Get Started Today! 🚀
+            </a>
+        </div>
+    </div>
+</body>
+</html>
