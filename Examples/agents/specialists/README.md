@@ -53,6 +53,7 @@ Main System Executes Plan
 ### Specialized
 - **vercel-deployment-troubleshooter**: Vercel deployment diagnostics
 - **documentation-architect**: Comprehensive documentation planning
+- **tutorial-content-specialist**: Educational content and tutorial creation with progressive learning design
 - **codebase-truth-analyzer**: Code-documentation alignment verification
 - **fullstack-feature-orchestrator**: End-to-end feature planning
 - **cpp-plugin-api-expert**: C++ game engine plugin development
