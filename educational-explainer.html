@@ -1141,6 +1141,553 @@ Result: Exactly what you need
         </section>
 
         <section class="section">
+            <h2><span class="icon">⚡</span> Chapter 10: Power User - Commands & Prompt Engineering</h2>
+            
+            <p>Ready to level up? Let's explore the command system and learn how to write prompts that get EXACTLY what you want.</p>
+            
+            <div class="truth-box">
+                <h3>🎯 What Are Commands?</h3>
+                <p>Commands in <code>.claude/commands/</code> are pre-built workflows that orchestrate multiple agents to complete complex tasks. Think of them as "recipes" that know exactly which agents to use and in what order.</p>
+            </div>
+            
+            <h3>Key Commands You Should Know:</h3>
+            
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span><strong>/implement</strong> - Direct execution of plans</span>
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="code-block">
+                            <span class="code-label">Usage Examples</span>
+# Execute CI testing immediately
+/implement ci-testing
+
+# Implement from a plan file
+/implement plan feature-plan.md
+
+# Add tests to any plan
+/implement plan refactor.md --with-ci-tests
+/implement plan ui-update.md --with-visual-tests
+
+# Generate prompt without executing
+/implement visual-dev --output-only
+                        </div>
+                        <p><strong>When to use:</strong> You have a plan and want to execute it immediately</p>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span><strong>/generate-agent</strong> - Create custom agents</span>
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="code-block">
+                            <span class="code-label">Usage Examples</span>
+# Interactive agent creation
+/generate-agent
+
+# Create specific domain agent
+/generate-agent --domain "email marketing"
+
+# Create with full specification
+/generate-agent --name "seo-specialist" --domain "SEO optimization"
+                        </div>
+                        <p><strong>When to use:</strong> You need a specialized agent for your specific domain</p>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span><strong>/validate-templates</strong> - Check quality</span>
+                        <span>+</span>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="code-block">
+                            <span class="code-label">Usage</span>
+/validate-templates
+
+# Checks:
+- Agent template consistency
+- YAML header format
+- Workflow patterns
+- Example quality
+- Documentation completeness
+                        </div>
+                        <p><strong>When to use:</strong> Before deploying agents or after major changes</p>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 style="margin-top: 40px;">🎨 The Art of Prompt Engineering</h2>
+            
+            <p>Writing good prompts is like giving directions - the clearer you are, the better the results.</p>
+            
+            <h3>The 5 Golden Rules of Prompts:</h3>
+            
+            <div class="agent-card">
+                <div class="agent-header">
+                    <span class="agent-name">Rule 1: Be Specific</span>
+                </div>
+                <div class="code-comparison">
+                    <div>
+                        <h4>❌ Vague</h4>
+                        <div class="code-block">"Make a form"</div>
+                    </div>
+                    <div>
+                        <h4>✅ Specific</h4>
+                        <div class="code-block">"Create a contact form with name, email, phone (optional), message fields, and email validation"</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="agent-card">
+                <div class="agent-header">
+                    <span class="agent-name">Rule 2: Provide Context</span>
+                </div>
+                <div class="code-comparison">
+                    <div>
+                        <h4>❌ No Context</h4>
+                        <div class="code-block">"Add authentication"</div>
+                    </div>
+                    <div>
+                        <h4>✅ With Context</h4>
+                        <div class="code-block">"Add JWT-based authentication to our Express API, using the existing User model in models/User.js"</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="agent-card">
+                <div class="agent-header">
+                    <span class="agent-name">Rule 3: Define Success</span>
+                </div>
+                <div class="code-comparison">
+                    <div>
+                        <h4>❌ Unclear Goal</h4>
+                        <div class="code-block">"Improve performance"</div>
+                    </div>
+                    <div>
+                        <h4>✅ Clear Success Criteria</h4>
+                        <div class="code-block">"Optimize page load to under 3 seconds by implementing lazy loading for images and code splitting for React components"</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="agent-card">
+                <div class="agent-header">
+                    <span class="agent-name">Rule 4: Mention Constraints</span>
+                </div>
+                <div class="code-comparison">
+                    <div>
+                        <h4>❌ No Constraints</h4>
+                        <div class="code-block">"Build a dashboard"</div>
+                    </div>
+                    <div>
+                        <h4>✅ Clear Constraints</h4>
+                        <div class="code-block">"Build a dashboard using our existing Material-UI components, must be mobile-responsive, no external API calls"</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="agent-card">
+                <div class="agent-header">
+                    <span class="agent-name">Rule 5: Specify Tools/Tech</span>
+                </div>
+                <div class="code-comparison">
+                    <div>
+                        <h4>❌ Ambiguous Tech</h4>
+                        <div class="code-block">"Add payment processing"</div>
+                    </div>
+                    <div>
+                        <h4>✅ Specific Tech</h4>
+                        <div class="code-block">"Add Stripe payment processing using their React SDK, handle both one-time and subscription payments"</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><span class="icon">🚀</span> Chapter 11: Master Workflows - Real Implementation Patterns</h2>
+            
+            <p>Here are battle-tested prompts for the 5 major workflows. Copy, customize, and use!</p>
+            
+            <h3>Workflow 1: Research & Planning with Latest APIs</h3>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(135deg, #3b82f6, #1e40af);">
+                <div class="workflow-step">
+                    <strong>Research</strong>
+                    <div>Context7 MCP</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Analyze</strong>
+                    <div>Sequential thinking</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Plan</strong>
+                    <div>Detailed blueprint</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h4>📋 Copy This Prompt:</h4>
+                <div class="code-block">
+                    <span class="code-label">Research & Planning Prompt</span>
+I need to build a [YOUR FEATURE] that integrates with [YOUR TECH STACK].
+
+Please orchestrate a comprehensive research and planning phase:
+
+1. Use Context7 MCP to research latest best practices for:
+   - [Technology 1] patterns and architecture
+   - [Technology 2] integration approaches
+   - Security considerations for [YOUR DOMAIN]
+
+2. Deploy these specialists for planning:
+   - frontend-ui-expert (if UI involved)
+   - aws-backend-architect (if backend needed)
+   - [DOMAIN]-specialist (your specific domain)
+
+3. Create a detailed implementation plan that includes:
+   - Architecture diagrams
+   - Component breakdown
+   - API endpoint specifications
+   - Data flow documentation
+   - Security measures
+   - Testing strategy
+
+Context: [Describe your existing setup]
+Constraints: [Any limitations]
+Success criteria: [What defines completion]
+
+Save all plans to .claude/doc/ for review before implementation.
+                </div>
+                
+                <h4>🎯 Real Example:</h4>
+                <div class="code-block">
+                    <span class="code-label">Actual Usage</span>
+I need to build a real-time chat feature that integrates with our React/Node.js stack.
+
+Please orchestrate a comprehensive research and planning phase:
+
+1. Use Context7 MCP to research latest best practices for:
+   - WebSocket implementation patterns
+   - Socket.io vs native WebSockets
+   - Real-time message synchronization
+   - Chat security and rate limiting
+
+2. Deploy these specialists for planning:
+   - websocket-realtime-engineer
+   - frontend-ui-expert
+   - backend-api-frontend-integrator
+
+3. Create a detailed implementation plan that includes:
+   - WebSocket architecture design
+   - React component structure for chat UI
+   - Message queue and delivery confirmation
+   - User presence system
+   - Typing indicators
+   - Message persistence strategy
+
+Context: Existing auth with JWT, PostgreSQL database, Material-UI components
+Constraints: Must support 1000+ concurrent users, messages under 100ms latency
+Success criteria: Working chat with real-time sync, message history, and presence
+
+Save all plans to .claude/doc/ for review before implementation.
+                </div>
+            </div>
+            
+            <h3>Workflow 2: Test-Driven Development with Visual Verification</h3>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(135deg, #10b981, #047857);">
+                <div class="workflow-step">
+                    <strong>Write Tests</strong>
+                    <div>Before code</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Visual Tests</strong>
+                    <div>Playwright MCP</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Implement</strong>
+                    <div>Until tests pass</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h4>📋 Copy This Prompt:</h4>
+                <div class="code-block">
+                    <span class="code-label">TDD with Visual Testing Prompt</span>
+I want to implement [YOUR FEATURE] using test-driven development with visual verification.
+
+Please orchestrate a TDD workflow:
+
+1. Deploy playwright-test-engineer to create:
+   - Comprehensive test suite BEFORE implementation
+   - E2E test scenarios covering all user flows
+   - Visual regression test baselines
+   - Accessibility tests (WCAG compliance)
+
+2. Set up Playwright MCP for visual testing:
+   - Capture baseline screenshots of current state
+   - Define visual comparison thresholds
+   - Set up visual diff reporting
+
+3. Create test cases for:
+   - Happy path: [describe expected flow]
+   - Edge cases: [list edge scenarios]
+   - Error handling: [error scenarios]
+   - Visual consistency: [UI requirements]
+
+4. Implementation approach:
+   - Write minimal code to make each test pass
+   - Use Playwright visual feedback during development
+   - Iterate until all tests green
+
+Target: [Component/Feature name]
+Visual requirements: [Describe UI expectations]
+Browser support: [List browsers]
+
+Run tests with: npm run test:visual
+                </div>
+                
+                <h4>🎯 Real Example:</h4>
+                <div class="code-block">
+                    <span class="code-label">Actual Usage</span>
+I want to implement a multi-step checkout form using test-driven development with visual verification.
+
+Please orchestrate a TDD workflow:
+
+1. Deploy playwright-test-engineer to create:
+   - Test suite for 4-step checkout flow
+   - Tests for form validation on each step
+   - Tests for back/forward navigation
+   - Visual tests for responsive design (mobile/tablet/desktop)
+   - Accessibility tests for screen readers
+
+2. Set up Playwright MCP for visual testing:
+   - Capture baseline of current checkout page
+   - Set 5% threshold for visual differences
+   - Screenshot each step of the form
+
+3. Create test cases for:
+   - Happy path: Complete purchase with valid data
+   - Edge cases: Empty cart, expired session, network errors
+   - Validation: Invalid email, wrong card format, missing fields
+   - Visual: Consistent styling, loading states, error messages
+
+4. Implementation approach:
+   - Build Step 1 (Cart Review) until tests pass
+   - Build Step 2 (Shipping) until tests pass
+   - Build Step 3 (Payment) until tests pass
+   - Build Step 4 (Confirmation) until tests pass
+
+Target: CheckoutForm component
+Visual requirements: Match Figma designs at .claude/mocks/checkout.png
+Browser support: Chrome, Firefox, Safari (last 2 versions)
+
+Run tests with: npm run test:checkout
+                </div>
+            </div>
+            
+            <h3>Workflow 3: Orchestrated Implementation with Continuous Verification</h3>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+                <div class="workflow-step">
+                    <strong>Read Plan</strong>
+                    <div>From .claude/doc/</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Implement</strong>
+                    <div>With agents</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Verify</strong>
+                    <div>Visual + Tests</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h4>📋 Copy This Prompt:</h4>
+                <div class="code-block">
+                    <span class="code-label">Implementation with Verification Prompt</span>
+Execute the implementation plan at [PLAN FILE PATH] with continuous verification.
+
+Orchestration requirements:
+
+1. Wave execution pattern:
+   - Wave 1: Setup and dependencies
+   - Wave 2: Core implementation
+   - Wave 3: Integration
+   - Wave 4: Testing and verification
+   - Wave 5: Documentation
+
+2. Use Playwright MCP for visual feedback:
+   - Navigate to localhost:3000 after each component
+   - Take screenshots for visual verification
+   - Compare with mockups at .claude/mocks/
+
+3. Verification checkpoints:
+   - After each component: Run unit tests
+   - After integration: Run integration tests
+   - After UI changes: Visual regression check
+   - Final: Full E2E test suite
+
+4. Tools to use:
+   - mac mcp playwright (for visual feedback)
+   - npm run test (after each module)
+   - npm run lint (maintain code quality)
+
+If any test fails: Stop, debug, fix before continuing
+If visual diff > 10%: Stop and review changes
+
+Report progress after each wave.
+                </div>
+            </div>
+            
+            <h3>Workflow 4: Cloud Deployment with Infrastructure as Code</h3>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="workflow-step">
+                    <strong>Terraform</strong>
+                    <div>Define infra</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Staging</strong>
+                    <div>Test deploy</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Production</strong>
+                    <div>Go live!</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h4>📋 Copy This Prompt:</h4>
+                <div class="code-block">
+                    <span class="code-label">Deployment Orchestration Prompt</span>
+Orchestrate a complete deployment pipeline for [YOUR APP].
+
+Deployment requirements:
+
+1. Infrastructure (Terraform):
+   - AWS/GCP/Azure resources needed
+   - Database setup (RDS/DynamoDB/etc)
+   - CDN configuration
+   - SSL certificates
+   - Environment variables
+
+2. CI/CD Pipeline (GitHub Actions):
+   - Build on push to main
+   - Run test suite
+   - Deploy to staging on success
+   - Manual approval for production
+   - Rollback strategy
+
+3. Frontend deployment (Vercel/Netlify):
+   - Preview deployments for PRs
+   - Environment-specific builds
+   - Performance monitoring
+
+4. Branching strategy:
+   - main → production
+   - staging → staging environment
+   - feature/* → preview deployments
+
+5. Monitoring:
+   - Error tracking (Sentry)
+   - Performance (Lighthouse CI)
+   - Uptime monitoring
+
+Create all config files in:
+- terraform/ (infrastructure)
+- .github/workflows/ (CI/CD)
+- vercel.json or netlify.toml (frontend)
+                </div>
+            </div>
+            
+            <h3>Workflow 5: Comprehensive Documentation</h3>
+            
+            <div class="workflow-diagram" style="background: linear-gradient(135deg, #ec4899, #be185d);">
+                <div class="workflow-step">
+                    <strong>API Docs</strong>
+                    <div>OpenAPI spec</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>User Guide</strong>
+                    <div>How-to docs</div>
+                </div>
+                <span class="workflow-arrow">→</span>
+                <div class="workflow-step">
+                    <strong>Dev Docs</strong>
+                    <div>Setup guide</div>
+                </div>
+            </div>
+            
+            <div class="interactive-demo">
+                <h4>📋 Copy This Prompt:</h4>
+                <div class="code-block">
+                    <span class="code-label">Documentation Generation Prompt</span>
+Deploy documentation-architect to create comprehensive docs for [YOUR PROJECT].
+
+Documentation requirements:
+
+1. User Documentation:
+   - Getting started guide
+   - Feature tutorials with screenshots
+   - FAQ section
+   - Troubleshooting guide
+
+2. API Documentation:
+   - OpenAPI/Swagger specification
+   - Authentication guide
+   - Rate limiting info
+   - Example requests/responses
+   - Error codes reference
+
+3. Developer Documentation:
+   - Setup instructions (with mac commands)
+   - Architecture overview
+   - Database schema
+   - Contributing guidelines
+   - Testing guide
+
+4. Deployment Documentation:
+   - Environment setup
+   - Configuration options
+   - Scaling guidelines
+   - Backup procedures
+
+Format: Markdown with diagrams
+Location: docs/ directory
+Include: Code examples, mermaid diagrams, screenshots
+
+Auto-generate from code comments where possible.
+                </div>
+            </div>
+            
+            <div class="truth-box">
+                <h3>🎯 Pro Tips for Workflows</h3>
+                <ul>
+                    <li><strong>Chain workflows:</strong> Research → Test → Implement → Deploy → Document</li>
+                    <li><strong>Save everything:</strong> Plans in .claude/doc/, patterns in .ai/memory/</li>
+                    <li><strong>Use Context7:</strong> Always research latest practices before implementing</li>
+                    <li><strong>Visual verify:</strong> Use Playwright MCP to see what you're building</li>
+                    <li><strong>Test early:</strong> Write tests before code for better quality</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
             <h2><span class="icon">🎓</span> Final Lesson: You're the Expert</h2>
             
             <div class="truth-box">
