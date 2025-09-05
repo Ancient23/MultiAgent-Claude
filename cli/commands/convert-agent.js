@@ -5,8 +5,8 @@ const path = require('path');
 const yaml = require('js-yaml');
 
 /**
- * Bidirectional Agent/Role Converter
- * Converts between Claude agents and ChatGPT roles using universal template
+ * Enhanced Bidirectional Agent/Role Converter
+ * Properly converts between Claude agents (with YAML frontmatter) and ChatGPT roles
  */
 
 class AgentRoleConverter {
@@ -23,467 +23,476 @@ class AgentRoleConverter {
       filename
     );
     if (fs.existsSync(templatePath)) {
-      return yaml.load(fs.readFileSync(templatePath, 'utf8'));
+      try {
+        return yaml.load(fs.readFileSync(templatePath, 'utf8'));
+      } catch (error) {
+        console.warn(`Warning: Could not load template ${filename}:`, error.message);
+        return null;
+      }
     }
     return null;
   }
 
   /**
+   * Parse agent file with YAML frontmatter
+   */
+  parseAgentFile(content) {
+    // Handle YAML frontmatter
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+    if (frontmatterMatch) {
+      const [, yamlContent, markdownContent] = frontmatterMatch;
+      try {
+        const frontmatter = yaml.load(yamlContent);
+        return {
+          frontmatter,
+          content: markdownContent.trim(),
+          hasYamlFrontmatter: true
+        };
+      } catch (error) {
+        console.warn('Warning: Could not parse YAML frontmatter:', error.message);
+      }
+    }
+    
+    // Fallback to old format detection
+    return {
+      frontmatter: null,
+      content: content.trim(),
+      hasYamlFrontmatter: false
+    };
+  }
+
+  /**
    * Convert Claude agent to ChatGPT role
    */
-  claudeToChatGPT(claudeAgent) {
-    const universal = this.extractUniversalFromClaude(claudeAgent);
-    return this.universalToChatGPT(universal);
+  claudeToChatGPT(agentContent) {
+    const parsed = this.parseAgentFile(agentContent);
+    
+    if (parsed.hasYamlFrontmatter) {
+      return this.convertModernAgentToChatGPT(parsed);
+    } else {
+      return this.convertLegacyAgentToChatGPT(parsed);
+    }
+  }
+
+  /**
+   * Convert modern agent (with YAML frontmatter) to ChatGPT role
+   */
+  convertModernAgentToChatGPT(parsed) {
+    const { frontmatter, content } = parsed;
+    const name = frontmatter.name || 'unnamed-specialist';
+    const description = frontmatter.description || '';
+    
+    // Extract core competencies and approach from content
+    const goalMatch = content.match(/## Goal\s*\n([\s\S]*?)(?=\n##|$)/);
+    const competenciesMatch = content.match(/## Core Competencies[^]*?1\.\s*\*\*([^*]+)\*\*:\s*([^\n]+)/);
+    const planningMatch = content.match(/## Planning Approach[^]*?When creating implementation plans, you will:\s*\n([\s\S]*?)(?=\nYour plans|$)/);
+    
+    const goal = goalMatch ? goalMatch[1].trim().split('\n')[0] : '';
+    const expertise = this.extractExpertiseDomains(description, content);
+    const approach = planningMatch ? this.extractApproachSteps(planningMatch[1]) : [];
+    
+    // Convert research-plan-execute pattern to ChatGPT instructions
+    const roleInstructions = this.convertResearchPatternToChatGPT(content, frontmatter);
+    
+    let chatgptContent = `# ${name}
+
+You are a ${expertise.join(' and ')} specialist.
+
+## Role
+${roleInstructions}
+
+## Expertise
+${expertise.join(', ')}
+
+## Approach
+${approach.map((step, i) => `${i + 1}. ${step}`).join('\n')}
+
+## Key Capabilities
+- Create detailed implementation plans
+- Research latest best practices
+- Provide expert technical guidance
+- Document comprehensive strategies
+- Ensure quality standards compliance
+
+## Response Pattern
+When asked to help with relevant tasks:
+1. Acknowledge the request and confirm your expertise applies
+2. Ask clarifying questions if needed
+3. Create a comprehensive implementation plan
+4. Provide specific, actionable recommendations
+5. Include quality standards and success criteria
+
+*Optimized for ChatGPT context window*`;
+
+    // Compress to fit ChatGPT's limits
+    if (chatgptContent.length > 1500) {
+      chatgptContent = this.compressForChatGPT(chatgptContent, 1400);
+    }
+
+    return {
+      name,
+      content: chatgptContent,
+      metadata: {
+        source: 'claude-agent',
+        converted: new Date().toISOString(),
+        originalType: frontmatter.model || 'sonnet'
+      }
+    };
+  }
+
+  /**
+   * Convert research-plan-execute pattern to ChatGPT instructions
+   */
+  convertResearchPatternToChatGPT(content, frontmatter) {
+    const goalMatch = content.match(/## Goal\s*\n([\s\S]*?)(?=\n\*\*IMPORTANT\*\*|$)/);
+    const goal = goalMatch ? goalMatch[1].trim() : '';
+    
+    // Simplify the research-plan-execute pattern for ChatGPT
+    const description = frontmatter.description || '';
+    const triggerKeywords = this.extractTriggerKeywords(description);
+    
+    return `Create detailed implementation plans for ${goal.toLowerCase()}. 
+Focus on providing comprehensive guidance with latest best practices. 
+Triggered by: ${triggerKeywords.join(', ')}.
+Always provide actionable, step-by-step implementation strategies.`;
+  }
+
+  /**
+   * Extract expertise domains from description and content
+   */
+  extractExpertiseDomains(description, content) {
+    const domains = [];
+    
+    // Extract from description
+    const descMatch = description.match(/specializes in (.+?)(?:\.|Use PROACTIVELY)/);
+    if (descMatch) {
+      const specializations = descMatch[1].split(/,| and /).map(s => s.trim());
+      domains.push(...specializations);
+    }
+    
+    // Extract from competencies section
+    const compMatch = content.match(/## Core Competencies.*?\n([\s\S]*?)(?=\n##|$)/);
+    if (compMatch) {
+      const compLines = compMatch[1].split('\n')
+        .filter(line => line.match(/^\d+\.\s*\*\*(.+?)\*\*/))
+        .map(line => line.match(/^\d+\.\s*\*\*(.+?)\*\*/)[1]);
+      domains.push(...compLines);
+    }
+    
+    return [...new Set(domains.filter(d => d && d.length > 2))].slice(0, 3);
+  }
+
+  /**
+   * Extract approach steps from planning section
+   */
+  extractApproachSteps(planningText) {
+    const steps = [];
+    const stepMatches = planningText.match(/\d+\.\s*\*\*(.+?)\*\*:\s*(.+?)(?=\n\d+\.|$)/g);
+    
+    if (stepMatches) {
+      stepMatches.forEach(match => {
+        const stepMatch = match.match(/\d+\.\s*\*\*(.+?)\*\*:\s*(.+)/);
+        if (stepMatch) {
+          steps.push(`${stepMatch[1]}: ${stepMatch[2].trim()}`);
+        }
+      });
+    }
+    
+    return steps.slice(0, 5); // Limit to 5 steps for ChatGPT
+  }
+
+  /**
+   * Extract trigger keywords from description
+   */
+  extractTriggerKeywords(description) {
+    const keywords = [];
+    
+    // Extract from "when user mentions" patterns
+    const mentionMatches = description.match(/when user mentions ([^.]+)/gi);
+    if (mentionMatches) {
+      mentionMatches.forEach(match => {
+        const mentioned = match.replace(/when user mentions /i, '');
+        keywords.push(...mentioned.split(/,| or /).map(k => k.trim()));
+      });
+    }
+    
+    // Extract from "PROACTIVELY when" patterns  
+    const proactiveMatches = description.match(/PROACTIVELY when (.+?)(?:\.|Use)/gi);
+    if (proactiveMatches) {
+      proactiveMatches.forEach(match => {
+        const triggers = match.replace(/PROACTIVELY when /i, '').replace(/\.$/, '');
+        keywords.push(...triggers.split(/,| or /).map(k => k.trim()));
+      });
+    }
+    
+    return [...new Set(keywords.filter(k => k.length > 2))].slice(0, 8);
   }
 
   /**
    * Convert ChatGPT role to Claude agent
    */
-  chatGPTToClaude(chatgptRole) {
-    const universal = this.extractUniversalFromChatGPT(chatgptRole);
-    return this.universalToClaude(universal);
+  chatGPTToClaude(roleContent) {
+    const parsed = this.parseRoleContent(roleContent);
+    return this.generateClaudeAgent(parsed);
   }
 
   /**
-   * Extract universal template from Claude agent
+   * Parse ChatGPT role content
    */
-  extractUniversalFromClaude(agent) {
-    const universal = JSON.parse(JSON.stringify(this.universalBase));
+  parseRoleContent(content) {
+    const lines = content.split('\n');
+    const name = lines[0]?.replace(/^#\s*/, '') || 'converted-agent';
     
-    // Map Claude-specific fields to universal
-    universal.core.identifier.name = agent.name || '';
-    universal.core.identifier.type = this.determineType(agent);
+    const sections = {};
+    let currentSection = null;
+    let currentContent = [];
     
-    // Extract purpose from agent description
-    const descriptionMatch = agent.content?.match(/\*\*Purpose\*\*:\s*(.+?)(?:\n|$)/);
-    universal.core.purpose.brief = descriptionMatch?.[1] || '';
-    universal.core.purpose.detailed = agent.description || '';
-    
-    // Extract triggers
-    const triggersMatch = agent.content?.match(/\*\*Trigger\*\*:\s*(.+?)(?:\n\n|$)/s);
-    if (triggersMatch) {
-      universal.core.triggers.keywords = this.extractKeywords(triggersMatch[1]);
-    }
-    
-    // Extract capabilities
-    const capabilitiesMatch = agent.content?.match(/## Capabilities\s*\n([\s\S]+?)(?:\n##|$)/);
-    if (capabilitiesMatch) {
-      universal.core.capabilities.domains = this.extractListItems(capabilitiesMatch[1]);
-    }
-    
-    // Extract workflow phases
-    const workflowMatch = agent.content?.match(/## (?:Workflow|Process)\s*\n([\s\S]+?)(?:\n##|$)/);
-    if (workflowMatch) {
-      universal.core.workflow.phases = this.extractPhases(workflowMatch[1]);
-    }
-    
-    // Preserve Claude-specific extensions
-    universal.extensions.claude = this.extractClaudeExtensions(agent);
-    
-    return universal;
-  }
-
-  /**
-   * Extract universal template from ChatGPT role
-   */
-  extractUniversalFromChatGPT(role) {
-    const universal = JSON.parse(JSON.stringify(this.universalBase));
-    
-    // ChatGPT roles are typically more concise
-    universal.core.identifier.name = role.name || '';
-    universal.core.identifier.type = 'specialist'; // Most ChatGPT roles are specialists
-    
-    // Parse the role content
-    const lines = role.content?.split('\n') || [];
-    universal.core.purpose.brief = lines[0]?.replace(/^#\s*/, '') || '';
-    
-    // Extract sections
-    const sections = this.parseSections(role.content);
-    
-    if (sections['role']) {
-      universal.core.purpose.detailed = sections['role'];
-    }
-    
-    if (sections['expertise']) {
-      universal.core.capabilities.domains = sections['expertise'].split(',').map(s => s.trim());
-    }
-    
-    if (sections['approach']) {
-      universal.core.workflow.phases = this.extractListItems(sections['approach']);
-    }
-    
-    // Preserve ChatGPT-specific extensions
-    universal.extensions.chatgpt = this.extractChatGPTExtensions(role);
-    
-    return universal;
-  }
-
-  /**
-   * Convert universal template to Claude agent
-   */
-  universalToClaude(universal) {
-    const claudeAgent = {
-      name: universal.core.identifier.name,
-      type: 'agent',
-      content: this.generateClaudeContent(universal),
-      metadata: {
-        version: universal.core.identifier.version,
-        created: new Date().toISOString(),
-        source: 'universal-converter'
+    lines.forEach(line => {
+      const headerMatch = line.match(/^##\s*(.+)/);
+      if (headerMatch) {
+        if (currentSection) {
+          sections[currentSection.toLowerCase()] = currentContent.join('\n').trim();
+        }
+        currentSection = headerMatch[1];
+        currentContent = [];
+      } else if (currentSection) {
+        currentContent.push(line);
       }
-    };
+    });
     
-    return claudeAgent;
+    if (currentSection) {
+      sections[currentSection.toLowerCase()] = currentContent.join('\n').trim();
+    }
+    
+    return { name, sections };
   }
 
   /**
-   * Convert universal template to ChatGPT role
+   * Generate proper Claude agent from ChatGPT role
    */
-  universalToChatGPT(universal) {
-    const chatgptRole = {
-      name: universal.core.identifier.name,
-      type: 'role',
-      content: this.generateChatGPTContent(universal),
-      metadata: {
-        version: universal.core.identifier.version,
-        created: new Date().toISOString(),
-        source: 'universal-converter'
-      }
-    };
+  generateClaudeAgent(parsed) {
+    const { name, sections } = parsed;
+    const expertise = sections.expertise || '';
+    const role = sections.role || '';
+    const approach = sections.approach || '';
     
-    return chatgptRole;
-  }
-
-  /**
-   * Generate Claude agent content from universal template
-   */
-  generateClaudeContent(universal) {
-    const { core, extensions } = universal;
-    const claude = extensions?.claude || {};
+    // Generate trigger keywords from role and expertise
+    const triggerKeywords = expertise.split(',').map(e => e.trim()).slice(0, 5);
     
-    let content = `# ${core.identifier.name}
+    const agentContent = `---
+name: ${name}
+description: Use this agent PROACTIVELY when working with ${expertise}. This agent excels at ${role.split('.')[0].toLowerCase()} and specializes in comprehensive planning and guidance.
 
-**Type**: ${core.identifier.type}
-**Purpose**: ${core.purpose.brief}
+Examples:
+- <example>
+  Context: User needs help with ${triggerKeywords[0] || 'the domain'}
+  user: "I need help with ${triggerKeywords[0] || 'this task'}"
+  assistant: "I'll use the ${name} to create a comprehensive plan"
+  <commentary>
+  This agent specializes in ${expertise} and can create detailed implementation strategies
+  </commentary>
+</example>
 
-## Description
-${core.purpose.detailed}
+model: sonnet
+color: blue
+---
 
-## Trigger
-${this.formatTriggers(core.triggers)}
+You are an expert specialist with deep expertise in ${expertise}. ${role}
 
-## Capabilities
-${this.formatList(core.capabilities.domains)}
+## Goal
+Your goal is to propose a detailed implementation plan for the current project, including specifically ${approach.split('\n')[0]?.replace(/^[\d.-]\s*/, '') || 'comprehensive analysis and planning'} (assume others only have outdated knowledge and you are here to provide expert guidance with the latest best practices).
 
-## Operations
-${this.formatList(core.capabilities.operations)}
+**IMPORTANT**: This agent ONLY creates plans and documentation. NEVER do the actual implementation. The parent agent will handle all implementation based on your plan.
 
-## Workflow
-${this.formatPhases(core.workflow.phases)}
+Save the implementation plan to .claude/doc/${name}-[task]-[timestamp].md in the project directory.
 
-## Requirements
-${this.formatRequirements(core.requirements)}
+## Core Workflow
+1. Check .claude/tasks/ for the most recent context_session_*.md file for full context
+2. Use mcp-catalog to list candidate MCP tools for this task
+3. Use Context7 MCP to get latest documentation for relevant technologies
+4. Use WebSearch for latest updates and changelogs not in Context7
+5. Use Sequential MCP for complex analysis
+6. Create detailed implementation plan with specific configurations
+7. Save plan to .claude/doc/ in the project directory
+
+## Output Format
+Your final message MUST include the implementation file path you created. No need to recreate the same content again in the final message.
+
+Example: "I've created a detailed plan at .claude/doc/${name}-implementation-20240817.md, please read that first before you proceed with implementation."
+
+## Rules
+- NEVER do the actual implementation or execute commands
+- Your goal is to research and plan - the parent agent will handle implementation
+- Before doing any work, check .claude/tasks/ for any context_session_*.md files
+- After finishing work, MUST create the .claude/doc/*.md file in the project directory
+- Use Context7 MCP for latest documentation
+- Use WebSearch for recent updates
+- Use mcp-catalog to discover relevant MCP tools
+- Always include quality standards and success criteria
+
+## Core Competencies for Creating Implementation Plans
+
+1. **Analysis & Research**: ${approach.split('\n').slice(0, 2).map(a => a.replace(/^[\d.-]\s*/, '')).join(', ')}
+
+2. **Implementation Planning**: Create comprehensive step-by-step implementation strategies
+
+3. **Quality Assurance**: Define success criteria and validation requirements
+
+## Planning Approach
+
+When creating implementation plans, you will:
+
+${approach.split('\n').slice(0, 5).map((step, i) => `${i + 1}. **${step.replace(/^[\d.-]\s*/, '').split(':')[0] || `Step ${i + 1}`}**: ${step.replace(/^[\d.-]\s*/, '')}`).join('\n')}
+
+Your plans prioritize latest best practices and comprehensive guidance. You stay current with relevant technologies to ensure your plans reflect the latest capabilities.
 
 ## Quality Standards
-${this.formatList(core.standards.success_criteria)}
-`;
 
-    // Add Claude-specific sections
-    if (claude.mcp_tools?.enabled) {
-      content += `
-## MCP Tools
-${this.formatMCPTools(claude.mcp_tools)}
-`;
-    }
+Your implementation plans must include:
+- Comprehensive analysis and research findings
+- Step-by-step implementation instructions
+- Quality requirements and success criteria
+- Risk assessment and mitigation strategies
+- Validation and testing approaches
 
-    if (claude.memory) {
-      content += `
-## Memory Integration
-${this.formatMemory(claude.memory)}
-`;
-    }
+Always document specific technologies and techniques that the implementing team must follow.`;
 
-    return content;
+    return {
+      name,
+      content: agentContent,
+      metadata: {
+        source: 'chatgpt-role',
+        converted: new Date().toISOString(),
+        format: 'yaml-frontmatter'
+      }
+    };
   }
 
   /**
-   * Generate ChatGPT role content from universal template
+   * Compress content to fit ChatGPT character limits
    */
-  generateChatGPTContent(universal) {
-    const { core, extensions } = universal;
-    const chatgpt = extensions?.chatgpt || {};
-    
-    // ChatGPT roles are more concise, max 1500 chars
-    let content = `# ${core.identifier.name}
-
-You are a ${core.identifier.type} specialized in ${core.capabilities.domains.join(', ')}.
-
-## Role
-${core.purpose.detailed}
-
-## Expertise
-${core.capabilities.domains.join(', ')}
-
-## Approach
-${core.workflow.phases.map(p => `- ${p}`).join('\n')}
-
-## Key Capabilities
-${core.capabilities.operations.slice(0, 5).map(o => `- ${o}`).join('\n')}
-`;
-
-    // Add response style if specified
-    if (chatgpt.custom_instructions?.how_to_respond) {
-      content += `
-## Response Style
-${chatgpt.custom_instructions.how_to_respond}
-`;
-    }
-
-    // Ensure within ChatGPT's character limit
-    if (content.length > 1500) {
-      content = this.compressForChatGPT(content, 1500);
-    }
-
-    return content;
-  }
-
-  // Helper methods
-  determineType(agent) {
-    const content = agent.content?.toLowerCase() || '';
-    if (content.includes('orchestrat')) return 'orchestrator';
-    if (content.includes('specialist')) return 'specialist';
-    return 'utility';
-  }
-
-  extractKeywords(text) {
-    const keywords = [];
-    const matches = text.match(/`([^`]+)`/g);
-    if (matches) {
-      keywords.push(...matches.map(m => m.replace(/`/g, '')));
-    }
-    // Also extract words after "when user mentions"
-    const mentionMatch = text.match(/when user mentions?\s+(.+?)(?:\.|,|\n|$)/gi);
-    if (mentionMatch) {
-      mentionMatch.forEach(m => {
-        const words = m.replace(/when user mentions?\s+/i, '').split(/[,\s]+/);
-        keywords.push(...words.filter(w => w.length > 2));
-      });
-    }
-    return [...new Set(keywords)];
-  }
-
-  extractListItems(text) {
-    const items = [];
-    const lines = text.split('\n');
-    lines.forEach(line => {
-      const match = line.match(/^[\s-*]+(.+)/);
-      if (match) {
-        items.push(match[1].trim());
-      }
-    });
-    return items;
-  }
-
-  extractPhases(text) {
-    const phases = [];
-    const matches = text.match(/\d+\.\s*(.+?)(?=\d+\.|$)/gs);
-    if (matches) {
-      phases.push(...matches.map(m => m.replace(/^\d+\.\s*/, '').trim()));
-    }
-    return phases.length > 0 ? phases : this.extractListItems(text);
-  }
-
-  parseSections(content) {
-    const sections = {};
-    const sectionMatches = content.match(/##\s*([^\n]+)\n([\s\S]+?)(?=\n##|$)/g);
-    if (sectionMatches) {
-      sectionMatches.forEach(match => {
-        const [, title, body] = match.match(/##\s*([^\n]+)\n([\s\S]+)/);
-        sections[title.toLowerCase()] = body.trim();
-      });
-    }
-    return sections;
-  }
-
-  extractClaudeExtensions(agent) {
-    // Extract Claude-specific features from agent content
-    const extensions = {};
-    
-    // MCP tools
-    const mcpMatch = agent.content?.match(/## MCP Tools?\s*\n([\s\S]+?)(?:\n##|$)/);
-    if (mcpMatch) {
-      extensions.mcp_tools = { enabled: true, tools: this.extractListItems(mcpMatch[1]) };
-    }
-    
-    // Memory integration
-    const memoryMatch = agent.content?.match(/## Memory/i);
-    if (memoryMatch) {
-      extensions.memory_integration = true;
-    }
-    
-    return extensions;
-  }
-
-  extractChatGPTExtensions(role) {
-    // Extract ChatGPT-specific features
-    const extensions = {};
-    
-    // Response style
-    const styleMatch = role.content?.match(/## Response Style\s*\n([\s\S]+?)(?:\n##|$)/);
-    if (styleMatch) {
-      extensions.response_style = styleMatch[1].trim();
-    }
-    
-    return extensions;
-  }
-
-  formatTriggers(triggers) {
-    const parts = [];
-    if (triggers.keywords?.length) {
-      parts.push(`Keywords: ${triggers.keywords.map(k => `\`${k}\``).join(', ')}`);
-    }
-    if (triggers.patterns?.length) {
-      parts.push(`Patterns: ${triggers.patterns.join(', ')}`);
-    }
-    if (triggers.contexts?.length) {
-      parts.push(`Contexts: ${triggers.contexts.join(', ')}`);
-    }
-    return parts.join('\n');
-  }
-
-  formatList(items) {
-    if (!items || items.length === 0) return '- None specified';
-    return items.map(item => `- ${item}`).join('\n');
-  }
-
-  formatPhases(phases) {
-    if (!phases || phases.length === 0) return '1. No phases specified';
-    return phases.map((phase, i) => `${i + 1}. ${phase}`).join('\n');
-  }
-
-  formatRequirements(requirements) {
-    const parts = [];
-    if (requirements.tools?.length) {
-      parts.push(`### Tools\n${this.formatList(requirements.tools)}`);
-    }
-    if (requirements.knowledge?.length) {
-      parts.push(`### Knowledge\n${this.formatList(requirements.knowledge)}`);
-    }
-    return parts.join('\n\n') || 'No specific requirements';
-  }
-
-  formatMCPTools(mcpTools) {
-    if (!mcpTools.servers?.length) return 'No MCP tools configured';
-    return mcpTools.servers.map(server => 
-      `- ${server.name}: ${server.tools?.join(', ') || 'all tools'}`
-    ).join('\n');
-  }
-
-  formatMemory(memory) {
-    const parts = [];
-    if (memory.read_patterns?.length) {
-      parts.push(`Read: ${memory.read_patterns.join(', ')}`);
-    }
-    if (memory.write_suggestions?.length) {
-      parts.push(`Suggest: ${memory.write_suggestions.join(', ')}`);
-    }
-    return parts.join('\n') || 'Standard memory integration';
-  }
-
   compressForChatGPT(content, maxLength) {
-    // Intelligent compression for ChatGPT's character limit
     if (content.length <= maxLength) return content;
     
-    // Remove less critical sections
-    content = content.replace(/## Requirements[\s\S]+?(?=\n##|$)/g, '');
-    content = content.replace(/## Quality Standards[\s\S]+?(?=\n##|$)/g, '');
+    // Progressive compression strategies
+    let compressed = content;
     
-    // Truncate lists to top items
-    content = content.replace(/(\n- [^\n]+){6,}/g, (match) => {
-      const items = match.split('\n').filter(i => i);
-      return items.slice(0, 3).join('\n') + '\n- [...]';
-    });
+    // 1. Remove extra whitespace
+    compressed = compressed.replace(/\n{3,}/g, '\n\n');
+    compressed = compressed.replace(/[ \t]+/g, ' ');
     
-    // Final truncation if still too long
-    if (content.length > maxLength) {
-      content = content.substring(0, maxLength - 20) + '\n\n[Truncated]';
+    // 2. Shorten section headers
+    compressed = compressed.replace(/## Key Capabilities/g, '## Capabilities');
+    compressed = compressed.replace(/## Response Pattern/g, '## Pattern');
+    
+    // 3. Compress lists
+    compressed = compressed.replace(/(\d+\.\s+[^\n]+)\n/g, '$1; ');
+    compressed = compressed.replace(/^- /gm, '• ');
+    
+    // 4. Truncate if still too long
+    if (compressed.length > maxLength) {
+      const lines = compressed.split('\n');
+      let result = [];
+      let currentLength = 0;
+      
+      for (const line of lines) {
+        if (currentLength + line.length + 1 <= maxLength - 50) {
+          result.push(line);
+          currentLength += line.length + 1;
+        } else {
+          break;
+        }
+      }
+      
+      result.push('\n*Optimized for ChatGPT context window*');
+      compressed = result.join('\n');
     }
     
-    return content;
+    return compressed;
+  }
+
+  /**
+   * Legacy conversion for old format agents
+   */
+  convertLegacyAgentToChatGPT(parsed) {
+    // Simplified conversion for old format
+    const content = parsed.content;
+    const name = this.extractAgentName(content);
+    const purpose = this.extractPurpose(content);
+    
+    const chatgptContent = `# ${name}
+
+You are a specialist focused on ${purpose}.
+
+## Approach
+1. Analyze the requirements
+2. Create implementation plan  
+3. Provide step-by-step guidance
+4. Ensure quality standards
+
+*Converted from legacy format*`;
+
+    return {
+      name,
+      content: chatgptContent,
+      metadata: {
+        source: 'legacy-agent',
+        converted: new Date().toISOString()
+      }
+    };
+  }
+
+  extractAgentName(content) {
+    const match = content.match(/^#\s*(.+)/m);
+    return match ? match[1].trim() : 'converted-specialist';
+  }
+
+  extractPurpose(content) {
+    const match = content.match(/\*\*Purpose\*\*:\s*(.+)/);
+    return match ? match[1].trim() : 'specialized tasks';
   }
 }
 
-// CLI Interface
-function main() {
-  const args = process.argv.slice(2);
+module.exports = AgentRoleConverter;
+
+// CLI interface when run directly
+if (require.main === module) {
+  const converter = new AgentRoleConverter();
   
-  if (args.length < 3) {
+  // Handle command line arguments
+  const args = process.argv.slice(2);
+  const [sourceType, targetType, filePath] = args;
+  
+  if (!sourceType || !targetType || !filePath) {
     console.log(`
-Usage: mac convert-agent <source-type> <target-type> <file-path>
+Usage: node convert-agent.js <source> <target> <file>
 
 Examples:
-  mac convert-agent claude chatgpt ./agent.md
-  mac convert-agent chatgpt claude ./role.md
-  mac convert-agent universal claude ./template.yaml
-  
-Options:
-  --output <path>  Output file path (default: stdout)
-  --validate       Validate output against schema
-  --batch          Process all files in directory
+  node convert-agent.js claude chatgpt agent.md
+  node convert-agent.js chatgpt claude role.md
     `);
     process.exit(1);
   }
-
-  const [sourceType, targetType, filePath] = args;
-  const converter = new AgentRoleConverter();
   
   try {
     const content = fs.readFileSync(filePath, 'utf8');
     let result;
     
-    // Parse input based on extension
-    const input = filePath.endsWith('.yaml') || filePath.endsWith('.yml')
-      ? yaml.load(content)
-      : { content, name: path.basename(filePath, path.extname(filePath)) };
-    
-    // Perform conversion
     if (sourceType === 'claude' && targetType === 'chatgpt') {
-      result = converter.claudeToChatGPT(input);
+      result = converter.claudeToChatGPT(content);
     } else if (sourceType === 'chatgpt' && targetType === 'claude') {
-      result = converter.chatGPTToClaude(input);
-    } else if (sourceType === 'universal') {
-      if (targetType === 'claude') {
-        result = converter.universalToClaude(input);
-      } else if (targetType === 'chatgpt') {
-        result = converter.universalToChatGPT(input);
-      }
+      result = converter.chatGPTToClaude(content);
     } else {
-      throw new Error(`Unsupported conversion: ${sourceType} to ${targetType}`);
+      throw new Error('Invalid conversion type. Use: claude->chatgpt or chatgpt->claude');
     }
     
-    // Output result
-    const outputIndex = args.indexOf('--output');
-    if (outputIndex !== -1 && args[outputIndex + 1]) {
-      const outputPath = args[outputIndex + 1];
-      const outputContent = typeof result === 'object' 
-        ? yaml.dump(result) 
-        : result.content || result;
-      fs.writeFileSync(outputPath, outputContent);
-      console.log(`✅ Converted ${sourceType} to ${targetType}: ${outputPath}`);
-    } else {
-      console.log(result.content || yaml.dump(result));
-    }
+    // Output the conversion result
+    console.log('Conversion successful!');
+    console.log('---');
+    console.log(result.content);
     
   } catch (error) {
-    console.error('❌ Conversion failed:', error.message);
+    console.error('Conversion failed:', error.message);
     process.exit(1);
   }
-}
-
-// Export for testing
-module.exports = { AgentRoleConverter };
-
-// Run if called directly
-if (require.main === module) {
-  main();
 }
