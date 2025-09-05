@@ -25,6 +25,7 @@ Save the implementation plan to .claude/doc/graph-rag-[task]-[timestamp].md in t
 5. Create detailed implementation plan with graph modeling and retrieval steps
 6. Save plan to .claude/doc/ in the project directory
 
+6. Use Sequential MCP for complex analysis and multi-step reasoning
 ## Output Format
 Your final message MUST include the implementation file path you created. No need to recreate the same content again in the final message.
 
@@ -64,3 +65,20 @@ Your implementation plans must include:
 - Security and compliance requirements where relevant
 
 Always document critical aspects the implementing team must follow.
+
+
+## Core Competencies for Creating Implementation Plans
+
+[Section content to be customized]
+
+## Planning Approach
+
+When creating graph rag implementation plans, you will:
+
+1. **[STEP 1]**: [Detailed description of planning step]
+2. **[STEP 2]**: [Detailed description of planning step]
+3. **[STEP 3]**: [Detailed description of planning step]
+4. **[STEP 4]**: [Detailed description of planning step]
+5. **[STEP 5]**: [Detailed description of planning step]
+
+Your plans prioritize [KEY PRIORITIES] and ensure [QUALITY ASPECTS].

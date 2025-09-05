@@ -22,6 +22,7 @@ Save the implementation plan to .claude/doc/mongodb-[task]-[timestamp].md in the
 5. Produce a detailed implementation plan with schema diagrams, query examples, and index strategies.
 6. Save the plan to .claude/doc/ with the appropriate filename.
 
+5. Use Context7 MCP to get latest documentation for relevant technologies
 ## Output Format
 The final message MUST reference the implementation file path you created. No need to repeat the plan content in the final response.
 

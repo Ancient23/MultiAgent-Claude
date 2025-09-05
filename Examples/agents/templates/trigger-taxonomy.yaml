@@ -1,0 +1,183 @@
+# Trigger Taxonomy for Agent/Role Activation
+# Version: 1.0.0
+# Created: 2025-08-29
+# Purpose: Standardized 3-level trigger classification system
+
+trigger_taxonomy:
+  # Level 1: Direct Triggers (Highest Priority)
+  level_1_direct:
+    description: "Explicit mentions that immediately activate the agent/role"
+    priority: 1
+    examples:
+      - command_invocation: "/deploy-aws"
+      - agent_name_mention: "use aws-deployment-specialist"
+      - explicit_request: "I need AWS deployment help"
+    patterns:
+      claude:
+        - "^/(agent-name)"
+        - "use (agent-name)"
+        - "deploy (agent-name)"
+        - "invoke (agent-name)"
+      chatgpt:
+        - "act as (role-name)"
+        - "switch to (role-name)"
+        - "enable (role-name) mode"
+    activation_threshold: 100  # Immediate activation
+
+  # Level 2: Contextual Triggers (Medium Priority)
+  level_2_contextual:
+    description: "Keywords and patterns that suggest agent/role relevance"
+    priority: 2
+    categories:
+      technical_keywords:
+        description: "Technology-specific terms"
+        examples:
+          - aws: ["EC2", "Lambda", "S3", "CloudFormation"]
+          - react: ["useState", "useEffect", "component", "JSX"]
+          - testing: ["Playwright", "test", "spec", "assertion"]
+        weight: 0.7
+      
+      action_verbs:
+        description: "Task-oriented verbs"
+        examples:
+          - deployment: ["deploy", "release", "publish", "launch"]
+          - development: ["implement", "build", "create", "develop"]
+          - testing: ["test", "verify", "validate", "check"]
+        weight: 0.6
+      
+      problem_indicators:
+        description: "Issues or challenges mentioned"
+        examples:
+          - errors: ["error", "bug", "issue", "problem", "broken"]
+          - optimization: ["slow", "optimize", "improve", "enhance"]
+          - troubleshooting: ["not working", "fails", "crashes", "timeout"]
+        weight: 0.8
+    
+    activation_threshold: 70  # Activate if combined score >= 70%
+
+  # Level 3: Implicit Triggers (Low Priority)
+  level_3_implicit:
+    description: "Broad patterns that may benefit from agent/role assistance"
+    priority: 3
+    indicators:
+      file_patterns:
+        description: "File types or paths being discussed"
+        examples:
+          - aws: ["*.tf", "terraform/*", "cloudformation/*"]
+          - frontend: ["*.jsx", "*.tsx", "components/*"]
+          - testing: ["*.spec.js", "*.test.ts", "tests/*"]
+        weight: 0.4
+      
+      conversation_context:
+        description: "Overall discussion theme"
+        examples:
+          - infrastructure: ["scaling", "architecture", "system design"]
+          - ui_development: ["user interface", "design", "layout"]
+          - quality: ["coverage", "regression", "CI/CD"]
+        weight: 0.3
+      
+      project_state:
+        description: "Current project phase or state"
+        examples:
+          - initialization: ["new project", "setup", "getting started"]
+          - maintenance: ["refactor", "update", "migrate"]
+          - production: ["deploy", "release", "go live"]
+        weight: 0.5
+    
+    activation_threshold: 50  # Suggest agent if score >= 50%
+
+# Trigger Combination Rules
+combination_rules:
+  multi_level_activation:
+    description: "How to combine triggers from different levels"
+    formula: "(L1 * 1.0) + (L2 * 0.7) + (L3 * 0.3)"
+    threshold: 60  # Overall activation threshold
+  
+  conflict_resolution:
+    description: "When multiple agents match"
+    strategies:
+      - highest_score: "Select agent with highest combined score"
+      - most_specific: "Prefer specialist over orchestrator"
+      - user_preference: "Use user's historical preferences"
+      - ask_user: "Present options to user for selection"
+  
+  negative_triggers:
+    description: "Patterns that prevent activation"
+    examples:
+      - excluded_terms: ["don't use", "without", "not", "avoid"]
+      - alternative_specified: ["instead use", "prefer", "rather than"]
+    weight: -1.0  # Negative weight cancels activation
+
+# Platform-Specific Mappings
+platform_mappings:
+  claude_to_chatgpt:
+    keyword_transformations:
+      "MCP tools": "capabilities"
+      "orchestration": "coordination"
+      "subagents": "sub-tasks"
+      "memory system": "context management"
+    
+    pattern_adaptations:
+      claude_pattern: "when user mentions (\\w+)"
+      chatgpt_pattern: "when discussing $1"
+  
+  chatgpt_to_claude:
+    keyword_transformations:
+      "act as": "deploy"
+      "role": "agent"
+      "persona": "specialist"
+      "instructions": "workflow"
+    
+    pattern_adaptations:
+      chatgpt_pattern: "You are a (\\w+)"
+      claude_pattern: "Agent type: $1"
+
+# Trigger Effectiveness Metrics
+effectiveness_metrics:
+  tracking:
+    - activation_count: "Number of times triggered"
+    - success_rate: "Percentage of helpful activations"
+    - false_positive_rate: "Incorrect activations"
+    - user_override_rate: "User cancellations"
+  
+  optimization:
+    - weight_adjustment: "Auto-adjust weights based on success"
+    - pattern_learning: "Learn new trigger patterns from usage"
+    - threshold_tuning: "Optimize activation thresholds"
+  
+  reporting:
+    - weekly_summary: "Trigger performance report"
+    - pattern_recommendations: "Suggested new patterns"
+    - deprecation_candidates: "Underperforming triggers"
+
+# Trigger Validation Rules
+validation:
+  minimum_requirements:
+    level_1: "At least 1 direct trigger required"
+    level_2: "At least 3 contextual keywords required"
+    level_3: "Optional but recommended"
+  
+  quality_checks:
+    - uniqueness: "No duplicate triggers across agents"
+    - specificity: "Triggers should be specific to agent domain"
+    - coverage: "Cover common use cases"
+    - clarity: "Unambiguous activation patterns"
+  
+  testing_scenarios:
+    - exact_match: "Test direct command invocation"
+    - partial_match: "Test keyword combinations"
+    - negative_test: "Ensure no false activations"
+    - conflict_test: "Test multi-agent scenarios"
+
+# Evolution Tracking
+evolution:
+  version_history:
+    - version: "1.0.0"
+      date: "2025-08-29"
+      changes: "Initial taxonomy establishment"
+  
+  planned_improvements:
+    - nlp_integration: "Natural language understanding"
+    - context_awareness: "Multi-turn conversation tracking"
+    - learning_system: "ML-based trigger optimization"
+    - cross_platform_sync: "Unified trigger database"

@@ -1,0 +1,303 @@
+name: Agent Sync Pipeline
+
+on:
+  push:
+    paths:
+      - 'Examples/agents/**/*.md'
+      - 'Examples/roles/**/*.md'
+      - 'Examples/agents/specialists/**/*.md'
+  pull_request:
+    paths:
+      - 'Examples/agents/**/*.md'
+      - 'Examples/roles/**/*.md'
+      - 'Examples/agents/specialists/**/*.md'
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      sync_strategy:
+        description: 'Sync conflict resolution strategy'
+        required: false
+        default: 'newest'
+        type: choice
+        options:
+          - manual
+          - newest
+          - claude
+          - chatgpt
+
+jobs:
+  validate:
+    name: Validate Agents
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate all agents
+        run: |
+          node cli/commands/validate-agents.js all > validation-report.txt
+          cat validation-report.txt
+      
+      - name: Check validation results
+        run: |
+          if grep -q "❌ Errors:" validation-report.txt; then
+            echo "Validation errors found!"
+            exit 1
+          fi
+      
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: validation-report.txt
+
+  convert:
+    name: Convert and Sync
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run sync service
+        run: |
+          STRATEGY="${{ github.event.inputs.sync_strategy || 'newest' }}"
+          echo "Using sync strategy: $STRATEGY"
+          node cli/commands/sync-service.js sync > sync-report.txt
+          cat sync-report.txt
+      
+      - name: Check for conflicts
+        id: check_conflicts
+        run: |
+          node cli/commands/sync-service.js status > status.txt
+          cat status.txt
+          
+          # Extract conflict count
+          CONFLICTS=$(grep "Conflicts:" status.txt | awk '{print $2}')
+          echo "conflicts=$CONFLICTS" >> $GITHUB_OUTPUT
+          
+          if [ "$CONFLICTS" -gt "0" ]; then
+            echo "⚠️ Conflicts detected: $CONFLICTS"
+            echo "Manual resolution required"
+          fi
+      
+      - name: Convert new agents
+        run: |
+          # Find agents without corresponding roles
+          for agent in Examples/agents/*.md Examples/agents/specialists/*.md; do
+            if [ -f "$agent" ]; then
+              basename=$(basename "$agent")
+              role="Examples/roles/$basename"
+              
+              if [ ! -f "$role" ]; then
+                echo "Converting $agent to role..."
+                node cli/commands/convert-agent.js claude chatgpt "$agent" --output "$role"
+              fi
+            fi
+          done
+          
+          # Find roles without corresponding agents
+          for role in Examples/roles/*.md; do
+            if [ -f "$role" ]; then
+              basename=$(basename "$role")
+              agent="Examples/agents/specialists/$basename"
+              
+              if [ ! -f "$agent" ] && [ ! -f "Examples/agents/$basename" ]; then
+                echo "Converting $role to agent..."
+                node cli/commands/convert-agent.js chatgpt claude "$role" --output "$agent"
+              fi
+            fi
+          done
+      
+      - name: Collect quality metrics
+        run: |
+          node cli/commands/metrics-dashboard.js collect
+          node cli/commands/metrics-dashboard.js show > metrics-report.txt
+          cat metrics-report.txt
+      
+      - name: Track evolution
+        run: |
+          # Track all agents
+          for agent in Examples/agents/*.md Examples/agents/specialists/*.md; do
+            if [ -f "$agent" ]; then
+              node cli/commands/evolution-tracker.js track "$agent" || true
+            fi
+          done
+          
+          # Generate evolution report
+          node cli/commands/evolution-tracker.js report > evolution-report.txt
+          cat evolution-report.txt
+      
+      - name: Generate HTML reports
+        run: |
+          node cli/commands/metrics-dashboard.js html
+          cp .claude/evolution/dashboard.html ./dashboard.html
+      
+      - name: Commit synced files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add Examples/agents/**/*.md Examples/roles/**/*.md
+            git add .claude/evolution/*.json .claude/sync-state.json
+            
+            # Create commit message
+            SYNC_MSG="🔄 Auto-sync agents and roles
+            
+            Validation: Passed
+            Conflicts: ${{ steps.check_conflicts.outputs.conflicts }}
+            Strategy: ${{ github.event.inputs.sync_strategy || 'newest' }}
+            
+            [skip ci]"
+            
+            git commit -m "$SYNC_MSG"
+            git push
+          fi
+      
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-artifacts
+          path: |
+            sync-report.txt
+            status.txt
+            metrics-report.txt
+            evolution-report.txt
+            dashboard.html
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [validate, convert]
+    if: always()
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sync-artifacts
+          path: ./artifacts
+      
+      - name: Create summary
+        run: |
+          echo "# 🔄 Agent Sync Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Add validation status
+          if [ "${{ needs.validate.result }}" == "success" ]; then
+            echo "✅ **Validation**: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Validation**: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Add sync status
+          if [ "${{ needs.convert.result }}" == "success" ]; then
+            echo "✅ **Sync**: Completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Sync**: Issues detected" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Metrics" >> $GITHUB_STEP_SUMMARY
+          
+          # Extract key metrics if available
+          if [ -f "artifacts/metrics-report.txt" ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            head -20 artifacts/metrics-report.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View Full Dashboard](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let comment = '## 🔄 Agent Sync Results\n\n';
+            
+            // Add validation status
+            comment += `**Validation**: ${{ needs.validate.result == 'success' && '✅ Passed' || '❌ Failed' }}\n`;
+            comment += `**Sync**: ${{ needs.convert.result == 'success' && '✅ Completed' || '⚠️ Issues' }}\n\n`;
+            
+            // Add metrics if available
+            try {
+              const metrics = fs.readFileSync('artifacts/status.txt', 'utf8');
+              const conflicts = metrics.match(/Conflicts:\s+(\d+)/);
+              if (conflicts && conflicts[1] !== '0') {
+                comment += `⚠️ **${conflicts[1]} conflicts need manual resolution**\n\n`;
+              }
+            } catch (e) {
+              // Metrics not available
+            }
+            
+            comment += `[View Full Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [validate, convert]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: validation-report
+          path: ./
+      
+      - name: Check quality gate
+        run: |
+          # Extract average score from validation
+          if [ -f "validation-report.txt" ]; then
+            SCORE=$(grep "Average Score:" validation-report.txt | awk '{print $3}' | cut -d'/' -f1)
+            
+            echo "Average Quality Score: $SCORE"
+            
+            # Fail if score is below 70
+            if (( $(echo "$SCORE < 70" | bc -l) )); then
+              echo "❌ Quality gate failed: Score $SCORE is below threshold of 70"
+              exit 1
+            else
+              echo "✅ Quality gate passed: Score $SCORE meets threshold"
+            fi
+          else
+            echo "⚠️ No validation report found"
+          fi

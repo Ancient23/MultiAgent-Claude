@@ -1,0 +1,192 @@
+
+> multiagent-claude@2.0.0 test
+> playwright test --grep All agents should have YAML frontmatter --reporter json
+
+{
+  "config": {
+    "configFile": "/Users/filip/Projects/MultiAgent-Claude/playwright.config.js",
+    "rootDir": "/Users/filip/Projects/MultiAgent-Claude/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/filip/Projects/MultiAgent-Claude/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "cli-tests",
+        "name": "cli-tests",
+        "testDir": "/Users/filip/Projects/MultiAgent-Claude/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.cli\\.spec\\.js/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/filip/Projects/MultiAgent-Claude/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "integration-tests",
+        "name": "integration-tests",
+        "testDir": "/Users/filip/Projects/MultiAgent-Claude/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.integration\\.spec\\.js/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/filip/Projects/MultiAgent-Claude/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "unit-tests",
+        "name": "unit-tests",
+        "testDir": "/Users/filip/Projects/MultiAgent-Claude/tests",
+        "testIgnore": [
+          "/.*\\.(cli|integration|visual)\\.spec\\.js/"
+        ],
+        "testMatch": [
+          "/.*\\.spec\\.js/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/filip/Projects/MultiAgent-Claude/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "visual-tests",
+        "name": "visual-tests",
+        "testDir": "/Users/filip/Projects/MultiAgent-Claude/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/.*\\.visual\\.spec\\.js/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "agent-template-validation.spec.js",
+      "file": "agent-template-validation.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Agent Template Compliance",
+          "file": "agent-template-validation.spec.js",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "All agents should have YAML frontmatter",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "unit-tests",
+                  "projectName": "unit-tests",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 4,
+                      "error": {
+                        "message": "Error: Agent template validation errors:\nExamples/agents/mcp-catalog-snippet.md: Missing YAML frontmatter\nExamples/agents/specialists/worktree-coordinator.md: Missing YAML frontmatter\nExamples/agents/specialists/websocket-realtime-engineer.md: Missing YAML frontmatter\nExamples/agents/specialists/visual-regression-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/vercel-deployment-troubleshooter.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:412)\n\n 1 |  ... \n 2 |  ... entation.\\n\\n<example>\\nContext: The user has a Vercel deployme ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/ui-design-auditor.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:449)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user wants to evaluate a w ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/terraform-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/sql-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: A user needs to refactor a Pos ...\n--------------^\n 7 |   user: \"Our analytics dashboard query ag ...\n 8 |   assistant: \"I'll use the sql-specialist ...\nExamples/agents/specialists/react-ui-architect.md: Missing YAML frontmatter\nExamples/agents/specialists/rag-vectordb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:656)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to ingest docum ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/playwright-visual-developer.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/playwright-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: The user wants to add E2E test ...\n--------------^\n 7 |   user: \"Create Playwright tests for our  ...\n 8 |   assistant: \"I'll use the playwright-tes ...\nExamples/agents/specialists/multimodal-ai-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:441)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is implementing a vid ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/mongodb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:431)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to design a sch ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/implementation-verifier.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/graph-rag-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:462)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to build a know ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/frontend-ui-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:629)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is creating a fronten ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/electron-app-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/documentation-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:429)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to create comprehen ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cpp-plugin-api-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:454)\n\n 1 |  ... \n 2 |  ... architectures. <example>Context: The user needs a C++ library t ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/codebase-truth-analyzer.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:480)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: User wants to verify if a docu ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cli-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: User needs to test their CLI t ...\n--------------^\n 7 |   user: \"I need to create tests for my CL ...\n 8 |   assistant: \"I'll use the cli-test-engin ...\nExamples/agents/specialists/bundler-optimization-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User's webpack bundle is too l ...\n----------------^\n 7 |     user: \"Our webpack bundle is 2MB and ta ...\n 8 |     assistant: \"I'll use the bundler-optimi ...\nExamples/agents/specialists/backend-api-frontend-integrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:588)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user needs to create a Rea ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/aws-deployment-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/aws-backend-architect.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/ai-agent-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:697)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user is building an AI age ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/TEMPLATE-agent.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: [Describe the context]\n--------------^\n 7 |   user: \"[Example user request]\"\n 8 |   assistant: \"I'll use the [agent-name] a ...\nExamples/agents/orchestrators/wave-execution-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Complex issue requiring system ...\n--------------^\n 7 |   user: \"We have intermittent failures in ...\n 8 |   assistant: \"I'll use the wave-execution ...\nExamples/agents/orchestrators/parallel-controller.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/master-orchestrator.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/issue-triage-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Production bug affecting multi ...\n--------------^\n 7 |   user: \"Users are reporting intermittent ...\n 8 |   assistant: \"I'll use the issue-triage-o ...\nExamples/agents/orchestrators/infrastructure-migration-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:525)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to migrate a video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/fullstack-feature-orchestrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:445)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to add a new video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/code-review-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Pull request ready for review\n--------------^\n 7 |   user: \"Review the changes in PR #123 fo ...\n 8 |   assistant: \"I'll use the code-review-or ...",
+                        "stack": "Error: Agent template validation errors:\nExamples/agents/mcp-catalog-snippet.md: Missing YAML frontmatter\nExamples/agents/specialists/worktree-coordinator.md: Missing YAML frontmatter\nExamples/agents/specialists/websocket-realtime-engineer.md: Missing YAML frontmatter\nExamples/agents/specialists/visual-regression-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/vercel-deployment-troubleshooter.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:412)\n\n 1 |  ... \n 2 |  ... entation.\\n\\n<example>\\nContext: The user has a Vercel deployme ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/ui-design-auditor.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:449)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user wants to evaluate a w ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/terraform-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/sql-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: A user needs to refactor a Pos ...\n--------------^\n 7 |   user: \"Our analytics dashboard query ag ...\n 8 |   assistant: \"I'll use the sql-specialist ...\nExamples/agents/specialists/react-ui-architect.md: Missing YAML frontmatter\nExamples/agents/specialists/rag-vectordb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:656)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to ingest docum ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/playwright-visual-developer.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/playwright-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: The user wants to add E2E test ...\n--------------^\n 7 |   user: \"Create Playwright tests for our  ...\n 8 |   assistant: \"I'll use the playwright-tes ...\nExamples/agents/specialists/multimodal-ai-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:441)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is implementing a vid ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/mongodb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:431)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to design a sch ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/implementation-verifier.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/graph-rag-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:462)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to build a know ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/frontend-ui-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:629)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is creating a fronten ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/electron-app-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/documentation-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:429)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to create comprehen ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cpp-plugin-api-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:454)\n\n 1 |  ... \n 2 |  ... architectures. <example>Context: The user needs a C++ library t ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/codebase-truth-analyzer.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:480)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: User wants to verify if a docu ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cli-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: User needs to test their CLI t ...\n--------------^\n 7 |   user: \"I need to create tests for my CL ...\n 8 |   assistant: \"I'll use the cli-test-engin ...\nExamples/agents/specialists/bundler-optimization-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User's webpack bundle is too l ...\n----------------^\n 7 |     user: \"Our webpack bundle is 2MB and ta ...\n 8 |     assistant: \"I'll use the bundler-optimi ...\nExamples/agents/specialists/backend-api-frontend-integrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:588)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user needs to create a Rea ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/aws-deployment-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/aws-backend-architect.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/ai-agent-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:697)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user is building an AI age ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/TEMPLATE-agent.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: [Describe the context]\n--------------^\n 7 |   user: \"[Example user request]\"\n 8 |   assistant: \"I'll use the [agent-name] a ...\nExamples/agents/orchestrators/wave-execution-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Complex issue requiring system ...\n--------------^\n 7 |   user: \"We have intermittent failures in ...\n 8 |   assistant: \"I'll use the wave-execution ...\nExamples/agents/orchestrators/parallel-controller.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/master-orchestrator.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/issue-triage-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Production bug affecting multi ...\n--------------^\n 7 |   user: \"Users are reporting intermittent ...\n 8 |   assistant: \"I'll use the issue-triage-o ...\nExamples/agents/orchestrators/infrastructure-migration-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:525)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to migrate a video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/fullstack-feature-orchestrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:445)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to add a new video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/code-review-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Pull request ready for review\n--------------^\n 7 |   user: \"Review the changes in PR #123 fo ...\n 8 |   assistant: \"I'll use the code-review-or ...\n    at /Users/filip/Projects/MultiAgent-Claude/tests/agent-template-validation.spec.js:65:13",
+                        "location": {
+                          "file": "/Users/filip/Projects/MultiAgent-Claude/tests/agent-template-validation.spec.js",
+                          "column": 13,
+                          "line": 65
+                        },
+                        "snippet": "  63 |     \n  64 |     if (errors.length > 0) {\n> 65 |       throw new Error(`Agent template validation errors:\\n${errors.join('\\n')}`);\n     |             ^\n  66 |     }\n  67 |   });\n  68 |"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/filip/Projects/MultiAgent-Claude/tests/agent-template-validation.spec.js",
+                            "column": 13,
+                            "line": 65
+                          },
+                          "message": "Error: Agent template validation errors:\nExamples/agents/mcp-catalog-snippet.md: Missing YAML frontmatter\nExamples/agents/specialists/worktree-coordinator.md: Missing YAML frontmatter\nExamples/agents/specialists/websocket-realtime-engineer.md: Missing YAML frontmatter\nExamples/agents/specialists/visual-regression-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/vercel-deployment-troubleshooter.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:412)\n\n 1 |  ... \n 2 |  ... entation.\\n\\n<example>\\nContext: The user has a Vercel deployme ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/ui-design-auditor.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:449)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user wants to evaluate a w ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/terraform-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/sql-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: A user needs to refactor a Pos ...\n--------------^\n 7 |   user: \"Our analytics dashboard query ag ...\n 8 |   assistant: \"I'll use the sql-specialist ...\nExamples/agents/specialists/react-ui-architect.md: Missing YAML frontmatter\nExamples/agents/specialists/rag-vectordb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:656)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to ingest docum ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/playwright-visual-developer.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/playwright-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: The user wants to add E2E test ...\n--------------^\n 7 |   user: \"Create Playwright tests for our  ...\n 8 |   assistant: \"I'll use the playwright-tes ...\nExamples/agents/specialists/multimodal-ai-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:441)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is implementing a vid ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/mongodb-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:431)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to design a sch ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/implementation-verifier.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/graph-rag-specialist.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:462)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to build a know ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/frontend-ui-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:629)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is creating a fronten ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/electron-app-specialist.md: Missing YAML frontmatter\nExamples/agents/specialists/documentation-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:429)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to create comprehen ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cpp-plugin-api-expert.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:454)\n\n 1 |  ... \n 2 |  ... architectures. <example>Context: The user needs a C++ library t ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/codebase-truth-analyzer.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:480)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: User wants to verify if a docu ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/cli-test-engineer.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: User needs to test their CLI t ...\n--------------^\n 7 |   user: \"I need to create tests for my CL ...\n 8 |   assistant: \"I'll use the cli-test-engin ...\nExamples/agents/specialists/bundler-optimization-specialist.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User's webpack bundle is too l ...\n----------------^\n 7 |     user: \"Our webpack bundle is 2MB and ta ...\n 8 |     assistant: \"I'll use the bundler-optimi ...\nExamples/agents/specialists/backend-api-frontend-integrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:588)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user needs to create a Rea ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/aws-deployment-specialist.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/aws-backend-architect.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/specialists/ai-agent-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:697)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: The user is building an AI age ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/specialists/TEMPLATE-agent.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: [Describe the context]\n--------------^\n 7 |   user: \"[Example user request]\"\n 8 |   assistant: \"I'll use the [agent-name] a ...\nExamples/agents/orchestrators/wave-execution-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Complex issue requiring system ...\n--------------^\n 7 |   user: \"We have intermittent failures in ...\n 8 |   assistant: \"I'll use the wave-execution ...\nExamples/agents/orchestrators/parallel-controller.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/master-orchestrator.md: Missing or invalid 'Examples' array in frontmatter\nExamples/agents/orchestrators/issue-triage-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Production bug affecting multi ...\n--------------^\n 7 |   user: \"Users are reporting intermittent ...\n 8 |   assistant: \"I'll use the issue-triage-o ...\nExamples/agents/orchestrators/infrastructure-migration-architect.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:525)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to migrate a video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/fullstack-feature-orchestrator.md: Invalid YAML frontmatter - bad indentation of a mapping entry (2:445)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to add a new video  ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... \nExamples/agents/orchestrators/code-review-orchestrator.md: Invalid YAML frontmatter - bad indentation of a sequence entry (6:10)\n\n 3 | \n 4 | Examples:\n 5 | - <example>\n 6 |   Context: Pull request ready for review\n--------------^\n 7 |   user: \"Review the changes in PR #123 fo ...\n 8 |   assistant: \"I'll use the code-review-or ...\n\n  63 |     \n  64 |     if (errors.length > 0) {\n> 65 |       throw new Error(`Agent template validation errors:\\n${errors.join('\\n')}`);\n     |             ^\n  66 |     }\n  67 |   });\n  68 |\n    at /Users/filip/Projects/MultiAgent-Claude/tests/agent-template-validation.spec.js:65:13"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-09-05T04:42:47.561Z",
+                      "annotations": [],
+                      "attachments": [],
+                      "errorLocation": {
+                        "file": "/Users/filip/Projects/MultiAgent-Claude/tests/agent-template-validation.spec.js",
+                        "column": 13,
+                        "line": 65
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "8a648b7454c7b95df8de-39074390d21b67d0e546",
+              "file": "agent-template-validation.spec.js",
+              "line": 24,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-09-05T04:42:47.280Z",
+    "duration": 299.61300000000006,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

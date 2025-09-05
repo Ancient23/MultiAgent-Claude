@@ -1,6 +1,6 @@
 # Agent Templates
 
-MultiAgent-Claude distinguishes between **orchestrators** that coordinate work and **specialists** that provide deep domain plans. All agents operate in a research-only mode and output implementation plans to `.claude/doc/`. For OpenAI platforms, each specialist also has a corresponding role file in `.chatgpt/roles`.
+MultiAgent-Claude distinguishes between **orchestrators** that coordinate work and **specialists** that provide deep domain plans. All agents follow the research-plan-execute pattern and output implementation plans to `.claude/doc/`. For OpenAI platforms, each specialist also has a corresponding role file in `.chatgpt/roles`.
 
 ## Orchestrators
 
@@ -33,6 +33,13 @@ MultiAgent-Claude distinguishes between **orchestrators** that coordinate work a
 | `playwright-visual-developer` | Iterates on UI using Playwright MCP | `visual iteration`, `Playwright MCP` |
 | `ui-design-auditor` | Audits UX/UI and suggests improvements | `design audit`, `UX best practices` |
 | `vercel-deployment-troubleshooter` | Diagnoses Vercel build and runtime errors | `Vercel`, `deployment issues` |
+| `electron-app-specialist` | Electron desktop app architecture and packaging | `Electron`, `desktop app` |
+| `react-ui-architect` | React component architecture and state management | `React patterns`, `component design` |
+| `websocket-realtime-engineer` | Real-time WebSocket communication systems | `WebSocket`, `real-time` |
+| `visual-regression-specialist` | Visual testing and screenshot comparison | `visual testing`, `regression` |
+| `bundler-optimization-specialist` | Build tool and bundle optimization | `webpack`, `bundler optimization` |
+| `rag-vectordb-specialist` | RAG systems and vector database optimization | `RAG`, `vector databases` |
+| `graph-rag-specialist` | Graph-based RAG and knowledge systems | `Graph RAG`, `Neo4j` |
 | `TEMPLATE-agent` | Starter spec for creating new specialists | `custom agent`, `template` |
 
 Refer to each markdown file for full instructions. Use orchestrators when coordination across multiple specialists is required; otherwise invoke the specialist that matches the domain.

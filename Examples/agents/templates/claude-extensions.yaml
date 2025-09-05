@@ -1,0 +1,119 @@
+# Claude Platform Extensions
+# Version: 1.0.0
+# Created: 2025-08-29
+# Purpose: Claude-specific enhancements to universal template
+
+claude_extensions:
+  # MCP Tool Configuration
+  mcp_tools:
+    enabled: true
+    servers:
+      - name: "" # e.g., "sequential-thinking"
+        tools: [] # Specific tools from this server
+        priority: "" # primary|fallback
+    tool_patterns:
+      research: [] # Tools for research phase
+      planning: [] # Tools for planning phase
+      execution: [] # Tools for execution phase
+      
+  # Agent Orchestration
+  orchestration:
+    deployment_model: "" # parallel|sequential|worktree|wave
+    subagent_coordination:
+      can_deploy: [] # List of agents this can deploy
+      deployment_strategy: "" # How to coordinate subagents
+      result_consolidation: "" # How to merge results
+    context_management:
+      session_tracking: true
+      memory_integration: true
+      pattern_learning: true
+      
+  # Memory System Integration
+  memory:
+    read_patterns:
+      - ".ai/memory/project.md"
+      - ".ai/memory/patterns/*.md"
+      - ".ai/memory/decisions/*.md"
+    write_suggestions: [] # What to suggest writing
+    index_updates: [] # Index.json update patterns
+    
+  # Output Configuration
+  output:
+    plan_location: ".claude/doc/[agent]-[task]-[timestamp].md"
+    session_updates: ".claude/tasks/context_session_[id].md"
+    artifact_paths:
+      plans: ".claude/doc/"
+      reports: ".claude/reports/"
+      analysis: ".claude/analysis/"
+      
+  # Claude-Specific Features
+  features:
+    research_only_mode: false # If true, never executes
+    plan_verification: true # Verify plans before execution
+    session_continuity: true # Maintain context across invocations
+    proactive_suggestions: true # Suggest actions proactively
+    
+  # Advanced Configuration
+  advanced:
+    model_preference: "" # opus|sonnet|haiku
+    token_optimization:
+      max_context: 200000
+      summary_threshold: 150000
+      compression_strategy: "selective"
+    parallel_processing:
+      max_concurrent: 5
+      result_streaming: true
+      failure_handling: "continue"
+      
+  # Quality Assurance
+  qa:
+    self_validation: true
+    peer_review: [] # Agents that can review output
+    test_coverage:
+      unit_tests: []
+      integration_tests: []
+      validation_scripts: []
+      
+  # Performance Optimization
+  performance:
+    caching:
+      enabled: true
+      ttl: 3600 # seconds
+      invalidation_triggers: []
+    batching:
+      enabled: true
+      max_batch_size: 10
+      wait_time: 100 # ms
+      
+  # Error Handling
+  error_handling:
+    retry_strategy:
+      max_attempts: 3
+      backoff: "exponential"
+      fallback_agents: []
+    recovery_procedures: []
+    notification_channels: []
+    
+  # Integration Points
+  integrations:
+    github_actions:
+      workflows: []
+      triggers: []
+      secrets_required: []
+    vscode:
+      commands: []
+      snippets: []
+      tasks: []
+    cli:
+      commands: []
+      aliases: []
+      flags: []
+
+# Extension Metadata
+extension_metadata:
+  version: "1.0.0"
+  compatibility: "claude-2.0+"
+  required_mcp_servers: []
+  optional_mcp_servers: []
+  deprecated_fields: []
+  migration_notes: ""
