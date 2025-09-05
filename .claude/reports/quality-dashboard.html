@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Quality Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .header .timestamp {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .metric {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .excellent { background: linear-gradient(135deg, #4CAF50, #45a049); color: white; }
+        .good { background: linear-gradient(135deg, #2196F3, #1976D2); color: white; }
+        .fair { background: linear-gradient(135deg, #FF9800, #F57C00); color: white; }
+        .poor { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .agents-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .agents-table th,
+        .agents-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .agents-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .agents-table tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .issues-list, .strengths-list {
+            list-style: none;
+        }
+        .issues-list li, .strengths-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        .trend-indicator {
+            display: inline-block;
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+        .trend-up { color: #4CAF50; }
+        .trend-down { color: #f44336; }
+        .trend-stable { color: #FF9800; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Agent Quality Dashboard</h1>
+            <div class="timestamp">Generated: 2025-09-05T06:33:03.015Z</div>
+            <div class="timestamp">Total Agents Analyzed: 34</div>
+        </div>
+
+        
+        <div class="cards">
+            <div class="card">
+                <h3>📈 Overall Quality Score</h3>
+                <div class="metric good">
+                    <div class="metric-value">71.9/100</div>
+                    <div class="metric-label">Average Quality Score</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill good" 
+                         style="width: 71.88235294117646%"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🏆 Quality Distribution</h3>
+                <div class="metric-grid">
+                    <div class="metric excellent">
+                        <div class="metric-value">3</div>
+                        <div class="metric-label">High Quality (80+)</div>
+                    </div>
+                    <div class="metric good">
+                        <div class="metric-value">31</div>
+                        <div class="metric-label">Medium Quality (60-79)</div>
+                    </div>
+                    <div class="metric poor">
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">Low Quality (<60)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📋 Component Scores</h3>
+                <div class="metric-grid">
+                    <div class="metric">
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">YAML Compliance</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">100</div>
+                        <div class="metric-label">Pattern Compliance</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">94</div>
+                        <div class="metric-label">MCP Integration</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">84</div>
+                        <div class="metric-label">Documentation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cards">
+            <div class="card">
+                <h3>⚠️ Top Issues (10)</h3>
+                <ul class="issues-list">
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User wants to work on multiple ...
+----------------^
+ 7 |     user: "Set up parallel development for  ...
+ 8 |     assistant: "I'll use the worktree-coord ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User wants to implement real-t ...
+----------------^
+ 7 |     user: "Add real-time chat with WebSocke ...
+ 8 |     assistant: "I'll use the websocket-real ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User wants to set up visual re ...
+----------------^
+ 7 |     user: "Set up visual regression testing ...
+ 8 |     assistant: "I'll use the visual-regress ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User has a Vercel deployment t ...
+----------------^
+ 7 |     user: "My Vercel deployment is failing  ...
+ 8 |     assistant: "I'll use the vercel-deploym ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User wants to evaluate a websi ...
+----------------^
+ 7 |     user: "Can you analyze the design of ex ...
+ 8 |     assistant: "I'll use the ui-design-audi ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User needs to deploy new AWS i ...
+----------------^
+ 7 |     user: "I need to deploy a new VPC with  ...
+ 8 |     assistant: "I'll use the terraform-spec ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:14)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |       Context: A user needs to refactor a Pos ...
+------------------^
+ 7 |       user: "Our analytics dashboard query ag ...
+ 8 |       assistant: "I'll use the sql-specialist ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User needs to architect a new  ...
+----------------^
+ 7 |     user: "Design a React app architecture  ...
+ 8 |     assistant: "I'll use the react-ui-archi ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User needs to ingest documents ...
+----------------^
+ 7 |     user: "How do I integrate my document c ...
+ 8 |     assistant: "I'll use the rag-vectordb-s ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>YAML parsing error: bad indentation of a sequence entry (6:12)
+
+ 3 | 
+ 4 | Examples:
+ 5 |   - <example>
+ 6 |     Context: User wants to implement a desi ...
+----------------^
+ 7 |     user: "I have a design mockup for our l ...
+ 8 |     assistant: "I'll use the playwright-vis ...</span>
+                            <span class="status-badge poor">1 agents</span>
+                        </li>
+                    
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>✨ Top Strengths (2)</h3>
+                <ul class="strengths-list">
+                    
+                        <li>
+                            <span>Complete pattern implementation</span>
+                            <span class="status-badge excellent">34 agents</span>
+                        </li>
+                    
+                        <li>
+                            <span>Strong MCP integration</span>
+                            <span class="status-badge excellent">33 agents</span>
+                        </li>
+                    
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📊 Agent Details</h3>
+            <table class="agents-table">
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Overall</th>
+                        <th>YAML</th>
+                        <th>Pattern</th>
+                        <th>MCP</th>
+                        <th>Quality</th>
+                        <th>Docs</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/terraform-specialist.md">terraform-specialist</td>
+                            <td><strong>80</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/frontend-ui-expert.md">frontend-ui-expert</td>
+                            <td><strong>80</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/cpp-plugin-api-expert.md">cpp-plugin-api-expert</td>
+                            <td><strong>80</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/rag-vectordb-specialist.md">rag-vectordb-specialist</td>
+                            <td><strong>76</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/graph-rag-specialist.md">graph-rag-specialist</td>
+                            <td><strong>76</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/cli-test-engineer.md">cli-test-engineer</td>
+                            <td><strong>76</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/bundler-optimization-specialist.md">bundler-optimization-specialist</td>
+                            <td><strong>76</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/worktree-coordinator.md">worktree-coordinator</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/websocket-realtime-engineer.md">websocket-realtime-engineer</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/visual-regression-specialist.md">visual-regression-specialist</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/vercel-deployment-troubleshooter.md">vercel-deployment-troubleshooter</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/ui-design-auditor.md">ui-design-auditor</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/react-ui-architect.md">react-ui-architect</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/mcp-catalog-specialist.md">mcp-catalog-specialist</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/electron-app-specialist.md">electron-app-specialist</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/backend-api-frontend-integrator.md">backend-api-frontend-integrator</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/aws-deployment-specialist.md">aws-deployment-specialist</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/aws-backend-architect.md">aws-backend-architect</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/ai-agent-architect.md">ai-agent-architect</td>
+                            <td><strong>75</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>75</td>
+                            <td>100</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                        <tr>
+                            <td title="Examples/agents/specialists/mongodb-specialist.md">mongodb-specialist</td>
+                            <td><strong>72</strong></td>
+                            <td>0</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td>100</td>
+                            <td>80</td>
+                            <td><span class="status-badge good">Good</span></td>
+                        </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+
+    <script>
+        // Initialize charts if we have historical data
+        
+    </script>
+</body>
+</html>

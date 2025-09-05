@@ -11,26 +11,8 @@ const yaml = require('js-yaml');
 
 class AgentRoleConverter {
   constructor() {
-    this.universalBase = this.loadTemplate('universal-template-base.yaml');
-    this.claudeExtensions = this.loadTemplate('claude-extensions.yaml');
-    this.chatgptExtensions = this.loadTemplate('chatgpt-extensions.yaml');
-  }
-
-  loadTemplate(filename) {
-    const templatePath = path.join(
-      process.cwd(),
-      'Examples/agents/templates',
-      filename
-    );
-    if (fs.existsSync(templatePath)) {
-      try {
-        return yaml.load(fs.readFileSync(templatePath, 'utf8'));
-      } catch (error) {
-        console.warn(`Warning: Could not load template ${filename}:`, error.message);
-        return null;
-      }
-    }
-    return null;
+    // Remove dependency on non-existent template files
+    // Converter should work standalone using actual content analysis
   }
 
   /**
@@ -276,20 +258,22 @@ Always provide actionable, step-by-step implementation strategies.`;
     const role = sections.role || '';
     const approach = sections.approach || '';
     
-    // Generate trigger keywords from role and expertise
-    const triggerKeywords = expertise.split(',').map(e => e.trim()).slice(0, 5);
+    // Extract semantic trigger keywords and domain-specific context
+    const triggerKeywords = this.extractSemanticTriggers(expertise, role, name);
+    const domainContext = this.extractDomainContext(role, expertise);
+    const coreCompetency = this.extractCoreCompetency(role, approach);
     
     const agentContent = `---
 name: ${name}
-description: Use this agent PROACTIVELY when working with ${expertise}. This agent excels at ${role.split('.')[0].toLowerCase()} and specializes in comprehensive planning and guidance.
+description: Use this agent PROACTIVELY when ${triggerKeywords.triggers}. This agent excels at ${coreCompetency} and specializes in ${domainContext}.
 
 Examples:
 - <example>
-  Context: User needs help with ${triggerKeywords[0] || 'the domain'}
-  user: "I need help with ${triggerKeywords[0] || 'this task'}"
-  assistant: "I'll use the ${name} to create a comprehensive plan"
+  Context: User needs help with ${triggerKeywords.keywords.length > 0 ? triggerKeywords.keywords[0] : domainContext}
+  user: "I need help with ${triggerKeywords.keywords.length > 1 ? triggerKeywords.keywords[1] : 'implementing this solution'}"
+  assistant: "I'll use the ${name} to create a detailed implementation plan"
   <commentary>
-  This agent specializes in ${expertise} and can create detailed implementation strategies
+  This agent specializes in ${domainContext} and excels at ${coreCompetency}
   </commentary>
 </example>
 
@@ -450,6 +434,95 @@ You are a specialist focused on ${purpose}.
   extractPurpose(content) {
     const match = content.match(/\*\*Purpose\*\*:\s*(.+)/);
     return match ? match[1].trim() : 'specialized tasks';
+  }
+
+  /**
+   * Extract semantic triggers from content instead of using boilerplate
+   */
+  extractSemanticTriggers(expertise, role, name) {
+    // Extract actual triggers from content rather than generating generic ones
+    const expertiseItems = expertise.split(',').map(e => e.trim()).filter(e => e.length > 0);
+    const roleContext = role.toLowerCase();
+    
+    let triggers = [];
+    
+    // Extract specific technologies/domains mentioned
+    const techPattern = /\b(AWS|React|Python|JavaScript|Docker|Kubernetes|PostgreSQL|MongoDB|GraphQL|API|database|frontend|backend|testing|deployment|security|performance|optimization|analytics|machine learning|AI|automation)\b/gi;
+    const techMatches = [...new Set([
+      ...(expertise.match(techPattern) || []),
+      ...(role.match(techPattern) || [])
+    ])];
+    
+    if (techMatches.length > 0) {
+      triggers.push(`working with ${techMatches.slice(0, 3).join(', ')}`);
+    }
+    
+    // Extract action-oriented triggers
+    const actionPattern = /\b(deploy|build|test|optimize|analyze|design|implement|troubleshoot|configure|migrate|scale|monitor|secure)\w*\b/gi;
+    const actionMatches = [...new Set([
+      ...(role.match(actionPattern) || [])
+    ])];
+    
+    if (actionMatches.length > 0) {
+      triggers.push(`${actionMatches.slice(0, 2).join('ing or ')}ing tasks`);
+    }
+    
+    // Fallback to name-based triggers if nothing specific found
+    if (triggers.length === 0) {
+      const nameParts = name.toLowerCase().split(/[-_\s]+/);
+      triggers.push(`${nameParts.slice(0, 2).join(' or ')} related tasks`);
+    }
+    
+    return {
+      triggers: triggers.join(' or '),
+      keywords: [...techMatches, ...actionMatches].slice(0, 5)
+    };
+  }
+
+  /**
+   * Extract domain context from role and expertise
+   */
+  extractDomainContext(role, expertise) {
+    // Extract actual domain rather than generic "comprehensive planning"
+    const domains = [];
+    
+    // Look for specific domains in expertise
+    const expertiseDomains = expertise.split(/,|and/).map(e => e.trim()).filter(e => e.length > 2);
+    domains.push(...expertiseDomains.slice(0, 2));
+    
+    // Extract domain from role description
+    const roleMatch = role.match(/specialist in (.+?)[.,]|expert in (.+?)[.,]|focus.*?on (.+?)[.,]/i);
+    if (roleMatch) {
+      const domain = (roleMatch[1] || roleMatch[2] || roleMatch[3]).trim();
+      domains.push(domain);
+    }
+    
+    return [...new Set(domains)].join(' and ') || 'technical implementation and strategy';
+  }
+
+  /**
+   * Extract core competency from role and approach
+   */
+  extractCoreCompetency(role, approach) {
+    // Extract actual competency rather than generic text
+    const competencies = [];
+    
+    // Look for action words in role
+    const actionMatch = role.match(/\b(creat\w+|design\w+|implement\w+|optimi\w+|analy\w+|troubleshoot\w+|deploy\w+|manage\w+|architect\w+)\b/gi);
+    if (actionMatch) {
+      competencies.push(actionMatch[0].toLowerCase() + (actionMatch[0].endsWith('e') ? '' : 'ing'));
+    }
+    
+    // Look for competencies in approach
+    const approachLines = approach.split('\n').filter(line => line.trim());
+    if (approachLines.length > 0) {
+      const firstApproach = approachLines[0].replace(/^\d+\.\s*/, '').toLowerCase();
+      if (firstApproach.includes(':')) {
+        competencies.push(firstApproach.split(':')[0].trim());
+      }
+    }
+    
+    return competencies.join(' and ') || 'strategic planning and implementation';
   }
 }
 

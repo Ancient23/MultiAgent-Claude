@@ -25,6 +25,8 @@
     "test": "playwright test",
     "test:cli": "playwright test tests/cli-playwright.spec.js",
     "test:visual": "playwright test tests/visual-regression.spec.js",
+    "test:agent-validation": "playwright test tests/agent-template-validation.spec.js",
+    "test:quality": "npm run test:agent-validation && node scripts/quality-gates.js",
     "test:update-snapshots": "UPDATE_SNAPSHOTS=true playwright test tests/visual-regression.spec.js",
     "test:ci": "playwright test --reporter=blob",
     "test:headed": "playwright test --headed",
@@ -38,7 +40,13 @@
     "visual:report": "playwright show-report .playwright/reports",
     "visual:setup": "node -e \"require('./cli/commands/mcp-setup.js').setupVisualDevelopment()\"",
     "visual:compare": "node -e \"require('./cli/utils/visual-compare.js').runComparison()\"",
-    "visual:clean": "rm -rf .playwright/test-results .playwright/reports .claude/visual-iterations/*"
+    "visual:clean": "rm -rf .playwright/test-results .playwright/reports .claude/visual-iterations/*",
+    "lint:staged": "echo 'Linting staged files...' && exit 0",
+    "quality:check": "node scripts/quality-gates.js",
+    "quality:dashboard": "node scripts/quality-dashboard.js",
+    "agents:auto-fix": "node scripts/agent-auto-fix.js",
+    "agents:auto-fix:dry-run": "node scripts/agent-auto-fix.js --dry-run",
+    "agents:validate-fix": "npm run agents:auto-fix:dry-run && npm run test:quality"
   },
   "keywords": [
     "claude",

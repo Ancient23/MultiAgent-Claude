@@ -80,7 +80,7 @@ LLMs like Claude have a limited context window - the amount of text they can pro
 
 Our multi-agent architecture solves this through separation of concerns:
 
-1. **Specialized Research Agents** 
+1. **Specialized Research-Plan-Execute Agents** 
    - Load only the context needed for their specific domain
    - Use MCP tools to gather information without polluting main context
    - Create detailed, actionable plans saved to disk
@@ -1085,7 +1085,7 @@ Visual tests automatically capture and compare CLI output:
 ## Contributing
 
 To create new agents:
-1. Use `Examples/agents/TEMPLATE-agent.md` as your starting point
+1. Use `Examples/agents/specialists/TEMPLATE-agent.md` as your starting point
 2. Define clear trigger keywords and use cases
 3. Specify required MCP tools
 4. Document output format and location

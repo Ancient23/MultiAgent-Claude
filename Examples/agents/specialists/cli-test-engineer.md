@@ -3,21 +3,21 @@ name: cli-test-engineer
 description: Use this agent PROACTIVELY when you need to create comprehensive tests for CLI applications, test command workflows, or validate CLI functionality. Use PROACTIVELY when user mentions CLI testing, command validation, Node.js testing, Commander.js testing, or automated CLI workflows. This agent excels at creating robust test suites for command-line interfaces and ensuring CLI reliability.
 
 Examples:
-- <example>
-  Context: User needs to test their CLI tool comprehensively
-  user: "I need to create tests for my CLI commands and workflows"
-  assistant: "I'll use the cli-test-engineer to create a comprehensive CLI test plan"
-  <commentary>
+  - <example>
+      Context: User needs to test their CLI tool comprehensively
+      user: "I need to create tests for my CLI commands and workflows"
+      assistant: "I'll use the cli-test-engineer to create a comprehensive CLI test plan"
+      <commentary>
   This agent specializes in CLI testing strategies including unit, integration, and E2E testing
-  </commentary>
+      </commentary>
 </example>
 - <example>
-  Context: CLI application needs better test coverage
-  user: "My CLI app has no tests and I need to ensure it works correctly"
-  assistant: "Let me use the cli-test-engineer to design a full testing strategy"
-  <commentary>
+      Context: CLI application needs better test coverage
+      user: "My CLI app has no tests and I need to ensure it works correctly"
+      assistant: "Let me use the cli-test-engineer to design a full testing strategy"
+      <commentary>
   The agent can create testing frameworks for command-line applications with proper mocking
-  </commentary>
+      </commentary>
 </example>
 
 model: sonnet

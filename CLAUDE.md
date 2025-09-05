@@ -54,7 +54,7 @@ MultiAgent-Claude/
 ## Core Architecture
 
 ### 1. Multi-Agent Orchestration Pattern
-- **Research-Only Agents**: Specialized agents that create implementation plans but never execute
+- **Research-Plan-Execute Agents**: Specialized agents that create implementation plans but never execute
 - **Main System Execution**: Parent Claude Code instance reads plans and performs actual implementation
 - **Memory Hierarchy**: Session context → Agent plans → Persistent project memory
 
@@ -364,11 +364,24 @@ mac lop execute <file>             # Generate prompt
 ## Development Guidelines
 
 ### Creating New Agents
-1. Use `Examples/agents/TEMPLATE-agent.md` as base
-2. Define clear trigger patterns and keywords
-3. Specify MCP tools needed
-4. Document output format and location
-5. Include quality standards and examples
+1. Use `Examples/agents/specialists/TEMPLATE-agent.md` as base template
+2. **YAML Frontmatter Requirements**:
+   - `name`: agent-name (lowercase-with-hyphens)
+   - `description`: Clear trigger patterns with PROACTIVELY keywords
+   - `Examples`: Array of 2+ semantic examples with Context/user/assistant/commentary structure
+   - `model`: sonnet (for specialists) or opus (for orchestrators)
+   - `color`: one of blue|green|red|yellow|purple|orange|pink
+3. **Research-Plan-Execute Pattern**:
+   - Include Goal section with "NEVER do implementation" directive
+   - Core Workflow must start with session context check and include mcp-catalog, Context7 MCP, Sequential MCP
+   - Output Format must specify .claude/doc/ file path
+   - Rules must enforce research-plan-execute behavior
+4. **MCP Tool Integration**:
+   - Always include mcp-catalog for tool discovery
+   - Use Context7 MCP for latest documentation
+   - Use Sequential MCP for complex analysis
+   - Use WebSearch for updates not in Context7
+5. **Quality Standards**: Include Core Competencies, Planning Approach, and Quality Standards sections
 
 ### Creating New Commands
 1. Use `Examples/commands/TEMPLATE-COMMAND.md` as base

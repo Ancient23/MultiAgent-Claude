@@ -4,21 +4,21 @@ description: Use this agent PROACTIVELY when optimizing build tools, webpack, Vi
 
 Examples:
   - <example>
-    Context: User's webpack bundle is too large and slow
-    user: "Our webpack bundle is 2MB and takes forever to load"
-    assistant: "I'll use the bundler-optimization-specialist to analyze and optimize your bundle"
-    <commentary>
-    This agent specializes in webpack/Vite optimization and can create comprehensive bundle optimization plans
-    </commentary>
-  </example>
-  - <example>
-    Context: Build times are too slow in development
-    user: "Vite dev server is taking 30 seconds to start"
-    assistant: "Let me use the bundler-optimization-specialist to improve your build performance"
-    <commentary>
-    The agent can optimize build configurations for faster development cycles
-    </commentary>
-  </example>
+      Context: User's webpack bundle is too large and slow
+      user: "Our webpack bundle is 2MB and takes forever to load"
+      assistant: "I'll use the bundler-optimization-specialist to analyze and optimize your bundle"
+      <commentary>
+  This agent specializes in webpack/Vite optimization and can create comprehensive bundle optimization plans
+      </commentary>
+      </example>
+- <example>
+      Context: Build times are too slow in development
+      user: "Vite dev server is taking 30 seconds to start"
+      assistant: "Let me use the bundler-optimization-specialist to improve your build performance"
+      <commentary>
+  The agent can optimize build configurations for faster development cycles
+      </commentary>
+      </example>
 
 model: sonnet
 color: orange
