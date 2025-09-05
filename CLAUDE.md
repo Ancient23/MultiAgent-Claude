@@ -257,6 +257,7 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `infrastructure-migration-architect.md` - Infrastructure transformation
 
 ### Specialized Agents
+- `aws-cdk-specialist.md` - AWS CDK Infrastructure as Code and construct design
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
 - `backend-api-frontend-integrator.md` - API-frontend integration
 - `cpp-plugin-api-expert.md` - Cross-platform C++ libraries
