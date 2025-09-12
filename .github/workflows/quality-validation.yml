@@ -1,0 +1,317 @@
+name: Agent Quality Validation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'Examples/agents/**/*.md'
+      - 'tests/agent-template-validation.spec.js'
+      - 'scripts/quality-gates.js'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'Examples/agents/**/*.md'
+      - 'tests/agent-template-validation.spec.js'
+      - 'scripts/quality-gates.js'
+  schedule:
+    # Run daily quality check at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  quality-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need history for regression detection
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        
+      - name: Create quality reports directory
+        run: mkdir -p .claude/reports
+        
+      - name: Run comprehensive agent validation
+        run: npm run test:agent-validation
+        continue-on-error: true
+        
+      - name: Run quality gates
+        run: npm run quality:check
+        continue-on-error: true
+        id: quality-check
+        
+      - name: Generate quality dashboard
+        run: npm run quality:dashboard
+        continue-on-error: true
+        
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-metrics-${{ github.run_id }}
+          path: |
+            .claude/reports/*.json
+            .claude/reports/*.md
+            .claude/reports/*.html
+          retention-days: 30
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-quality
+          path: playwright-report/
+          retention-days: 14
+          
+      - name: Comment quality results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read quality report if it exists
+            const reportPath = '.claude/reports/quality-metrics.md';
+            let reportContent = 'Quality report not generated';
+            
+            try {
+              if (fs.existsSync(reportPath)) {
+                reportContent = fs.readFileSync(reportPath, 'utf8');
+              }
+            } catch (error) {
+              console.log('Could not read quality report:', error.message);
+            }
+            
+            const comment = `## 📊 Agent Quality Validation Results
+            
+            **Run ID**: ${{ github.run_id }}
+            **Quality Check Status**: ${{ steps.quality-check.outcome }}
+            
+            <details>
+            <summary>📋 Quality Metrics Report</summary>
+            
+            \`\`\`
+            ${reportContent}
+            \`\`\`
+            
+            </details>
+            
+            ${steps.quality-check.outcome === 'failure' ? 
+              '❌ Quality gates failed - please review and fix issues before merging.' : 
+              '✅ Quality validation passed!'}
+            
+            📁 [View detailed reports](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  quality-trends:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: quality-validation
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Download quality reports
+        uses: actions/download-artifact@v4
+        with:
+          name: quality-metrics-${{ github.run_id }}
+          path: .claude/reports/
+          
+      - name: Archive quality history
+        run: |
+          # Create quality history directory
+          mkdir -p .ai/memory/quality/history
+          
+          DATE=$(date +%Y-%m-%d)
+          TIME=$(date +%H-%M-%S)
+          ARCHIVE_DIR=".ai/memory/quality/history/${DATE}"
+          
+          mkdir -p "${ARCHIVE_DIR}"
+          
+          # Copy current reports to history
+          if [ -f ".claude/reports/quality-metrics.json" ]; then
+            cp ".claude/reports/quality-metrics.json" "${ARCHIVE_DIR}/metrics-${TIME}.json"
+            
+            # Extract key metrics for trending
+            node -e "
+              const fs = require('fs');
+              const report = JSON.parse(fs.readFileSync('.claude/reports/quality-metrics.json', 'utf8'));
+              
+              const trendData = {
+                timestamp: new Date().toISOString(),
+                runId: '${{ github.run_id }}',
+                commit: '${{ github.sha }}',
+                summary: report.summary,
+                topIssues: report.summary.topIssues.slice(0, 5),
+                agentCount: report.summary.totalAgents,
+                regressionAgents: report.details.filter(a => a.total < 50).length
+              };
+              
+              fs.writeFileSync('${ARCHIVE_DIR}/trend-${TIME}.json', JSON.stringify(trendData, null, 2));
+            "
+          fi
+          
+      - name: Update quality trends summary
+        run: |
+          # Update the latest quality summary
+          SUMMARY_FILE=".ai/memory/quality/latest-summary.md"
+          DATE=$(date +"%Y-%m-%d %H:%M:%S UTC")
+          
+          cat > "${SUMMARY_FILE}" << 'EOF'
+          # Latest Agent Quality Summary
+          
+          **Last Updated**: ${DATE}
+          **Run ID**: ${{ github.run_id }}
+          **Commit**: ${{ github.sha }}
+          
+          ## Current Status
+          EOF
+          
+          if [ -f ".claude/reports/quality-metrics.md" ]; then
+            # Extract summary section from the report
+            sed -n '/## Summary Scores/,/## Quality Distribution/p' .claude/reports/quality-metrics.md | head -n -1 >> "${SUMMARY_FILE}"
+            echo "" >> "${SUMMARY_FILE}"
+            
+            # Add quality distribution
+            sed -n '/## Quality Distribution/,/## Top Issues/p' .claude/reports/quality-metrics.md | head -n -1 >> "${SUMMARY_FILE}"
+            echo "" >> "${SUMMARY_FILE}"
+            
+            echo "## Trend Analysis" >> "${SUMMARY_FILE}"
+            echo "Quality metrics are tracked daily. Historical data is stored in \`.ai/memory/quality/history/\`." >> "${SUMMARY_FILE}"
+            echo "" >> "${SUMMARY_FILE}"
+            echo "To view trends: \`find .ai/memory/quality/history -name 'trend-*.json' | sort\`" >> "${SUMMARY_FILE}"
+          else
+            echo "Quality report not available for this run." >> "${SUMMARY_FILE}"
+          fi
+          
+      - name: Commit quality updates
+        run: |
+          if [ -n "$(git status --porcelain .ai/memory/quality/)" ]; then
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action - Quality Bot"
+            git add .ai/memory/quality/
+            git commit -m "📊 Update agent quality metrics
+            
+            - Run ID: ${{ github.run_id }}
+            - Quality validation completed
+            - Historical data archived"
+            git push
+          else
+            echo "No quality metric changes to commit"
+          fi
+
+  quality-alerts:
+    runs-on: ubuntu-latest
+    needs: quality-validation
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Quality degradation alert
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 Agent Quality Degradation Detected';
+            const body = `
+            ## Quality Validation Failed on Main Branch
+            
+            **Run ID**: ${{ github.run_id }}
+            **Commit**: ${{ github.sha }}
+            **Time**: ${new Date().toISOString()}
+            
+            ### Action Required
+            - Review quality validation results
+            - Check failing agents and fix quality issues
+            - Ensure quality gates pass before future merges
+            
+            ### Investigation Steps
+            1. Check [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details
+            2. Download quality metrics artifact
+            3. Review agents with critical quality issues
+            4. Apply fixes and re-run validation
+            
+            This issue will auto-close when quality validation passes.
+            `;
+            
+            // Create issue for quality degradation
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['quality-regression', 'automated', 'priority-high']
+            });
+            
+            console.log(`Created quality alert issue: ${issue.data.html_url}`);
+
+  close-quality-alerts:
+    runs-on: ubuntu-latest
+    needs: quality-validation
+    if: success() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Close quality alert issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Find open quality regression issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'quality-regression',
+              state: 'open'
+            });
+            
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ Quality validation now passing. Auto-closing this alert.
+                
+                **Resolution Run**: ${{ github.run_id }}
+                **Commit**: ${{ github.sha }}`
+              });
+              
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+              
+              console.log(`Closed quality alert issue #${issue.number}`);
+            }

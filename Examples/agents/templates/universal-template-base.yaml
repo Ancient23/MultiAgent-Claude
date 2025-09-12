@@ -1,0 +1,100 @@
+# Universal Agent/Role Template Base
+# Version: 1.0.0
+# Created: 2025-08-29
+# Purpose: Core structure for cross-platform agent/role compatibility
+
+metadata:
+  schema_version: "1.0.0"
+  compatibility:
+    - claude: "2.0+"
+    - chatgpt: "4.0+"
+  template_type: "universal-base"
+
+# Core Universal Fields (20 attributes)
+core:
+  # Identity
+  identifier:
+    name: "" # Required: Unique agent/role name
+    type: "" # Required: orchestrator|specialist|utility
+    version: "1.0.0"
+    
+  # Description
+  purpose:
+    brief: "" # Required: One-line description
+    detailed: "" # Required: Full explanation
+    use_cases: [] # List of example use cases
+    
+  # Activation
+  triggers:
+    keywords: [] # Direct activation keywords
+    patterns: [] # Regex patterns for activation
+    contexts: [] # Contextual activation conditions
+    
+  # Capabilities
+  capabilities:
+    domains: [] # Areas of expertise
+    operations: [] # What it can do
+    limitations: [] # What it cannot do
+    
+  # Dependencies
+  requirements:
+    tools: [] # Required tools/APIs
+    knowledge: [] # Required knowledge bases
+    permissions: [] # Required access levels
+    
+  # Quality
+  standards:
+    success_criteria: [] # How to measure success
+    quality_metrics: [] # Quality indicators
+    performance_targets: {} # KPIs
+    
+  # Workflow
+  workflow:
+    phases: [] # Execution phases
+    decision_points: [] # Key decision criteria
+    output_format: "" # Expected output structure
+
+# Platform Extensions (Loaded separately)
+extensions:
+  claude: null # See claude-extensions.yaml
+  chatgpt: null # See chatgpt-extensions.yaml
+
+# Metadata for tracking
+tracking:
+  created: "" # ISO timestamp
+  modified: "" # ISO timestamp
+  author: ""
+  usage_count: 0
+  success_rate: 0.0
+  last_invoked: null
+
+# Validation Rules
+validation:
+  required_fields:
+    - core.identifier.name
+    - core.identifier.type
+    - core.purpose.brief
+    - core.purpose.detailed
+    - core.triggers.keywords
+    - core.capabilities.domains
+    - core.capabilities.operations
+    - core.workflow.phases
+    
+  field_constraints:
+    name_pattern: "^[a-z0-9-]+$"
+    type_enum: ["orchestrator", "specialist", "utility"]
+    min_keywords: 1
+    min_domains: 1
+    min_phases: 1
+    
+  quality_thresholds:
+    description_min_length: 50
+    use_cases_min_count: 3
+    success_criteria_min_count: 3
+
+# Conversion Metadata
+conversion:
+  source_format: null # claude|chatgpt|universal
+  target_formats: ["claude", "chatgpt"]
+  conversion_rules: "conversion-rules.yaml"
+  fallback_strategy: "preserve_core"

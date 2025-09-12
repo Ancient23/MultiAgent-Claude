@@ -366,4 +366,333 @@ program
     }
   });
 
+// Agent/Role Conversion Commands
+program
+  .command('convert-agent')
+  .description('Convert agents between Claude and ChatGPT formats')
+  .argument('<source>', 'Source platform: claude or chatgpt')
+  .argument('<target>', 'Target platform: claude or chatgpt')
+  .argument('<file>', 'Agent/role file to convert')
+  .option('--output <path>', 'Output path (default: auto-generated)')
+  .option('--batch', 'Convert all files in directory')
+  .action(async (source, target, file, options) => {
+    try {
+      const { AgentRoleConverter } = require('./commands/convert-agent');
+      const converter = new AgentRoleConverter();
+      
+      if (options.batch) {
+        await converter.batchConvert(file, source, target);
+      } else {
+        const content = require('fs').readFileSync(file, 'utf8');
+        const agent = { content, name: require('path').basename(file) };
+        
+        let result;
+        if (source === 'claude' && target === 'chatgpt') {
+          result = converter.claudeToChatGPT(agent);
+        } else if (source === 'chatgpt' && target === 'claude') {
+          result = converter.chatGPTToClaude(agent);
+        } else {
+          throw new Error('Invalid source/target combination');
+        }
+        
+        const outputPath = options.output || `./${result.name}`;
+        require('fs').writeFileSync(outputPath, result.content);
+        console.log(`Converted: ${outputPath}`);
+      }
+    } catch (error) {
+      console.error('Conversion error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Validation Commands
+program
+  .command('validate')
+  .description('Validate agents, templates, and conversions')
+  .argument('<type>', 'Type: agent, all, conversion, yaml')
+  .argument('[path]', 'File or directory path')
+  .action(async (type, path) => {
+    try {
+      const { AgentValidator } = require('./commands/validate-agents');
+      const validator = new AgentValidator();
+      
+      switch (type) {
+        case 'agent':
+          if (!path) {
+            console.error('Path required for agent validation');
+            process.exit(1);
+          }
+          const result = validator.validateAgent(path);
+          console.log(`Valid: ${result.valid ? '✅' : '❌'}`);
+          console.log(`Score: ${result.score}/100`);
+          if (result.errors.length > 0) {
+            console.log('Errors:', result.errors);
+          }
+          if (result.warnings.length > 0) {
+            console.log('Warnings:', result.warnings);
+          }
+          break;
+          
+        case 'all':
+          const dirs = [
+            './Examples/agents',
+            './Examples/agents/specialists',
+            './Examples/roles'
+          ];
+          dirs.forEach(dir => {
+            if (require('fs').existsSync(dir)) {
+              console.log(`Validating ${dir}...`);
+              validator.validateDirectory(dir);
+            }
+          });
+          const report = validator.generateReport();
+          console.log(`Total: ${report.summary.total}`);
+          console.log(`Valid: ${report.summary.valid}`);
+          console.log(`Average Score: ${report.summary.averageScore.toFixed(1)}/100`);
+          break;
+          
+        case 'conversion':
+          if (!path) {
+            console.error('Path required for conversion test');
+            process.exit(1);
+          }
+          const conversionResult = await validator.testConversion(path);
+          console.log(`Success: ${conversionResult.success ? '✅' : '❌'}`);
+          if (conversionResult.success) {
+            console.log(`Information Preserved: ${conversionResult.preserved ? '✅' : '⚠️'}`);
+          }
+          break;
+          
+        case 'yaml':
+          if (!path) {
+            console.error('Path required for YAML validation');
+            process.exit(1);
+          }
+          const yamlResult = validator.validateYAMLTemplate(path);
+          console.log(`Valid: ${yamlResult.valid ? '✅' : '❌'}`);
+          if (!yamlResult.valid) {
+            console.log('Errors:', yamlResult.errors);
+          }
+          break;
+          
+        default:
+          console.error(`Unknown validation type: ${type}`);
+          console.log('Available types: agent, all, conversion, yaml');
+      }
+    } catch (error) {
+      console.error('Validation error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Evolution Tracking Commands
+program
+  .command('evolution')
+  .description('Track and analyze agent/template evolution')
+  .argument('<action>', 'Action: track, report, learn, compare')
+  .argument('[path]', 'File path (for track, compare)')
+  .option('--from <version>', 'From version (for compare)')
+  .option('--to <version>', 'To version (for compare)')
+  .action(async (action, path, options) => {
+    try {
+      const { EvolutionTracker } = require('./commands/evolution-tracker');
+      const tracker = new EvolutionTracker();
+      
+      switch (action) {
+        case 'track':
+          if (!path) {
+            console.error('Path required for tracking');
+            process.exit(1);
+          }
+          const version = await tracker.trackVersion(path);
+          console.log(`Tracked version ${version.version} for ${version.name}`);
+          break;
+          
+        case 'report':
+          const report = tracker.generateEvolutionReport();
+          console.log('Evolution Report:');
+          console.log(`Total Agents: ${report.summary.totalAgents}`);
+          console.log(`Total Versions: ${report.summary.totalVersions}`);
+          console.log(`Average Quality: ${report.summary.averageQuality.toFixed(1)}/100`);
+          console.log(`Quality Trend: ${report.summary.qualityTrend}`);
+          break;
+          
+        case 'learn':
+          const patterns = await tracker.learnFromEvolution();
+          console.log(`Learned ${patterns.length} patterns from evolution`);
+          patterns.forEach(p => {
+            console.log(`- ${p.pattern}: ${p.description}`);
+          });
+          break;
+          
+        case 'compare':
+          if (!path || !options.from || !options.to) {
+            console.error('Path and versions required for comparison');
+            process.exit(1);
+          }
+          const diff = tracker.compareVersions(path, options.from, options.to);
+          console.log(`Changes from ${options.from} to ${options.to}:`);
+          console.log(diff);
+          break;
+          
+        default:
+          console.error(`Unknown action: ${action}`);
+          console.log('Available actions: track, report, learn, compare');
+      }
+    } catch (error) {
+      console.error('Evolution tracking error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Metrics Dashboard Commands
+program
+  .command('metrics')
+  .description('Collect and display quality metrics')
+  .argument('<action>', 'Action: collect, show, html, watch')
+  .option('--output <path>', 'Output path for HTML report')
+  .action(async (action, options) => {
+    try {
+      const { MetricsDashboard } = require('./commands/metrics-dashboard');
+      const dashboard = new MetricsDashboard();
+      
+      switch (action) {
+        case 'collect':
+          const metrics = await dashboard.collectMetrics();
+          console.log(`Collected metrics for ${Object.keys(metrics.agents).length} agents`);
+          break;
+          
+        case 'show':
+          await dashboard.loadMetrics();
+          const display = dashboard.displayMetrics();
+          console.log(display);
+          break;
+          
+        case 'html':
+          const htmlPath = await dashboard.generateHTML(options.output);
+          console.log(`HTML report generated: ${htmlPath}`);
+          break;
+          
+        case 'watch':
+          console.log('Starting metrics watcher (updates every 30 seconds)...');
+          setInterval(async () => {
+            await dashboard.collectMetrics();
+            console.clear();
+            console.log(dashboard.displayMetrics());
+          }, 30000);
+          // Initial display
+          await dashboard.collectMetrics();
+          console.log(dashboard.displayMetrics());
+          break;
+          
+        default:
+          console.error(`Unknown action: ${action}`);
+          console.log('Available actions: collect, show, html, watch');
+      }
+    } catch (error) {
+      console.error('Metrics error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Sync Service Commands
+program
+  .command('sync')
+  .description('Bidirectional sync service for agents and roles')
+  .argument('<action>', 'Action: start, status, sync, resolve, clear')
+  .argument('[args...]', 'Additional arguments')
+  .option('--strategy <strategy>', 'Conflict strategy: manual, newest, claude, chatgpt')
+  .action(async (action, args = [], options) => {
+    try {
+      const { SyncService } = require('./commands/sync-service');
+      const service = new SyncService({
+        conflictStrategy: options.strategy || 'manual'
+      });
+      
+      switch (action) {
+        case 'start':
+          await service.start();
+          console.log('Sync service started. Press Ctrl+C to stop.');
+          process.on('SIGINT', () => {
+            service.stop();
+            process.exit(0);
+          });
+          break;
+          
+        case 'status':
+          await service.loadSyncState();
+          const status = service.getStatus();
+          console.log('Sync Service Status:');
+          console.log(`Last Sync: ${status.lastSync || 'Never'}`);
+          console.log(`Pending: ${status.pending}`);
+          console.log(`Conflicts: ${status.conflicts}`);
+          console.log(`Errors: ${status.errors}`);
+          console.log(`Synced: ${status.synced}`);
+          break;
+          
+        case 'sync':
+          const results = await service.performSync();
+          console.log('Sync results:', results);
+          break;
+          
+        case 'resolve':
+          const [name, choice] = args;
+          if (!name || !choice) {
+            console.error('Usage: mac sync resolve <name> <claude|chatgpt|skip>');
+            process.exit(1);
+          }
+          await service.loadSyncState();
+          const success = await service.resolveConflictManual(name, choice);
+          if (success) {
+            await service.saveSyncState();
+            console.log(`Conflict resolved for ${name}`);
+          }
+          break;
+          
+        case 'clear':
+          await service.loadSyncState();
+          if (args[0] === 'errors') {
+            service.clearErrors();
+          } else if (args[0] === 'conflicts') {
+            service.clearConflicts();
+          } else {
+            service.clearErrors();
+            service.clearConflicts();
+          }
+          await service.saveSyncState();
+          console.log('Cleared successfully');
+          break;
+          
+        default:
+          console.error(`Unknown action: ${action}`);
+          console.log('Available actions: start, status, sync, resolve, clear');
+      }
+    } catch (error) {
+      console.error('Sync error:', error.message);
+      process.exit(1);
+    }
+  });
+
+// Sync Dashboard Command
+program
+  .command('sync-dashboard')
+  .description('Start web-based sync monitoring dashboard')
+  .argument('[port]', 'Port number (default: 8080)')
+  .action(async (port) => {
+    try {
+      const { SyncDashboard } = require('./commands/sync-dashboard');
+      const dashboard = new SyncDashboard(parseInt(port) || 8080);
+      await dashboard.start();
+      
+      process.on('SIGINT', () => {
+        console.log('\nShutting down dashboard...');
+        dashboard.stop();
+        process.exit(0);
+      });
+    } catch (error) {
+      console.error('Dashboard error:', error.message);
+      process.exit(1);
+    }
+  });
+
 program.parse();

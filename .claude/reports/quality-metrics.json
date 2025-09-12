@@ -1,0 +1,611 @@
+{
+  "summary": {
+    "totalAgents": 34,
+    "averageScore": 71.88235294117646,
+    "yamlCompliance": 0,
+    "patternCompliance": 100,
+    "mcpWorkflow": 93.97058823529412,
+    "qualityStandards": 81.61764705882354,
+    "documentation": 83.82352941176471,
+    "highQualityAgents": 3,
+    "mediumQualityAgents": 31,
+    "lowQualityAgents": 0,
+    "topIssues": [
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to work on multiple ...\n----------------^\n 7 |     user: \"Set up parallel development for  ...\n 8 |     assistant: \"I'll use the worktree-coord ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to implement real-t ...\n----------------^\n 7 |     user: \"Add real-time chat with WebSocke ...\n 8 |     assistant: \"I'll use the websocket-real ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to set up visual re ...\n----------------^\n 7 |     user: \"Set up visual regression testing ...\n 8 |     assistant: \"I'll use the visual-regress ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User has a Vercel deployment t ...\n----------------^\n 7 |     user: \"My Vercel deployment is failing  ...\n 8 |     assistant: \"I'll use the vercel-deploym ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to evaluate a websi ...\n----------------^\n 7 |     user: \"Can you analyze the design of ex ...\n 8 |     assistant: \"I'll use the ui-design-audi ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to deploy new AWS i ...\n----------------^\n 7 |     user: \"I need to deploy a new VPC with  ...\n 8 |     assistant: \"I'll use the terraform-spec ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: A user needs to refactor a Pos ...\n------------------^\n 7 |       user: \"Our analytics dashboard query ag ...\n 8 |       assistant: \"I'll use the sql-specialist ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to architect a new  ...\n----------------^\n 7 |     user: \"Design a React app architecture  ...\n 8 |     assistant: \"I'll use the react-ui-archi ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to ingest documents ...\n----------------^\n 7 |     user: \"How do I integrate my document c ...\n 8 |     assistant: \"I'll use the rag-vectordb-s ...",
+        "count": 1
+      },
+      {
+        "issue": "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to implement a desi ...\n----------------^\n 7 |     user: \"I have a design mockup for our l ...\n 8 |     assistant: \"I'll use the playwright-vis ...",
+        "count": 1
+      }
+    ],
+    "topStrengths": [
+      {
+        "strength": "Complete pattern implementation",
+        "count": 34
+      },
+      {
+        "strength": "Strong MCP integration",
+        "count": 33
+      }
+    ]
+  },
+  "details": [
+    {
+      "file": "Examples/agents/specialists/worktree-coordinator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to work on multiple ...\n----------------^\n 7 |     user: \"Set up parallel development for  ...\n 8 |     assistant: \"I'll use the worktree-coord ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/websocket-realtime-engineer.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to implement real-t ...\n----------------^\n 7 |     user: \"Add real-time chat with WebSocke ...\n 8 |     assistant: \"I'll use the websocket-real ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/visual-regression-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to set up visual re ...\n----------------^\n 7 |     user: \"Set up visual regression testing ...\n 8 |     assistant: \"I'll use the visual-regress ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/vercel-deployment-troubleshooter.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User has a Vercel deployment t ...\n----------------^\n 7 |     user: \"My Vercel deployment is failing  ...\n 8 |     assistant: \"I'll use the vercel-deploym ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/ui-design-auditor.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to evaluate a websi ...\n----------------^\n 7 |     user: \"Can you analyze the design of ex ...\n 8 |     assistant: \"I'll use the ui-design-audi ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/terraform-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 100,
+      "total": 80,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to deploy new AWS i ...\n----------------^\n 7 |     user: \"I need to deploy a new VPC with  ...\n 8 |     assistant: \"I'll use the terraform-spec ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/sql-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 50,
+      "total": 65,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: A user needs to refactor a Pos ...\n------------------^\n 7 |       user: \"Our analytics dashboard query ag ...\n 8 |       assistant: \"I'll use the sql-specialist ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/react-ui-architect.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to architect a new  ...\n----------------^\n 7 |     user: \"Design a React app architecture  ...\n 8 |     assistant: \"I'll use the react-ui-archi ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/rag-vectordb-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 80,
+      "total": 76,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to ingest documents ...\n----------------^\n 7 |     user: \"How do I integrate my document c ...\n 8 |     assistant: \"I'll use the rag-vectordb-s ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/playwright-visual-developer.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 50,
+      "total": 61,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to implement a desi ...\n----------------^\n 7 |     user: \"I have a design mockup for our l ...\n 8 |     assistant: \"I'll use the playwright-vis ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/playwright-test-engineer.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 65,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: The user wants to add E2E test ...\n------------------^\n 7 |       user: \"Create Playwright tests for our  ...\n 8 |       assistant: \"I'll use the playwright-tes ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/multimodal-ai-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 100,
+      "documentation": 70,
+      "total": 70,
+      "issues": [
+        "YAML parsing error: bad indentation of a mapping entry (2:441)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user is implementing a vid ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... "
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/mongodb-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 100,
+      "documentation": 80,
+      "total": 72,
+      "issues": [
+        "YAML parsing error: bad indentation of a mapping entry (2:431)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to design a sch ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... "
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/mcp-catalog-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to find the right M ...\n----------------^\n 7 |     user: \"What MCP tools are available for ...\n 8 |     assistant: \"I'll use the mcp-catalog-sp ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/implementation-verifier.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 80,
+      "total": 67,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User has completed a feature i ...\n----------------^\n 7 |     user: \"Verify that the new authenticati ...\n 8 |     assistant: \"I'll use the implementation ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/graph-rag-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 80,
+      "total": 76,
+      "issues": [
+        "YAML parsing error: bad indentation of a mapping entry (2:462)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: The user needs to build a know ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... "
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/frontend-ui-expert.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 100,
+      "total": 80,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: The user is creating a fronten ...\n----------------^\n 7 |     user: \"Create a new landing page compon ...\n 8 |     assistant: \"I'll use the frontend-ui-ex ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/electron-app-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User wants to build a desktop  ...\n----------------^\n 7 |     user: \"I need to create an Electron app ...\n 8 |     assistant: \"I'll use the electron-app-s ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/documentation-architect.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 65,
+      "issues": [
+        "YAML parsing error: bad indentation of a mapping entry (2:429)\n\n 1 |  ... \n 2 |  ... \\nExamples:\\n<example>\\nContext: User wants to create comprehen ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... "
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/cpp-plugin-api-expert.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 100,
+      "total": 80,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: Cross-platform C++ library dev ...\n----------------^\n 7 |     user: \"Create a C++ library that can fe ...\n 8 |     assistant: \"I'll use the cpp-plugin-api ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/codebase-truth-analyzer.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 65,
+      "issues": [
+        "YAML parsing error: bad indentation of a mapping entry (2:480)\n\n 1 |  ... \n 2 |  ... amples:\\n- <example>\\n  Context: User wants to verify if a docu ...\n-----------------------------------------^\n 3 |  ... \n 4 |  ... "
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/cli-test-engineer.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 80,
+      "total": 76,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: User needs to test their CLI t ...\n------------------^\n 7 |       user: \"I need to create tests for my CL ...\n 8 |       assistant: \"I'll use the cli-test-engin ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/bundler-optimization-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 100,
+      "documentation": 80,
+      "total": 76,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: User's webpack bundle is too l ...\n------------------^\n 7 |       user: \"Our webpack bundle is 2MB and ta ...\n 8 |       assistant: \"I'll use the bundler-optimi ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/backend-api-frontend-integrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: The user needs to create a Rea ...\n----------------^\n 7 |     user: \"I need to build a frontend that  ...\n 8 |     assistant: \"I'll use the backend-api-fr ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/aws-deployment-specialist.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User has a failing Terraform d ...\n----------------^\n 7 |     user: \"My Terraform deployment is faili ...\n 8 |     assistant: \"I'll use the aws-deployment ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/aws-backend-architect.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User needs to design a serverl ...\n----------------^\n 7 |     user: \"I want to build a scalable API u ...\n 8 |     assistant: \"I'll use the aws-backend-ar ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/specialists/ai-agent-architect.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 100,
+      "total": 75,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: The user is building an AI age ...\n----------------^\n 7 |     user: \"Design a multi-agent system for  ...\n 8 |     assistant: \"I'll use the ai-agent-archi ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/wave-execution-orchestrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 80,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 65,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: Complex issue requiring system ...\n------------------^\n 7 |       user: \"We have intermittent failures in ...\n 8 |       assistant: \"I'll use the wave-execution ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/parallel-controller.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 69,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: Complex project requiring simu ...\n----------------^\n 7 |     user: \"Have multiple agents work on the ...\n 8 |     assistant: \"I'll use the parallel-contr ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/master-orchestrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 69,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: User has a complex task spanni ...\n----------------^\n 7 |     user: \"Implement a complete user authen ...\n 8 |     assistant: \"I'll use the master-orchest ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/issue-triage-orchestrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 55,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 60,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:14)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |       Context: Production bug affecting multi ...\n------------------^\n 7 |       user: \"Users are reporting intermittent ...\n 8 |       assistant: \"I'll use the issue-triage-o ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/infrastructure-migration-architect.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 69,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: Complex infrastructure migrati ...\n----------------^\n 7 |     user: \"Re-architect this video intellig ...\n 8 |     assistant: \"I'll use the infrastructure ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/fullstack-feature-orchestrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 69,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: Complex full-stack feature req ...\n----------------^\n 7 |     user: \"I need to add a dashboard that s ...\n 8 |     assistant: \"I'll use the fullstack-feat ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    },
+    {
+      "file": "Examples/agents/orchestrators/code-review-orchestrator.md",
+      "yamlCompliance": 0,
+      "patternCompliance": 100,
+      "mcpWorkflow": 100,
+      "qualityStandards": 75,
+      "documentation": 70,
+      "total": 69,
+      "issues": [
+        "YAML parsing error: bad indentation of a sequence entry (6:12)\n\n 3 | \n 4 | Examples:\n 5 |   - <example>\n 6 |     Context: Pull request ready for compreh ...\n----------------^\n 7 |     user: \"Review the changes in PR #123 fo ...\n 8 |     assistant: \"I'll use the code-review-or ..."
+      ],
+      "strengths": [
+        "Complete pattern implementation",
+        "Strong MCP integration"
+      ]
+    }
+  ]
+}
