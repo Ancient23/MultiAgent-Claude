@@ -1,0 +1,69 @@
+# ChatGPT Platform Extensions
+# Version: 1.0.0
+# Created: 2025-08-29
+# Purpose: ChatGPT-specific enhancements to universal template
+
+chatgpt_extensions:
+  # Custom Instructions Configuration
+  custom_instructions:
+    about_user: "" # Context about the user
+    how_to_respond: "" # Response style and format
+    capabilities_description: "" # What this role can do
+    limitations_description: "" # What this role cannot do
+    
+  # Role Definition
+  role_definition:
+    opening_statement: "" # How to introduce itself
+    personality_traits: [] # Character attributes
+    communication_style: "" # formal|casual|technical
+    expertise_framing: "" # How to present expertise
+    
+  # Token Optimization
+  token_management:
+    max_response_length: 1500 # Characters for custom instructions
+    compression_level: "" # none|light|aggressive
+    summary_strategy: "" # How to summarize long content
+    chunking_approach: "" # How to split large tasks
+    
+  # Interaction Patterns
+  interaction:
+    response_format: "" # structured|narrative|bullet-points
+    code_block_style: "" # How to format code
+    file_handling: "" # How to handle file references
+    error_messaging: "" # How to communicate errors
+    
+  # ChatGPT Projects Integration
+  projects:
+    project_context: "" # Project-specific information
+    file_references: [] # Key files to reference
+    knowledge_base: [] # Custom knowledge items
+    conversation_starters: [] # Suggested prompts
+    
+  # GPT Actions (if applicable)
+  actions:
+    available_actions: [] # Custom GPT actions
+    action_triggers: [] # When to use actions
+    parameter_handling: "" # How to handle parameters
+    result_formatting: "" # How to present results
+    
+  # Platform Features
+  features:
+    code_interpreter: false # Use code execution
+    web_browsing: false # Use web search
+    dalle_generation: false # Use image generation
+    voice_interaction: false # Support voice mode
+    
+  # Response Optimization
+  optimization:
+    brevity_mode: false # Minimize response length
+    explanation_depth: "" # shallow|moderate|deep
+    example_usage: "" # when|how to use examples
+    reference_style: "" # How to cite sources
+
+# Extension Metadata
+extension_metadata:
+  version: "1.0.0"
+  compatibility: "gpt-4+"
+  max_instruction_length: 1500
+  deprecated_fields: []
+  migration_notes: ""

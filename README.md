@@ -80,7 +80,7 @@ LLMs like Claude have a limited context window - the amount of text they can pro
 
 Our multi-agent architecture solves this through separation of concerns:
 
-1. **Specialized Research Agents** 
+1. **Specialized Research-Plan-Execute Agents** 
    - Load only the context needed for their specific domain
    - Use MCP tools to gather information without polluting main context
    - Create detailed, actionable plans saved to disk
@@ -374,6 +374,46 @@ multiagent-claude lop create
 
 # Execute LOP to generate implementation prompt
 multiagent-claude lop execute <file>
+```
+
+#### Agent/Role Conversion & Sync
+```bash
+# Convert between Claude and ChatGPT formats
+mac convert-agent claude chatgpt agent.md
+mac convert-agent chatgpt claude role.md
+mac convert-agent claude chatgpt ./agents/ --batch
+
+# Start bidirectional sync service
+mac sync start               # Manual conflict resolution
+mac sync start newest        # Newest file wins
+mac sync status              # Check sync status
+mac sync resolve <name> <claude|chatgpt|skip>
+mac sync clear errors        # Clear error log
+
+# Web-based sync monitoring dashboard
+mac sync-dashboard           # Start on port 8080
+mac sync-dashboard 3000      # Custom port
+```
+
+#### Validation & Quality
+```bash
+# Validate agents and templates
+mac validate agent <path>    # Validate single agent
+mac validate all             # Validate all agents
+mac validate conversion <path>  # Test conversion
+mac validate yaml <template>    # Validate YAML template
+
+# Evolution tracking
+mac evolution track <path>   # Track agent version
+mac evolution report         # Generate evolution report
+mac evolution learn          # Learn from patterns
+mac evolution compare <path> --from 1.0.0 --to 2.0.0
+
+# Quality metrics
+mac metrics collect          # Collect metrics
+mac metrics show            # Display metrics
+mac metrics html            # Generate HTML dashboard
+mac metrics watch           # Live metrics monitor
 ```
 
 #### Memory System
@@ -1045,7 +1085,7 @@ Visual tests automatically capture and compare CLI output:
 ## Contributing
 
 To create new agents:
-1. Use `Examples/agents/TEMPLATE-agent.md` as your starting point
+1. Use `Examples/agents/specialists/TEMPLATE-agent.md` as your starting point
 2. Define clear trigger keywords and use cases
 3. Specify required MCP tools
 4. Document output format and location

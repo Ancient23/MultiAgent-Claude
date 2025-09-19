@@ -1,0 +1,39 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Wave 6: Quality Automation Pre-commit Hook
+echo "🔍 Running agent template quality validation..."
+
+# Check if any agent files are being committed
+AGENT_FILES=$(git diff --cached --name-only | grep -E "Examples/agents/.*\.md$" || true)
+
+if [ -n "$AGENT_FILES" ]; then
+  echo "📋 Agent files detected in commit, running quality checks..."
+  
+  # Run agent validation tests
+  npm run test:agent-validation || {
+    echo "❌ Agent template validation failed!"
+    echo "Please fix quality issues before committing."
+    echo "Run 'npm run test:agent-validation' for details."
+    exit 1
+  }
+  
+  # Run specific quality gates
+  node scripts/quality-gates.js || {
+    echo "❌ Quality gates failed!"
+    echo "Critical quality standards not met."
+    exit 1
+  }
+  
+  echo "✅ Agent quality validation passed!"
+else
+  echo "ℹ️  No agent files in commit, skipping quality validation."
+fi
+
+# Standard lint and format checks
+npm run lint:staged || {
+  echo "❌ Linting failed!"
+  exit 1
+}
+
+echo "🎉 All pre-commit checks passed!"

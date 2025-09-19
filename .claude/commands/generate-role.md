@@ -1,240 +1,322 @@
-# /generate-role Command
-
-## Command Definition
-
-```yaml
 ---
-command: "/generate-role"
-category: "Development"
-purpose: "Create ChatGPT/Codex-optimized roles from Claude agents"
-pattern: "research → compress → optimize"
-agents: ["role-instruction-engineer", "prompt-compression-specialist"]
+description: "Create ChatGPT/Codex-optimized roles from Claude agents with compression and cross-platform compatibility"
+argument-hint: "[role-name] [--agent agent-name] [--domain domain] [--batch agents] [--interactive]"
+allowed-tools: ["Read", "Write", "Bash", "Edit", "MultiEdit", "Task", "WebSearch", "WebFetch", "Glob"]
+model: "sonnet"
 ---
-```
 
-## Command Overview
+# /generate-role
 
-This command creates compressed, token-efficient ChatGPT/Codex roles from existing Claude agents, ensuring cross-platform compatibility while maintaining agent capabilities.
+## Variables
 
-## Usage
+- **USER_PROMPT**: `$ARGUMENTS` - Role name, agent source, domain, or batch conversion request
+- **$ARGUMENTS**: Parsed command arguments including role name, flags (--agent, --domain, --batch, --interactive), and options
+- **OUTPUT_DIR**: `.claude/doc/` - Directory for agent plan outputs and documentation
+- **ROLE_DIR**: `.chatgpt/roles/` - Directory for generated ChatGPT role files
+- **SESSION_ID**: Generated from `getSessionId('generate_role_[timestamp]')` - Unique session identifier
+- **CONTEXT_FILE**: `.claude/tasks/context_session_${SESSION_ID}.md` - Session context tracking
+- **PLAN_FILE**: `.claude/doc/role-creation-[name]-[timestamp].md` - Agent-generated plan location
+- **ROLE_NAME**: Extracted role name from arguments or generated from agent name
+- **SOURCE_AGENT**: Source agent file path if --agent flag provided
+- **TARGET_DOMAIN**: Domain expertise area if --domain flag provided
+- **BATCH_AGENTS**: Comma-separated list of agents if --batch flag provided
+- **CHARACTER_LIMIT**: 1500 - Maximum character count for ChatGPT roles
+- **MANIFEST_FILE**: `.chatgpt/roles/manifest.json` - Role registry file
 
-```bash
-# Convert existing agent to role
-/generate-role --agent frontend-ui-expert
+## Instructions
 
-# Create role from scratch
-/generate-role --name "database-optimizer" --domain "database"
+This command implements the research-plan-execute pattern for creating compressed, token-efficient ChatGPT/Codex roles from existing Claude agents or from scratch, ensuring cross-platform compatibility while maintaining agent capabilities.
 
-# Batch convert multiple agents
-/generate-role --batch aws-backend-architect,playwright-test-engineer
+1. **Role Design Phase**: Deploy role-instruction-engineer to analyze requirements and design role structure
+2. **Compression Phase**: Deploy prompt-compression-specialist to optimize for ChatGPT token limits
+3. **Generation Phase**: Create role file with compressed instructions and workflow patterns
+4. **Validation Phase**: Verify character limits and functional compatibility
+5. **Integration Phase**: Update manifest and documentation
 
-# Interactive role creation
-/generate-role
-```
+### Prerequisites
+- Source agent exists (if converting from existing agent)
+- Role directory structure exists or can be created
+- Compression specialists available for deployment
 
-## Examples
-
-```bash
-# Example 1: Convert existing agent
-/generate-role --agent frontend-ui-expert
-# Creates .chatgpt/roles/frontend-ui-expert.md
-
-# Example 2: Create custom role
-/generate-role --name "web3-developer" --domain "blockchain"
-# Creates optimized role for Web3 development
-
-# Example 3: Batch conversion
-/generate-role --batch agent1,agent2,agent3
-# Converts multiple agents to roles
-```
-
-## Execution Flow
-
-### Phase 1: Role Design & Compression
-```yaml
-step: "Delegate to Role Engineering Specialists"
-primary_agent: "role-instruction-engineer"
-secondary_agent: "prompt-compression-specialist"
-purpose: "Create compressed, effective ChatGPT role"
-actions:
-  - Analyze agent capabilities and domain
-  - Extract essential behaviors and expertise
-  - Compress to <1500 characters
-  - Optimize for token efficiency
-  - Create role with workflow and principles
-output: ".claude/doc/role-creation-[name]-[timestamp].md"
-mcp_tools:
-  - sequential (compression analysis)
-  - context7 (best practices)
-```
-
-### Phase 2: Role Specification Review
-```yaml
-step: "Main System Reviews Role Specification"
-handler: "main-system"
-actions:
-  - Read role specification from .claude/doc/
-  - Validate compression effectiveness
-  - Check character count (<1500)
-  - Ensure essential capabilities preserved
-  - Verify ChatGPT compatibility
-validation:
-  - Role is under 1500 characters
-  - Essential expertise preserved
-  - Workflow instructions clear
-  - Output format specified
-```
-
-### Phase 3: Role File Creation
-```yaml
-step: "Create Role File"
-handler: "main-system"
-input: "Role specification from .claude/doc/"
-actions:
-  - Generate role markdown file
-  - Create compressed instructions
-  - Include workflow pattern
-  - Add principles section
-  - Specify output format
-  - Save to .chatgpt/roles/[role-name].md
-tools: [Write, MultiEdit]
-error_handling:
-  - Check character limit
-  - Validate markdown syntax
-  - Ensure directory exists
-```
-
-### Phase 4: Integration & Manifest Update
-```yaml
-step: "Update Role Manifest"
-handler: "main-system"
-actions:
-  - Update .chatgpt/roles/manifest.json
-  - Add role to AGENTS.md if exists
-  - Create usage documentation
-  - Log role creation
-```
-
-## Role Compression Strategies
-
-### Essential Elements to Preserve
-- Core domain expertise
-- Key technical skills
-- Primary workflow pattern
-- Critical quality standards
-- Output format requirements
-
-### Elements to Compress/Remove
-- Verbose explanations
-- Example scenarios
-- MCP tool references (ChatGPT-specific)
-- Claude-specific patterns
-- Redundant instructions
-
-### Compression Techniques
-1. **Keyword Dense**: Use domain keywords efficiently
-2. **Implicit Context**: Rely on ChatGPT's understanding
-3. **Bullet Points**: Replace paragraphs with lists
-4. **Abbreviations**: Use common abbreviations
-5. **Combined Instructions**: Merge related directives
-
-## Role Template Structure
-
-```markdown
-# [Role Name]
-
-You are a [domain] [role] expert. [Core expertise in one sentence].
-
-## Expertise
-- [Key skill 1]
-- [Key skill 2]
-- [Key skill 3]
+### Decision Points
+- If --agent flag provided: Convert existing agent to role
+- If --domain flag provided: Create new role from scratch in specified domain
+- If --batch flag provided: Process multiple agents in sequence
+- If --interactive flag provided: Launch interactive role creation wizard
+- If no flags provided: Default to interactive mode
+- If character limit exceeded: Request additional compression or manual optimization
 
 ## Workflow
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
 
-## Principles
-- [Principle 1]
-- [Principle 2]
+1. **Initialize Session Context**
+   - If no context_session_${SESSION_ID}.md exists:
+     - Create new session context file
+     - Document role creation objectives from USER_PROMPT
+     - Set role generation parameters and constraints
+   - STOP and alert user if session creation fails
 
-## Output
-- [Format requirement]
-- [Quality standard]
+2. **Parse Arguments and Determine Mode**
+   - If --batch flag provided:
+     - Parse BATCH_AGENTS list
+     - Set mode to "batch_conversion"
+     - Continue to step 6 (Batch Processing)
+   - If --interactive flag provided or no arguments:
+     - Set mode to "interactive"
+     - Continue to step 3 (Interactive Mode)
+   - If --agent flag provided:
+     - Set mode to "agent_conversion"
+     - Validate SOURCE_AGENT exists
+     - Continue to step 4 (Agent Analysis)
+   - If --domain flag provided:
+     - Set mode to "domain_creation"
+     - Continue to step 5 (Domain Role Creation)
+
+3. **Interactive Mode Setup**
+   - Present source selection menu:
+     - Convert existing agent
+     - Create new role from domain
+     - Batch convert multiple agents
+   - Collect user inputs for ROLE_NAME, SOURCE_AGENT, or TARGET_DOMAIN
+   - Set variables based on user selections
+   - Continue to appropriate workflow step
+
+4. **Agent Analysis and Conversion**
+   - Read SOURCE_AGENT file content
+   - Deploy role-instruction-engineer agent:
+     - Pass agent content and conversion requirements
+     - Request role structure analysis and design
+     - Specify CHARACTER_LIMIT constraint
+   - Wait for plan generation at PLAN_FILE
+   - Continue to step 7 (Role Generation)
+
+5. **Domain Role Creation**
+   - Deploy role-instruction-engineer agent:
+     - Pass TARGET_DOMAIN and role creation requirements
+     - Request new role design from scratch
+     - Specify CHARACTER_LIMIT constraint and best practices
+   - Wait for plan generation at PLAN_FILE
+   - Continue to step 7 (Role Generation)
+
+6. **Batch Processing**
+   - For each agent in BATCH_AGENTS:
+     - Set SOURCE_AGENT to agent path
+     - Execute steps 4 and 7 for current agent
+     - Collect results and continue to next agent
+   - Generate consolidated batch report
+   - Continue to step 9 (Verification)
+
+7. **Role Generation and Compression**
+   - Read role design plan from PLAN_FILE
+   - Deploy prompt-compression-specialist agent:
+     - Pass role design and CHARACTER_LIMIT constraint
+     - Request compression optimization for ChatGPT
+     - Ensure essential capabilities preserved
+   - Wait for compressed role specification
+   - Validate character count meets limit
+
+8. **Create Role File**
+   - Ensure ROLE_DIR exists, create if necessary
+   - Generate role markdown file at ${ROLE_DIR}${ROLE_NAME}.md
+   - Include compressed instructions, workflow, and principles
+   - Add ChatGPT-specific formatting and compatibility notes
+   - Update MANIFEST_FILE with new role entry
+
+9. **Verification and Integration**
+   - Verify role file character count under CHARACTER_LIMIT
+   - Test role file markdown syntax validity
+   - Update .chatgpt/roles/manifest.json registry
+   - Create or update AGENTS.md documentation if exists
+   - Generate usage instructions and examples
+
+## Report
+
+```markdown
+# Role Generation Report: /generate-role
+
+## Session Information
+- **Session ID**: ${SESSION_ID}
+- **Start Time**: [ISO timestamp]
+- **End Time**: [ISO timestamp]
+- **Status**: [Success|Failed|Partial]
+- **Mode**: [agent_conversion|domain_creation|batch_conversion|interactive]
+
+## Objectives
+${USER_PROMPT}
+
+## Role Details
+- **Role Name**: ${ROLE_NAME}
+- **Source**: ${SOURCE_AGENT || TARGET_DOMAIN || "Interactive Creation"}
+- **File Location**: ${ROLE_DIR}${ROLE_NAME}.md
+- **Character Count**: [count]/${CHARACTER_LIMIT}
+- **Compression Ratio**: [percentage]% from original
+
+## Agent Plans Generated
+- ${PLAN_FILE}
+- Compression plan: [if applicable]
+- Additional plans: [if batch mode]
+
+## Implementation Summary
+### Files Created/Modified
+- ${ROLE_DIR}${ROLE_NAME}.md - New ChatGPT role file
+- ${MANIFEST_FILE} - Updated role registry
+- AGENTS.md - Updated documentation [if applicable]
+
+### Preserved Capabilities
+- [List of key capabilities maintained from source]
+- [Essential expertise areas retained]
+- [Workflow patterns preserved]
+
+### Compression Optimizations
+- [Specific compression techniques applied]
+- [Removed elements for space efficiency]
+- [Token optimization strategies used]
+
+## Verification Results
+- Character Limit Met: [Yes/No] ([count]/${CHARACTER_LIMIT})
+- Markdown Syntax Valid: [Yes/No]
+- Essential Capabilities Preserved: [Yes/No]
+- ChatGPT Compatibility: [Yes/No]
+- Manifest Updated: [Yes/No]
+
+## Usage Instructions
+### ChatGPT Setup
+1. Copy role content from ${ROLE_DIR}${ROLE_NAME}.md
+2. Paste into ChatGPT custom instructions or project
+3. Initialize with domain-specific context
+
+### Example Usage
+- Start conversations with: "Acting as [role name], help me..."
+- Reference role principles when providing feedback
+- Use role workflow for consistent outputs
+
+## Next Steps
+- Test role effectiveness in ChatGPT environment
+- Gather feedback for compression optimization
+- Consider additional role variations if needed
+
+## Archived Resources
+- Context: `.ai/memory/sessions/archive/context_session_${SESSION_ID}.md`
+- Plan: `.ai/memory/sessions/archive/${PLAN_FILE}`
+- Original Agent: [if conversion] - preserved for reference
 ```
 
-## Quality Standards
+## Control Flow Patterns
 
-### Compression Quality
-- [ ] Under 1500 characters
-- [ ] Preserves essential capabilities
-- [ ] Clear and actionable
-- [ ] No redundancy
+### Conditionals
+```yaml
+- If --agent flag provided:
+    Convert existing agent to role
+  Else If --domain flag provided:
+    Create new role from domain specification
+  Else If --batch flag provided:
+    Process multiple agents sequentially
+  Else:
+    Launch interactive mode
 
-### Functional Quality
-- [ ] Produces correct behavior
-- [ ] Maintains agent expertise
-- [ ] Works with ChatGPT context limits
-- [ ] Compatible with Projects feature
+- If character count > CHARACTER_LIMIT:
+    Request additional compression
+    Deploy compression specialist again
+  Else:
+    Proceed with role file creation
 
-## Success Criteria
+- If source agent not found:
+    Alert user and request valid agent path
+  Else:
+    Continue with conversion process
 
-### Creation Success
-- [ ] Role file created successfully
-- [ ] Character limit maintained
-- [ ] Manifest updated
-- [ ] Documentation complete
+- If compression fails to meet limit:
+    Provide manual optimization suggestions
+    Request user approval for reduced functionality
+  Else:
+    Complete role generation
+```
 
-### Functional Success
-- [ ] Role produces expected behavior
-- [ ] Works within ChatGPT limits
-- [ ] Maintains quality standards
-- [ ] Cross-platform compatible
+### Iteration Loops
+```yaml
+- For each agent in BATCH_AGENTS:
+    Set current agent as SOURCE_AGENT
+    Execute conversion workflow
+    Collect results in batch report
+
+- For each compression_attempt in max_attempts:
+    Deploy prompt-compression-specialist
+    Check character count
+    Break if limit met
+
+- For each capability in source_agent:
+    Evaluate importance score
+    Include if essential or space permits
+    Document if removed for compression
+
+- For each role_file in generated_roles:
+    Validate markdown syntax
+    Update manifest registry
+    Generate usage documentation
+```
+
+### Parallel Orchestration
+```yaml
+- When batch conversion requested:
+    agents: [role-instruction-engineer, prompt-compression-specialist]
+    parallel_execution:
+      - Deploy role designer for analysis
+      - Deploy compressor for optimization
+      - Merge results into final role
+
+- When multiple domains involved:
+    parallel_tasks:
+      - Role structure design
+      - Compression optimization
+      - Manifest updates
+      - Documentation generation
+    synchronization_point: "All components complete"
+```
 
 ## Error Handling
 
-### Compression Failures
-- Report character count exceeded
-- Identify sections for further compression
-- Suggest content prioritization
-- Offer alternative compression
+### Recoverable Errors
+- Character limit exceeded: Apply additional compression techniques
+- Source agent not found: Prompt for correct path or switch to domain creation
+- Manifest file corrupted: Recreate from existing role files
+- Minor compression failures: Manual optimization with user guidance
 
-### Conversion Issues
-- Handle missing agent files
-- Report incompatible patterns
-- Provide fallback templates
-- Maintain partial progress
+### Critical Errors
+- Role generation agent deployment failure: STOP and alert user
+- Session context corruption: STOP and request recovery
+- Cannot create role directory: STOP and check permissions
+- Essential capabilities lost in compression: STOP and request user approval
 
-## Interactive Mode
+## Anti-Patterns to Avoid
 
-When run without parameters:
+❌ **Creating roles without compression analysis**
+❌ **Skipping character limit validation**
+❌ **Losing essential agent capabilities in compression**
+❌ **Creating roles incompatible with ChatGPT context**
+❌ **Forgetting to update manifest registry**
+❌ **Hardcoding paths instead of using variables**
 
-1. **Source Selection**: Choose agent or create new
-2. **Domain Definition**: Specify expertise area
-3. **Compression Preview**: Review compressed version
-4. **Optimization**: Further compress if needed
-5. **Creation**: Generate role file
+## Usage Examples
 
-## Output Format
+```bash
+# Convert existing agent to role
+/generate-role frontend-ui-expert --agent frontend-ui-expert
 
-### Role Creation Report
-```markdown
-# Role Creation Report
-## Role: [role-name]
-- **Source**: [agent-name or custom]
-- **File**: .chatgpt/roles/[role-name].md
-- **Character Count**: [count]/1500
-- **Compression Ratio**: [percentage]
+# Create new role from domain
+/generate-role database-optimizer --domain "database optimization"
 
-## Preserved Capabilities
-[List of key capabilities]
+# Batch convert multiple agents
+/generate-role --batch "aws-backend-architect,playwright-test-engineer,documentation-architect"
 
-## Usage Instructions
-[How to use in ChatGPT]
+# Interactive role creation
+/generate-role --interactive
+
+# Convert with custom role name
+/generate-role web3-specialist --agent blockchain-developer --domain "Web3 development"
 ```
 
 ## Related Commands
-- `/generate-agent` - Create new agents
-- `/sync-docs` - Update documentation
-- `mac openai sync` - Synchronize with OpenAI config
+- `/generate-agent` - Create new Claude agent templates
+- `/sync-docs` - Update cross-platform documentation
+- `mac convert-agent` - CLI agent/role conversion
+- `mac sync` - Bidirectional synchronization
+- `/implement` - Execute role-generated plans

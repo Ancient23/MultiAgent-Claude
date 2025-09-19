@@ -1,6 +1,6 @@
 # Command Templates
 
-This directory provides reusable command patterns for the MultiAgent-Claude CLI. Each command follows the research → plan → execute workflow where specialist agents create plans and the main system executes them.
+This directory provides reusable command patterns for the MultiAgent-Claude CLI. Each command follows the research → plan → execute workflow where specialists create plans and the main system executes them.
 
 ## Available Commands
 

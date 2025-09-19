@@ -39,6 +39,10 @@ jobs:
       - name: Run CLI tests
         run: npx playwright test tests/cli-playwright.spec.js --shard=${{ matrix.shard }}
         
+      - name: Run Agent Template Validation (shard 1 only)
+        if: matrix.shard == '1/4'
+        run: npx playwright test tests/agent-template-validation.spec.js
+        
       - name: Run Visual Regression tests
         run: npx playwright test tests/visual-regression.spec.js --shard=${{ matrix.shard }}
         

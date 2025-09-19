@@ -1,305 +1,263 @@
-# /test-cli Command
-
-## Command Definition
-
-```yaml
 ---
-command: "/test-cli"
-category: "Quality Assurance"
-purpose: "Create and execute comprehensive tests for all CLI functionality and command workflows"
-pattern: "research → plan → execute"
-agents: ["cli-test-engineer", "prompt-engineer-specialist"]
+description: "Create and execute comprehensive tests for all CLI functionality and command workflows"
+argument-hint: "[--command <cmd>] [--coverage] [--error-scenarios] [--generate-only]"
+allowed-tools: ["Read", "Write", "Bash", "Edit", "MultiEdit", "Task", "Grep", "Glob"]
+model: "sonnet"
 ---
+
+# /test-cli
+
+## Variables
+
+- **USER_PROMPT**: `$ARGUMENTS` - Command-line arguments specifying test scope and options
+- **$ARGUMENTS**: Parsed flags including --command, --coverage, --error-scenarios, --generate-only
+- **OUTPUT_DIR**: `.claude/tests/cli/` - Directory for generated test files
+- **REPORT_DIR**: `.claude/doc/` - Directory for test reports and plans
+- **TEST_COMMAND**: Specific CLI command to test (if --command specified)
+- **COVERAGE_FLAG**: Boolean indicating whether to generate coverage reports
+- **SESSION_ID**: Generated from `getSessionId('test_cli_[timestamp]')`
+
+## Instructions
+
+This command creates and executes comprehensive test suites for the MultiAgent-Claude CLI:
+
+1. **Analysis Phase**: Analyze CLI structure and identify test requirements
+2. **Planning Phase**: Deploy cli-test-engineer agent to create test plan
+3. **Generation Phase**: Generate test files based on specifications
+4. **Execution Phase**: Run tests with appropriate framework
+5. **Reporting Phase**: Generate coverage and performance reports
+
+### Prerequisites
+- Node.js environment with test framework (Jest/Vitest/Playwright)
+- CLI source code in `cli/` directory
+- Write access to `.claude/tests/` directory
+
+### Decision Points
+- If --generate-only: Skip execution phase
+- If --command specified: Focus tests on single command
+- If --coverage: Include coverage reporting tools
+- If test failures detected: Continue but mark as failed
+
+## Workflow
+
+1. **Initialize Test Environment**
+   - If no .claude/tests/cli/ directory exists:
+     - Create test directory structure
+     - Set up test configuration
+   - STOP and alert if CLI source not found
+
+2. **Analyze CLI Structure**
+   - For each file in cli/commands/:
+     - Parse command implementation
+     - Identify required test scenarios
+   - If --command specified:
+     - Filter to specific command only
+
+3. **Deploy Test Planning Agent**
+   - Invoke Task tool with cli-test-engineer:
+     - Pass CLI structure analysis
+     - Include USER_PROMPT requirements
+   - Wait for test plan completion
+   - Read plan from .claude/doc/cli-testing-*.md
+
+4. **Generate Test Files**
+   - For each test category in plan:
+     - Create appropriate test file
+     - Add test cases from specifications
+     - Include error scenarios if --error-scenarios
+   - Validate generated tests compile
+
+5. **Execute Test Suite**
+   - If --generate-only flag:
+     - Skip to step 6
+   - For each test file generated:
+     - Run test with appropriate framework
+     - Collect results and metrics
+     - Continue even if failures occur
+
+6. **Generate Reports**
+   - Create test execution summary
+   - If --coverage flag:
+     - Generate coverage report
+     - Calculate coverage percentage
+   - Archive test results to REPORT_DIR
+
+## Report
+
+```markdown
+# CLI Test Execution Report
+
+## Summary
+- **Session ID**: ${SESSION_ID}
+- **Test Date**: [ISO timestamp]
+- **Status**: [Success|Failed|Partial]
+- **Coverage**: ${COVERAGE_PERCENTAGE}%
+
+## Test Scope
+- Commands Tested: ${TEST_COMMAND || "All"}
+- Error Scenarios: ${ERROR_SCENARIOS ? "Included" : "Excluded"}
+- Coverage Analysis: ${COVERAGE_FLAG ? "Enabled" : "Disabled"}
+
+## Test Results
+### Unit Tests
+- Total: [count]
+- Passed: [count]
+- Failed: [count]
+- Skipped: [count]
+
+### Integration Tests
+- Total: [count]
+- Passed: [count]
+- Failed: [count]
+
+### Error Scenarios
+- Total: [count]
+- Handled Correctly: [count]
+- Failed Handling: [count]
+
+## Failed Tests Details
+[List of failed tests with error messages]
+
+## Coverage Metrics
+- Line Coverage: [percentage]%
+- Branch Coverage: [percentage]%
+- Function Coverage: [percentage]%
+- Statement Coverage: [percentage]%
+
+## Performance Metrics
+- Total Execution Time: [duration]
+- Average Test Duration: [duration]
+- Memory Usage: [MB]
+
+## Generated Files
+- Test Files: ${OUTPUT_DIR}[list]
+- Coverage Report: ${REPORT_DIR}coverage.html
+- Test Plan: ${REPORT_DIR}cli-testing-*.md
+
+## Recommendations
+[Suggested improvements based on results]
 ```
 
-## Command Overview
+## Control Flow Patterns
 
-This command creates and executes comprehensive test suites for the MultiAgent-Claude CLI, ensuring all commands work correctly, handle errors gracefully, and provide proper user feedback.
+### Conditionals
+```yaml
+- If --generate-only provided:
+    Generate test files
+    Skip execution
+  Else:
+    Generate and execute tests
 
-## Usage
+- If --command specified:
+    Filter tests to single command
+  Else:
+    Test all CLI commands
+
+- If --coverage requested:
+    Enable coverage instrumentation
+    Generate coverage reports
+  Else:
+    Run tests without coverage
+```
+
+### Iteration Loops
+```yaml
+- For each CLI command in cli/commands/:
+    Analyze command structure
+    Generate unit tests
+    Generate integration tests
+
+- For each test scenario in plan:
+    Create test case
+    Add assertions
+    Include error handling
+
+- For each test file generated:
+    Execute with test runner
+    Collect results
+    Update report
+```
+
+### Parallel Orchestration
+```yaml
+- When multiple test categories exist:
+    test_categories: [unit, integration, error, performance]
+    parallel_execution:
+      - Run all categories simultaneously
+      - Collect results independently
+      - Merge into unified report
+
+- When testing multiple commands:
+    parallel_commands:
+      - Test each command in parallel
+      - Aggregate results
+      - Generate combined coverage
+    synchronization: "Wait for all test completions"
+```
+
+## Error Handling
+
+### Test Generation Errors
+- Missing CLI source: Alert user and provide path guidance
+- Invalid command specified: List available commands
+- Template parsing failure: Fall back to basic test structure
+
+### Test Execution Errors
+- Test framework missing: Suggest installation command
+- Test failures: Continue execution, mark as failed
+- Timeout errors: Skip remaining tests in category
+
+### Reporting Errors
+- Coverage tool failure: Generate basic pass/fail report
+- Report generation failure: Output raw test results
+- File write errors: Display results to console
+
+## Usage Examples
 
 ```bash
-# Run complete CLI test suite
-/test-cli
-
-# Test specific CLI command
-/test-cli --command "agent create"
-
-# Test with coverage reporting
+# Complete test suite with coverage
 /test-cli --coverage
 
-# Test error scenarios only
+# Test specific command
+/test-cli --command "agent create"
+
+# Generate tests without execution
+/test-cli --generate-only
+
+# Focus on error handling
 /test-cli --error-scenarios
 
-# Generate test files only (no execution)
-/test-cli --generate-only
-```
-
-## Examples
-
-```bash
-# Example 1: Complete test suite
-/test-cli
-# Runs all CLI tests including unit, integration, and error scenarios
-
-# Example 2: Agent command testing
-/test-cli --command "agent"
-# Tests all agent-related CLI commands (create, list, deploy, add)
-
-# Example 3: Error handling validation
-/test-cli --error-scenarios --verbose
-# Tests error handling with detailed output
-```
-
-## Execution Flow
-
-### Phase 1: Test Planning & Design
-```yaml
-step: "Delegate to CLI Testing Specialist"
-primary_agent: "cli-test-engineer"
-secondary_agent: "prompt-engineer-specialist"
-purpose: "Create comprehensive CLI test plan and specifications"
-actions:
-  - Analyze CLI structure in cli/ directory
-  - Review package.json scripts and entry points
-  - Identify all CLI commands and workflows
-  - Design unit, integration, and E2E test scenarios
-  - Plan error handling and edge case testing
-  - Create test infrastructure specifications
-output: ".claude/doc/cli-testing-[timestamp].md"
-mcp_tools:
-  - context7 (CLI testing frameworks)
-  - playwright (CLI interaction testing)
-  - sequential (complex workflow analysis)
-```
-
-### Phase 2: Test Infrastructure Setup
-```yaml
-step: "Main System Reviews Test Plan"
-handler: "main-system"
-actions:
-  - Read test plan from .claude/doc/
-  - Parse test requirements and specifications
-  - Set up test environment
-  - Install testing dependencies if needed
-  - Prepare test data and fixtures
-validation:
-  - Test dependencies are available
-  - CLI is accessible for testing
-  - Test environment is isolated
-  - Required permissions are available
-```
-
-### Phase 3: Test Implementation
-```yaml
-step: "Create and Execute CLI Tests"
-handler: "main-system"
-input: "Test plan from .claude/doc/"
-actions:
-  - Generate test files based on specifications
-  - Create unit tests for individual commands
-  - Implement integration tests for workflows
-  - Add error scenario and edge case tests
-  - Execute test suite with reporting
-  - Generate coverage metrics
-tools: [Write, MultiEdit, Bash, Read]
-test_categories:
-  - Command parsing and validation tests
-  - Workflow integration tests
-  - Error handling and recovery tests
-  - Performance and reliability tests
-```
-
-### Phase 4: Test Execution & Reporting
-```yaml
-step: "Execute Tests and Generate Reports"
-handler: "main-system"
-actions:
-  - Run unit test suite
-  - Execute integration tests
-  - Validate error scenarios
-  - Generate test coverage report
-  - Create performance benchmarks
-  - Document test results
-tools: [Bash, Write]
-reporting:
-  - Test execution summary
-  - Coverage percentage by command
-  - Failed test details with debugging info
-  - Performance metrics and benchmarks
-```
-
-### Phase 5: Results Analysis & Documentation
-```yaml
-step: "Analyze Results and Update Documentation"
-handler: "main-system"
-actions:
-  - Analyze test results and coverage
-  - Identify gaps and improvements needed
-  - Update test documentation
-  - Log testing completion
-  - Archive test plan and results
+# Comprehensive testing
+/test-cli --coverage --error-scenarios
 ```
 
 ## Test Categories
 
 ### Unit Tests
-- **Command Parsing**: Argument and option validation
-- **Function Logic**: Individual function behavior testing
-- **Configuration**: Settings and config file handling
-- **Utilities**: Helper function validation
+- Command parsing and validation
+- Option handling and defaults
+- Configuration loading
+- Utility function behavior
 
 ### Integration Tests
-- **Command Workflows**: Multi-step command sequences
-- **File Operations**: File creation, modification, validation
-- **Agent Interactions**: Agent creation and management flows
-- **Memory Operations**: Memory system integration testing
-
-### Error Scenario Tests
-- **Invalid Arguments**: Malformed command testing
-- **Missing Dependencies**: Missing file and directory handling
-- **Permission Issues**: Access control and permission validation
-- **Network Failures**: External dependency failure simulation
-
-### Performance Tests
-- **Execution Time**: Command completion time measurement
-- **Memory Usage**: Memory consumption monitoring
-- **Concurrent Operations**: Multiple command execution testing
-- **Large Scale**: Testing with large datasets
-
-## CLI Testing Framework
-
-### Test Structure
-```
-.claude/tests/cli/
-├── unit/
-│   ├── commands/        # Individual command tests
-│   ├── utilities/       # Helper function tests
-│   └── config/         # Configuration tests
-├── integration/
-│   ├── workflows/      # Multi-command workflows
-│   ├── file-ops/       # File operation tests
-│   └── agent-mgmt/     # Agent management tests
-├── error-scenarios/
-│   ├── invalid-input/  # Invalid input handling
-│   ├── missing-deps/   # Missing dependency tests
-│   └── permissions/    # Permission error tests
-├── performance/
-│   ├── benchmarks/     # Performance benchmarks
-│   └── stress/         # Stress testing
-└── fixtures/
-    ├── test-data/      # Test data files
-    └── mock-configs/   # Mock configuration files
-```
-
-### Testing Tools
-- **Jest/Vitest**: Unit and integration testing framework
-- **Playwright**: CLI interaction and E2E testing
-- **Sinon**: Mocking and stubbing for isolated testing
-- **nyc/c8**: Code coverage measurement
-
-## Test Specifications
-
-### Command Testing Requirements
-- [ ] All CLI commands have unit tests
-- [ ] Command parsing validates arguments correctly
-- [ ] Help text is accurate and complete
-- [ ] Exit codes are appropriate for each scenario
-
-### Workflow Testing Requirements
-- [ ] Multi-step workflows execute correctly
-- [ ] File generation produces expected results
-- [ ] Error recovery works as designed
-- [ ] State persistence functions properly
-
-### Error Handling Requirements
-- [ ] Invalid input produces helpful error messages
-- [ ] Missing dependencies are detected and reported
-- [ ] Permission issues are handled gracefully
-- [ ] Network failures don't cause crashes
-
-## Success Criteria
-
-### Test Coverage
-- [ ] Minimum 90% code coverage across all CLI modules
-- [ ] All public CLI commands have comprehensive tests
-- [ ] Critical error scenarios are covered
-- [ ] Performance benchmarks established
-
-### Quality Metrics
-- [ ] All tests pass consistently
-- [ ] No memory leaks detected
-- [ ] Performance within acceptable limits
-- [ ] Error messages are user-friendly
-
-### Documentation
-- [ ] Test procedures documented
-- [ ] Coverage reports generated
-- [ ] Performance benchmarks recorded
-- [ ] Known issues documented
-
-## Error Handling
-
-### Test Execution Failures
-- Continue testing despite individual test failures
-- Collect all failures for comprehensive reporting
-- Provide debugging information for failed tests
-- Generate partial results if complete execution fails
-
-### Environment Issues
-- Validate test environment before execution
-- Handle missing dependencies gracefully
-- Provide setup instructions for test requirements
-- Fall back to subset testing if full environment unavailable
-
-### Coverage Reporting Failures
-- Generate basic coverage metrics if detailed reporting fails
-- Provide manual coverage estimation procedures
-- Document coverage gaps for manual validation
-
-## Integration with CI/CD
-
-### Automated Testing
-- Can be integrated into GitHub Actions workflows
-- Supports automated test execution on commits
-- Provides test result reporting in PRs
-- Enables continuous quality monitoring
-
-### Quality Gates
-- Enforce minimum coverage requirements
-- Block deployments on test failures
-- Generate quality metrics for monitoring
-- Integrate with existing quality assurance processes
-
-## Output Format
-
-### Test Report Structure
-```markdown
-# CLI Test Report
-## Summary
-- Tests Executed: [count]
-- Passed: [count]
-- Failed: [count]
-- Coverage: [percentage]
-
-## Detailed Results
-### Unit Tests
-[Individual test results]
-
-### Integration Tests
-[Workflow test results]
+- Multi-command workflows
+- File system operations
+- Agent management flows
+- Memory system integration
 
 ### Error Scenarios
-[Error handling test results]
+- Invalid arguments
+- Missing dependencies
+- Permission issues
+- Network failures
 
-## Performance Metrics
-[Benchmark results]
-
-## Recommendations
-[Improvement suggestions]
-```
+### Performance Tests
+- Execution time benchmarks
+- Memory consumption
+- Concurrent operations
+- Large dataset handling
 
 ## Related Commands
-- `/validate-templates` - Validate CLI-generated templates
-- `/generate-agent` - Test agent creation CLI functionality
+- `/validate-templates` - Validate generated templates
 - `/sync-docs` - Update documentation with test results
+- `/generate-agent` - Test agent creation functionality

@@ -1,435 +1,387 @@
-# WAVE_EXECUTE.md - SuperClaude Wave Execution Command
-
-Custom wave orchestration command for systematic task execution with proper context management.
-
-## Command Definition
-
-**`/wave-execute $ARGUMENTS`**
-```yaml
 ---
-command: "/wave-execute"
-category: "Orchestration & Automation"
-purpose: "Execute comprehensive 7-wave task orchestration with context propagation"
-wave-enabled: true
-performance-profile: "complex"
-memory-aware: true
+description: "Seven-wave systematic task execution with context propagation and specialist orchestration"
+argument-hint: "[task-file.md] [--session-id ID] [--confidence-check] [--no-stubs] [--cleanup]"
+allowed-tools: ["Read", "Write", "Bash", "Edit", "MultiEdit", "Task", "TodoWrite", "mcp__aws-api-mcp-server__call_aws", "mcp__playwright__browser_*"]
+model: "opus"
 ---
-```
-- **Auto-Persona**: Architect, DevOps, QA, Analyzer, Scribe (phase-dependent)
-- **MCP Integration**: AWS API, Context7, Sequential, Playwright (as needed)
-- **Tool Orchestration**: [Task, Read, Grep, Bash, TodoWrite, Edit, MultiEdit, AWS CLI, Vercel CLI]
-- **Arguments**: `[task-file.md]`, `--confidence-check`, `--no-stubs`, `--cleanup`, `--session-id`
 
-## Session Memory Structure
-```
-.claude/
-├── tasks/               # Session-specific memory
-│   └── context_session_[session_id].md
-└── doc/                        # Agent-created plans
-    └── [agent]-[task]-[timestamp].md
-```
+# /wave-execute
 
-## Long Term Memory Structure
-```
-.ai/
-└── memory/
-    ├── project.md              # Persistent project context
-    ├── reports/               # Memory reports
-    ├── patterns/               # Successful patterns
-    ├── decisions/              # ADRs
-    └── index.json             # Quick lookup index
+## Variables
 
-```
+- **USER_PROMPT**: `$ARGUMENTS` - The task description and any additional context provided by the user
+- **$ARGUMENTS**: Parsed command arguments including task file, session ID, and execution flags
+- **OUTPUT_DIR**: `.claude/doc/` - Directory for agent plan outputs and documentation
+- **SESSION_ID**: Generated from `getSessionId('wave_[timestamp]')` or provided via --session-id flag
+- **CONTEXT_FILE**: `.claude/tasks/context_session_${SESSION_ID}.md` - Session context tracking file
+- **TASK_FILE**: Input task file for wave execution (if provided)
+- **WAVE_COUNT**: `7` - Total number of execution waves (discovery, implementation, deployment, testing, documentation)
+- **CONFIDENCE_THRESHOLD**: `85%` - Minimum confidence level for proceeding to next wave
+- **COVERAGE_TARGET**: `90%` - Minimum test coverage required for modified code
 
-## Context Management Protocol
+## Instructions
 
-### Session Initialization (Wave 0)
-```yaml
-step: "Initialize session context"
-handler: main-system
-actions:
-  - Generate session_id using getSessionId('wave')
-  - Create .ai/memory/tasks/context_session_[session_id].md
-  - Load .ai/memory/project.md into session context
-  - Document initial task list and objectives
-  - Set session metadata (start time, user, goals)
-output: .ai/memory/tasks/context_session_[session_id].md
-```
+This command implements systematic seven-wave task execution with comprehensive context management where:
 
-## Command Execution Pattern
+1. **Wave 0 (Initialization)**: Create session context and establish objectives
+2. **Wave 1 (Discovery)**: Deploy analysis agents to identify requirements and constraints
+3. **Wave 2 (Implementation)**: Deploy implementation agents to create detailed execution plans
+4. **Wave 3 (Deployment)**: Deploy deployment specialists for infrastructure and release planning
+5. **Wave 4 (Testing)**: Deploy testing agents for comprehensive validation strategies
+6. **Wave 5 (Documentation)**: Deploy documentation agents for knowledge capture and pattern extraction
+7. **Wave 6 (Finalization)**: Archive session, update memory, and prepare next steps
 
-### Wave 1: Discovery & Validation Planning
-```yaml
-step: "Get analysis plan from specialists"
-agents: 
-  - aws-backend-architect (for AWS analysis plan)
-  - codebase-truth-analyzer (for verification plan)
-context_input: .ai/memory/tasks/context_session_[session_id].md (latest)
-purpose: "Create discovery and validation plan"
-actions:
-  - Read session context if available
-  - Document how to check AWS CloudWatch logs
-  - Specify Vercel deployment log analysis steps
-  - Plan code analysis approach for root causes
-  - Create task breakdown structure
-output: 
-  - .claude/doc/aws-backend-discovery-[timestamp].md
-  - .claude/doc/codebase-truth-validation-[timestamp].md
-```
+### Prerequisites
+- Valid task description or task file input
+- Available specialist agents for required domains
+- Access to MCP tools for AWS, Context7, and Sequential analysis
+- Proper permissions for file system operations
 
-### Wave 1.5: Execute Discovery & Update Context
-```yaml
-step: "Main system executes discovery"
-handler: main-system
-input: 
-  - Plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_[session_id].md
-actions:
-  - Execute AWS CLI commands per plan
-  - Check Vercel logs as specified
-  - Analyze code following plan
-  - Create TodoWrite list
-  - UPDATE context_session_[session_id].md with findings:
-    * Discovered issues
-    * Root causes identified
-    * Dependencies mapped
-    * Blockers documented
-tools: [mcp__aws-api-mcp-server__call_aws, Bash, Read, Grep, TodoWrite, Write]
-output_update: .ai/memory/tasks/context_session_[session_id].md (append findings)
-```
+### Decision Points
+- If --session-id provided: Resume existing session, skip initialization
+- If task-file.md provided: Load objectives from file, otherwise use USER_PROMPT
+- If --no-stubs flag: Require real implementations, reject placeholder code
+- If --confidence-check flag: Validate confidence scores before proceeding to next wave
+- If agents unavailable: Fallback to main system analysis or request user agent selection
 
-### Wave 2: Implementation Planning
-```yaml
-step: "Get implementation plan from specialists"
-agents:
-  - fullstack-feature-orchestrator (for feature plan)
-  - ai-agent-architect (for agent system plan)
-context_input: .ai/memory/tasks/context_session_[session_id].md (with Wave 1 findings)
-purpose: "Create detailed implementation plan based on discoveries"
-actions:
-  - Read updated session context with findings
-  - Research latest documentation via Context7
-  - Document real fixes needed (no mocks/stubs)
-  - Specify error handling requirements
-  - Mark technical debt items
-  - Reference specific issues from Wave 1
-output:
-  - .claude/doc/fullstack-feature-wave-[timestamp].md
-  - .claude/doc/ai-agent-wave-[timestamp].md
-```
+## Workflow
 
-### Wave 2.5: Execute Implementation & Update Context
-```yaml
-step: "Main system implements per plans"
-handler: main-system
-input: 
-  - Implementation plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_[session_id].md
-actions:
-  - Implement fixes as specified in plans
-  - Add error handling per specifications
-  - Mark technical debt as documented
-  - UPDATE context_session_[session_id].md with:
-    * Implemented changes
-    * Files modified
-    * Remaining issues
-    * New discoveries
-tools: [Edit, MultiEdit, Write]
-confidence_threshold: 85%
-output_update: .ai/memory/tasks/context_session_[session_id].md (append implementation notes)
-```
+1. **Initialize Session Context (Wave 0)**
+   - If --session-id provided and context exists:
+     - Load existing context_session_${SESSION_ID}.md
+     - Resume from last completed wave
+   - If new session:
+     - Generate SESSION_ID using timestamp
+     - Create CONTEXT_FILE with session metadata
+     - Load objectives from TASK_FILE or USER_PROMPT
+     - Initialize wave tracking structure
+   - STOP and alert user if context creation fails
 
-### Wave 3: Deployment Planning
-```yaml
-step: "Get deployment plan from specialists"
-agents:
-  - aws-deployment-specialist (for AWS deployment plan)
-  - vercel-deployment-troubleshooter (for Vercel plan)
-context_input: .ai/memory/tasks/context_session_[session_id].md (with implementation details)
-purpose: "Create deployment strategy based on implementations"
-actions:
-  - Read session context with implementation details
-  - Document Lambda deployment steps
-  - Specify terraform commands needed
-  - Plan Git commit strategy
-  - Document monitoring approach
-  - Specify retry strategies
-output:
-  - .claude/doc/aws-deployment-wave-[timestamp].md
-  - .claude/doc/vercel-troubleshoot-wave-[timestamp].md
-```
+2. **Discovery & Validation Planning (Wave 1)**
+   - Deploy specialist agents for analysis:
+     - aws-backend-architect for AWS infrastructure analysis
+     - codebase-truth-analyzer for code verification planning
+   - For each agent:
+     - Pass CONTEXT_FILE and current objectives
+     - Request discovery plan creation
+     - Wait for plan output in OUTPUT_DIR
+   - Update CONTEXT_FILE with agent plan locations
+   - If confidence check enabled: Validate agent confidence scores > CONFIDENCE_THRESHOLD
 
-### Wave 3.5: Execute Deployment & Update Context
-```yaml
-step: "Main system deploys per plans"
-handler: main-system
-input: 
-  - Deployment plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_[session_id].md
-actions:
-  - Deploy Lambda functions as specified
-  - Run terraform commands per plan
-  - Commit and push following plan
-  - Monitor logs as documented
-  - Retry per specified strategy
-  - UPDATE context_session_[session_id].md with:
-    * Deployment results
-    * URLs/endpoints created
-    * Errors encountered
-    * Rollback actions taken
-tools: [Bash, mcp__aws-api-mcp-server__call_aws, Git commands, Write]
-output_update: .ai/memory/tasks/context_session_[session_id].md (append deployment results)
-```
+3. **Execute Discovery & Update Context (Wave 1.5)**
+   - For each discovery plan in OUTPUT_DIR:
+     - Read and parse implementation steps
+     - Execute AWS CLI commands per specifications
+     - Analyze codebase following plan guidelines
+     - Document findings and root causes
+   - Update CONTEXT_FILE with:
+     - Discovered issues and blockers
+     - Dependencies and constraints identified
+     - Technical debt items found
+   - Create TodoWrite list for tracking discoveries
 
-### Wave 4: Testing Planning
-```yaml
-step: "Get testing plan from specialists"
-agents:
-  - codebase-truth-analyzer (for test strategy)
-  - ui-design-auditor (for UI testing plan)
-context_input: .ai/memory/tasks/context_session_[session_id].md (with deployment info)
-purpose: "Create comprehensive testing plan"
-actions:
-  - Read session context with deployment endpoints
-  - Document API test scenarios
-  - Specify E2E test flows
-  - Plan screenshot captures
-  - Define coverage targets
-output:
-  - .claude/doc/testing-strategy-[timestamp].md
-  - .claude/doc/ui-testing-plan-[timestamp].md
-```
+4. **Implementation Planning (Wave 2)**
+   - Deploy implementation specialists based on discoveries:
+     - fullstack-feature-orchestrator for feature coordination
+     - ai-agent-architect for agent system planning
+     - Additional specialists based on domain needs
+   - For each agent:
+     - Pass updated CONTEXT_FILE with Wave 1 findings
+     - Request detailed implementation plan
+     - Specify no-stubs requirement if --no-stubs flag set
+   - Consolidate plans and check for conflicts
+   - If conflicts found: Request user resolution before proceeding
 
-### Wave 4.5: Execute Testing & Update Context
-```yaml
-step: "Main system executes tests"
-handler: main-system
-input:
-  - Testing plans from .claude/doc/
-  - Context from .ai/memory/tasks/context_session_[session_id].md
-actions:
-  - Run API tests with authentication
-  - Execute Playwright E2E tests
-  - Capture screenshots
-  - UPDATE context_session_[session_id].md with:
-    * Test results
-    * Failed test details
-    * Coverage metrics
-    * Performance data
-tools: [Bash, mcp__playwright__browser_*, TodoWrite, Write]
-coverage_target: 90%
-output_update: .ai/memory/tasks/context_session_[session_id].md (append test results)
-```
+5. **Execute Implementation & Update Context (Wave 2.5)**
+   - For each implementation step in consolidated plans:
+     - Execute using appropriate tools (Edit, MultiEdit, Write)
+     - Apply error handling per specifications
+     - Mark technical debt items as documented
+     - Validate implementation against confidence requirements
+   - Update CONTEXT_FILE with:
+     - Files modified and change descriptions
+     - Implementation status and remaining issues
+     - New discoveries or blockers encountered
 
-### Wave 5: Documentation Planning
-```yaml
-step: "Get documentation plan from specialist"
-agent: documentation-architect
-context_input: .ai/memory/tasks/context_session_[session_id].md (complete session)
-purpose: "Create documentation strategy"
-actions:
-  - Read entire session context
-  - Plan summary documentation
-  - Identify patterns for .ai/memory/patterns/
-  - Document decisions for .ai/memory/decisions/
-  - Specify cleanup tasks
-output: .claude/doc/documentation-plan-[timestamp].md
-```
+6. **Deployment Planning (Wave 3)**
+   - Deploy deployment specialists:
+     - aws-deployment-specialist for AWS infrastructure
+     - vercel-deployment-troubleshooter for frontend deployment
+   - For each agent:
+     - Pass CONTEXT_FILE with implementation details
+     - Request deployment strategy and procedures
+     - Specify monitoring and rollback requirements
+   - Review deployment plans for production readiness
 
-### Wave 5.5: Execute Documentation & Finalize
-```yaml
-step: "Main system creates documentation"
-handler: main-system
-input:
-  - Documentation plan from .claude/doc/
-  - Complete context from .ai/memory/tasks/
-actions:
-  - Create WAVE_EXECUTION_SUMMARY.md
-  - Extract patterns to .ai/memory/patterns/
-  - Document decisions in .ai/memory/decisions/
-  - Update .ai/memory/project.md with learnings
-  - Update .ai/memory/index.json
-  - Archive session context
-  - Create NEXT_WAVE_TASKS.md if needed
-tools: [Write, Read, Bash]
-final_outputs:
-  - WAVE_EXECUTION_SUMMARY.md
-  - .ai/memory/patterns/[pattern].md (if new patterns)
-  - .ai/memory/decisions/[decision].md (if new decisions)
-  - NEXT_WAVE_TASKS.md (if incomplete items)
-```
+7. **Execute Deployment & Update Context (Wave 3.5)**
+   - For each deployment step:
+     - Execute infrastructure commands (terraform, AWS CLI)
+     - Deploy applications following plan specifications
+     - Monitor deployment status and logs
+     - Execute rollback procedures if critical failures
+   - Update CONTEXT_FILE with:
+     - Deployment results and endpoint URLs
+     - Errors encountered and resolutions
+     - Performance metrics and monitoring setup
 
-## Context Session File Format
+8. **Testing Planning (Wave 4)**
+   - Deploy testing specialists:
+     - codebase-truth-analyzer for test strategy
+     - ui-design-auditor for UI/UX testing plans
+     - playwright-test-engineer for E2E testing (if available)
+   - For each agent:
+     - Pass CONTEXT_FILE with deployment endpoints
+     - Request comprehensive testing strategy
+     - Define coverage targets and success criteria
+
+9. **Execute Testing & Update Context (Wave 4.5)**
+   - For each testing category:
+     - Run unit tests with coverage reporting
+     - Execute integration tests with authentication
+     - Perform E2E tests using Playwright MCP tools
+     - Capture screenshots and performance metrics
+   - Validate COVERAGE_TARGET achievement
+   - Update CONTEXT_FILE with test results and metrics
+
+10. **Documentation Planning (Wave 5)**
+    - Deploy documentation specialist:
+      - documentation-architect for comprehensive documentation
+    - Pass complete CONTEXT_FILE with all wave results
+    - Request documentation strategy including:
+      - Pattern extraction for .ai/memory/patterns/
+      - Decision documentation for .ai/memory/decisions/
+      - Summary report generation
+
+11. **Execute Documentation & Finalize (Wave 5.5)**
+    - Create comprehensive documentation:
+      - WAVE_EXECUTION_SUMMARY.md with complete results
+      - Extract successful patterns to memory system
+      - Document architectural decisions made
+      - Update .ai/memory/project.md with learnings
+    - Archive session context to .ai/memory/sessions/archive/
+    - Create NEXT_WAVE_TASKS.md if incomplete items remain
+
+## Report
 
 ```markdown
-# Context Session: [session_id]
+# Wave Execution Report: /wave-execute
 
-## Session Metadata
-- Started: [timestamp]
-- Session ID: [session_id]
-- Initial Tasks: [count]
-- User: [user]
+## Session Information
+- **Session ID**: ${SESSION_ID}
+- **Start Time**: [ISO timestamp]
+- **End Time**: [ISO timestamp]
+- **Status**: [Success|Failed|Partial]
+- **Waves Completed**: [X/7]
 
-## Wave 1: Discovery Results
-### Issues Found
-- [issue 1]
-- [issue 2]
+## Objectives
+${USER_PROMPT}
 
-### Root Causes
-- [cause 1]
-- [cause 2]
+## Wave Results Summary
 
-## Wave 2: Implementation Notes
-### Changes Made
-- Modified: [file1] - [description]
-- Created: [file2] - [description]
+### Wave 1: Discovery
+- **Agents Deployed**: aws-backend-architect, codebase-truth-analyzer
+- **Plans Generated**: ${OUTPUT_DIR}/aws-backend-discovery-[timestamp].md, ${OUTPUT_DIR}/codebase-truth-validation-[timestamp].md
+- **Issues Identified**: [count] critical, [count] major, [count] minor
+- **Dependencies Found**: [list key dependencies]
 
-### Technical Debt
-- [debt item 1]
-- [debt item 2]
+### Wave 2: Implementation
+- **Agents Deployed**: fullstack-feature-orchestrator, ai-agent-architect
+- **Plans Generated**: ${OUTPUT_DIR}/fullstack-feature-wave-[timestamp].md, ${OUTPUT_DIR}/ai-agent-wave-[timestamp].md
+- **Files Modified**: [count] files changed
+- **Confidence Score**: [average]%
 
-## Wave 3: Deployment Results
-### Deployed Resources
-- Lambda: [function-name] at [arn]
-- API: [endpoint-url]
+### Wave 3: Deployment
+- **Agents Deployed**: aws-deployment-specialist, vercel-deployment-troubleshooter
+- **Resources Deployed**: [list AWS/Vercel resources]
+- **Endpoints Created**: [list URLs]
+- **Deployment Status**: [Success/Failed/Partial]
 
-### Issues Encountered
-- [deployment issue 1]
+### Wave 4: Testing
+- **Test Coverage**: Unit: [%], Integration: [%], E2E: [%]
+- **Tests Passed**: [count]/[total]
+- **Performance Metrics**: [key metrics]
+- **Screenshots Captured**: [count]
 
-## Wave 4: Test Results
-### Coverage
-- Unit: [percentage]
-- Integration: [percentage]
-- E2E: [percentage]
+### Wave 5: Documentation
+- **Patterns Extracted**: [count] to .ai/memory/patterns/
+- **Decisions Documented**: [count] to .ai/memory/decisions/
+- **Memory Updates**: [list updates to project.md]
 
-### Failed Tests
-- [test 1]: [reason]
+## Implementation Summary
+### Files Modified
+- [file_path:line_numbers] - [change description]
+- [additional files...]
 
-## Wave 5: Documentation Created
-- Summary: WAVE_EXECUTION_SUMMARY.md
-- Patterns: [list]
-- Decisions: [list]
+### Commands Executed
+- `[AWS CLI command]` - [result]
+- `[terraform command]` - [result]
+- `[test command]` - [result]
+
+### Tests Run
+- [test_suite] - [pass_count]/[total_count] passed
+- Coverage: [percentage]%
+
+## Verification Results
+- Success Criteria Met: [Yes/No]
+- Confidence Threshold Achieved: [Yes/No] ([average]% vs ${CONFIDENCE_THRESHOLD}%)
+- Coverage Target Met: [Yes/No] ([actual]% vs ${COVERAGE_TARGET}%)
+- Regressions Detected: [Yes/No]
+- Performance Impact: [metrics if applicable]
 
 ## Outstanding Items
 - [ ] [incomplete task 1]
 - [ ] [incomplete task 2]
+
+## Next Steps
+[Recommended actions or follow-up tasks from NEXT_WAVE_TASKS.md]
+
+## Archived Resources
+- Context: `.ai/memory/sessions/archive/context_session_${SESSION_ID}.md`
+- Plans: `.ai/memory/sessions/archive/wave-plans-${SESSION_ID}/`
+- Summary: `WAVE_EXECUTION_SUMMARY.md`
 ```
 
-## Usage Syntax
+## Control Flow Patterns
 
-### Basic Usage
-```bash
-/wave-execute @[task-file.md]
-```
-
-### With Session ID (Resume)
-```bash
-/wave-execute @[task-file.md] --session-id [timestamp]
-```
-
-### With Options
-```bash
-/wave-execute @[task-file.md] --confidence-check --no-stubs --cleanup
-```
-
-## Quality Gates
-
-### Mandatory Requirements
-1. **Context Propagation**: Each wave must read and update context
-2. **Real Implementations**: No stubs or mocks unless justified
-3. **Confidence Scoring**: Each component rated 0-100%
-4. **Test Coverage**: Minimum 90% for modified code
-5. **Documentation**: Complete session documentation
-
-### Success Criteria
+### Conditionals
 ```yaml
-context_maintained: true
-deployment_success: true
-test_pass_rate: ">90%"
-confidence_average: ">85%"
-documentation_complete: true
-memory_updated: true
+- If --session-id provided and context exists:
+    Resume from last completed wave
+  Else:
+    Initialize new session context
+
+- If --confidence-check enabled:
+    Validate confidence scores before next wave
+  Else:
+    Proceed without confidence validation
+
+- If --no-stubs flag set:
+    Reject placeholder implementations
+    Require real code solutions
+  Else:
+    Allow temporary stubs with documentation
+
+- If test coverage < COVERAGE_TARGET:
+    Request additional tests
+    Block progression to next wave
+  Else:
+    Proceed to next wave
+
+- If deployment fails:
+    Execute rollback procedures
+    Document failure in context
+  Else:
+    Proceed to testing wave
 ```
 
-## Output Artifacts
+### Iteration Loops
+```yaml
+- For each wave in [1, 2, 3, 4, 5]:
+    Execute planning phase (wave N)
+    Execute implementation phase (wave N.5)
+    Update context with results
+    Validate success criteria
 
-### Required Deliverables
-1. `WAVE_EXECUTION_SUMMARY.md` - Complete execution report
-2. `.ai/memory/tasks/context_session_[session_id].md` - Full session context
-3. `.ai/memory/patterns/*.md` - Extracted patterns
-4. `.ai/memory/decisions/*.md` - Architectural decisions
-5. `NEXT_WAVE_TASKS.md` - Remaining tasks (if any)
+- For each specialist_agent in wave_agents:
+    Deploy agent with current context
+    Wait for plan generation
+    Collect and validate output
 
-### Memory Updates
-- `.ai/memory/project.md` - Updated with session learnings
-- `.ai/memory/index.json` - Updated with new entries
+- For each implementation_step in consolidated_plan:
+    Execute step using appropriate tool
+    Verify step completion
+    Update progress in context
+    Handle errors with retry logic
+
+- For each test_category in [unit, integration, e2e]:
+    Run test suite
+    Collect coverage metrics
+    Document failures
+    Continue or halt based on criticality
+```
+
+### Parallel Orchestration
+```yaml
+- When multiple domains involved in wave:
+    agents: [aws-backend-architect, codebase-truth-analyzer]
+    parallel_execution:
+      - Deploy all agents simultaneously with shared context
+      - Wait for all plan completions
+      - Merge plans into unified strategy
+      - Check for conflicts before execution
+
+- When independent deployment targets:
+    parallel_deployments:
+      - AWS Lambda functions
+      - Vercel frontend deployment
+      - Database migrations
+    synchronization_point: "All deployments complete"
+    rollback_strategy: "Individual or coordinated"
+
+- When testing multiple environments:
+    parallel_testing:
+      - Unit test execution
+      - Integration test suites
+      - E2E browser testing
+      - Performance benchmarking
+    consolidation: "Aggregate results before next wave"
+```
 
 ## Error Handling
 
-### Context Recovery
-```yaml
-if_context_missing:
-  - Check .ai/memory/tasks/ for latest
-  - Fallback to .ai/memory/project.md
-  - Create new session if none exists
-```
+### Recoverable Errors
+- Agent deployment timeout: Retry with extended timeout
+- Test failure: Attempt fix based on error analysis
+- Deployment partial failure: Continue with rollback documentation
+- Context file corruption: Restore from backup or recreate
 
-### Retry Strategy
-```yaml
-max_retries: 3
-backoff: exponential
-fallback: document_and_continue
-preserve_context: always
-```
+### Critical Errors
+- Session context creation failure: STOP and alert user
+- Multiple wave plan conflicts: STOP and request user resolution
+- Confidence score below threshold: STOP and request review
+- Complete deployment failure: Execute rollback and STOP
 
-## Integration with SuperClaude
+### Wave-Specific Recovery
+- Wave 1: If discovery fails, proceed with manual analysis
+- Wave 2: If implementation fails, document blockers and continue
+- Wave 3: If deployment fails, document state and rollback
+- Wave 4: If tests fail, document failures and proceed to documentation
+- Wave 5: If documentation fails, create minimal summary
 
-### Memory-Aware Execution
-- Reads from `.ai/memory/` hierarchy
-- Updates persistent project knowledge
-- Maintains session isolation
-- Enables learning across sessions
+## Anti-Patterns to Avoid
 
-### Wave Coordination
-```yaml
-wave_0: [main-system: initialize]
-wave_1: [agents: plan discovery]
-wave_1.5: [main-system: execute + update context]
-wave_2: [agents: plan implementation]
-wave_2.5: [main-system: execute + update context]
-wave_3: [agents: plan deployment]
-wave_3.5: [main-system: execute + update context]
-wave_4: [agents: plan testing]
-wave_4.5: [main-system: execute + update context]
-wave_5: [agent: plan documentation]
-wave_5.5: [main-system: execute + finalize]
-```
+❌ **Skipping wave execution phases (.5 waves)**
+❌ **Proceeding without context updates**
+❌ **Ignoring confidence thresholds when enabled**
+❌ **Deploying without proper rollback plans**
+❌ **Missing session context between waves**
+❌ **Creating stubs when --no-stubs flag is set**
+❌ **Proceeding with failed tests in critical paths**
 
-## Example Invocation
+## Usage Examples
 
 ```bash
-/wave-execute @NEXT_WAVE_TASKS.md --confidence-check --no-stubs
+# Basic wave execution
+/wave-execute "implement user authentication system"
 
-# This will:
-# 1. Initialize session context
-# 2. Execute 7 waves (including .5 execution waves)
-# 3. Maintain context throughout
-# 4. Update memory structures
-# 5. Create comprehensive documentation
-# 6. Extract patterns and decisions
+# Resume existing session
+/wave-execute --session-id wave_20240918_143000
+
+# Execute with confidence checking
+/wave-execute "deploy API changes" --confidence-check
+
+# Execute without stubs allowed
+/wave-execute "refactor database layer" --no-stubs
+
+# Execute with cleanup enabled
+/wave-execute "migrate to new infrastructure" --cleanup
+
+# Execute from task file
+/wave-execute task-file.md --confidence-check --no-stubs
 ```
 
-## Command Registration
-
-Add to COMMANDS.md:
-```yaml
-wave-execute:
-  category: "Orchestration"
-  purpose: "Systematic task execution with memory"
-  wave-enabled: true
-  memory-aware: true
-  complexity: high
-  agents: [multiple]
-  waves: 7 (including execution waves)
-  context-management: automatic
-```
+## Related Commands
+- `/orchestrate` - Multi-agent orchestration patterns
+- `/parallel` - Parallel agent deployment
+- `/implement` - Direct plan execution
+- `/validate-templates` - Template validation

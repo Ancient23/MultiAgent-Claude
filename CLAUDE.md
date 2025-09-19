@@ -54,7 +54,7 @@ MultiAgent-Claude/
 ## Core Architecture
 
 ### 1. Multi-Agent Orchestration Pattern
-- **Research-Only Agents**: Specialized agents that create implementation plans but never execute
+- **Research-Plan-Execute Agents**: Specialized agents that create implementation plans but never execute
 - **Main System Execution**: Parent Claude Code instance reads plans and performs actual implementation
 - **Memory Hierarchy**: Session context → Agent plans → Persistent project memory
 
@@ -257,6 +257,7 @@ User Request → Specialist Agent (Sonnet) → User Response
 - `infrastructure-migration-architect.md` - Infrastructure transformation
 
 ### Specialized Agents
+- `aws-cdk-specialist.md` - AWS CDK Infrastructure as Code and construct design
 - `aws-deployment-specialist.md` - AWS deployment and troubleshooting
 - `backend-api-frontend-integrator.md` - API-frontend integration
 - `cpp-plugin-api-expert.md` - Cross-platform C++ libraries
@@ -364,11 +365,24 @@ mac lop execute <file>             # Generate prompt
 ## Development Guidelines
 
 ### Creating New Agents
-1. Use `Examples/agents/TEMPLATE-agent.md` as base
-2. Define clear trigger patterns and keywords
-3. Specify MCP tools needed
-4. Document output format and location
-5. Include quality standards and examples
+1. Use `Examples/agents/specialists/TEMPLATE-agent.md` as base template
+2. **YAML Frontmatter Requirements**:
+   - `name`: agent-name (lowercase-with-hyphens)
+   - `description`: Clear trigger patterns with PROACTIVELY keywords
+   - `Examples`: Array of 2+ semantic examples with Context/user/assistant/commentary structure
+   - `model`: sonnet (for specialists) or opus (for orchestrators)
+   - `color`: one of blue|green|red|yellow|purple|orange|pink
+3. **Research-Plan-Execute Pattern**:
+   - Include Goal section with "NEVER do implementation" directive
+   - Core Workflow must start with session context check and include mcp-catalog, Context7 MCP, Sequential MCP
+   - Output Format must specify .claude/doc/ file path
+   - Rules must enforce research-plan-execute behavior
+4. **MCP Tool Integration**:
+   - Always include mcp-catalog for tool discovery
+   - Use Context7 MCP for latest documentation
+   - Use Sequential MCP for complex analysis
+   - Use WebSearch for updates not in Context7
+5. **Quality Standards**: Include Core Competencies, Planning Approach, and Quality Standards sections
 
 ### Creating New Commands
 1. Use `Examples/commands/TEMPLATE-COMMAND.md` as base
@@ -602,6 +616,36 @@ execute_plan(plan)
 - `mac visual:ci-setup` - Configure deployment detection for CI visual testing
 - `mac visual:detect-url` - Test deployment URL detection locally
 - `mac visual:ci-status` - Show visual CI configuration status
+
+### Agent/Role Conversion & Sync Commands
+- `mac convert-agent <source> <target> <file>` - Convert between Claude and ChatGPT formats
+  - `mac convert-agent claude chatgpt agent.md` - Convert Claude agent to ChatGPT role
+  - `mac convert-agent chatgpt claude role.md` - Convert ChatGPT role to Claude agent
+  - `mac convert-agent claude chatgpt ./agents/ --batch` - Batch convert directory
+- `mac sync <action>` - Bidirectional sync service for agents and roles
+  - `mac sync start [strategy]` - Start sync (strategies: manual, newest, claude, chatgpt)
+  - `mac sync status` - Show sync status
+  - `mac sync sync` - Perform one-time sync
+  - `mac sync resolve <name> <choice>` - Resolve conflict
+  - `mac sync clear [errors|conflicts]` - Clear errors or conflicts
+- `mac sync-dashboard [port]` - Start web-based monitoring dashboard (default: 8080)
+
+### Validation & Quality Commands
+- `mac validate <type> [path]` - Validate agents, templates, and conversions
+  - `mac validate agent <path>` - Validate single agent
+  - `mac validate all` - Validate all agents
+  - `mac validate conversion <path>` - Test platform conversion
+  - `mac validate yaml <template>` - Validate YAML template
+- `mac evolution <action> [path]` - Track and analyze agent/template evolution
+  - `mac evolution track <path>` - Track agent version
+  - `mac evolution report` - Generate evolution report
+  - `mac evolution learn` - Learn from patterns
+  - `mac evolution compare <path> --from 1.0.0 --to 2.0.0` - Compare versions
+- `mac metrics <action>` - Collect and display quality metrics
+  - `mac metrics collect` - Collect metrics
+  - `mac metrics show` - Display metrics
+  - `mac metrics html [--output <path>]` - Generate HTML dashboard
+  - `mac metrics watch` - Live metrics monitor
 
 #### Test Configuration
 - Tests use latest Playwright v1.48.2+
