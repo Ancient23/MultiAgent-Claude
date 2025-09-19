@@ -377,20 +377,19 @@ program
   .option('--batch', 'Convert all files in directory')
   .action(async (source, target, file, options) => {
     try {
-      const { AgentRoleConverter } = require('./commands/convert-agent');
+      const AgentRoleConverter = require('./commands/convert-agent');
       const converter = new AgentRoleConverter();
-      
+
       if (options.batch) {
         await converter.batchConvert(file, source, target);
       } else {
         const content = require('fs').readFileSync(file, 'utf8');
-        const agent = { content, name: require('path').basename(file) };
-        
+
         let result;
         if (source === 'claude' && target === 'chatgpt') {
-          result = converter.claudeToChatGPT(agent);
+          result = converter.claudeToChatGPT(content);
         } else if (source === 'chatgpt' && target === 'claude') {
-          result = converter.chatGPTToClaude(agent);
+          result = converter.chatGPTToClaude(content);
         } else {
           throw new Error('Invalid source/target combination');
         }

@@ -527,6 +527,7 @@ You are a specialist focused on ${purpose}.
 }
 
 module.exports = AgentRoleConverter;
+module.exports.AgentRoleConverter = AgentRoleConverter; // Also export as named for consistency
 
 // CLI interface when run directly
 if (require.main === module) {

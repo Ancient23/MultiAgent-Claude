@@ -45,7 +45,7 @@ class SyncService extends EventEmitter {
   async initializeServices() {
     // Load converter
     try {
-      const ConverterClass = require('./convert-agent.js').AgentRoleConverter;
+      const ConverterClass = require('./convert-agent.js');
       this.converter = new ConverterClass();
     } catch (error) {
       console.error('Failed to load converter:', error.message);
